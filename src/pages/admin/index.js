@@ -1,0 +1,9 @@
+export { default as AdminDashboard } from "./AdminDashboard";
+export { default as AcademicYearsPage } from "./AcademicYearsPage";
+export { default as AcademicTermsPage } from "./AcademicTermsPage";
+export { default as ClassLevelsPage } from "./ClassLevelsPage";
+export { default as ProgramsPage } from "./ProgramsPage";
+export { default as SubjectsPage } from "./SubjectsPage";
+export { default as YearGroupsPage } from "./YearGroupsPage";
+export { default as TeachersPage } from "./TeachersPage";
+export { default as StudentsPage } from "./StudentsPage";

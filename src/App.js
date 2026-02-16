@@ -1,13 +1,32 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 
 import Layout from "./components/Layout";
-import { AdminRoute, TeacherRoute, StudentRoute, GuestRoute } from "./routes";
+import {
+  AdminRoute,
+  TeacherRoute,
+  StudentRoute,
+  GuestRoute,
+} from "./routes";
+import { AdminLayout, TeacherLayout, StudentLayout } from "./layouts";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AcademicYearsPage from "./pages/admin/AcademicYearsPage";
+import AcademicTermsPage from "./pages/admin/AcademicTermsPage";
+import ClassLevelsPage from "./pages/admin/ClassLevelsPage";
+import ProgramsPage from "./pages/admin/ProgramsPage";
+import SubjectsPage from "./pages/admin/SubjectsPage";
+import YearGroupsPage from "./pages/admin/YearGroupsPage";
+import TeachersPage from "./pages/admin/TeachersPage";
+import StudentsPage from "./pages/admin/StudentsPage";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
+import TeacherExamsPage from "./pages/teacher/ExamsPage";
+import TeacherProfilePage from "./pages/teacher/ProfilePage";
 import StudentDashboard from "./pages/student/StudentDashboard";
+import StudentExamsPage from "./pages/student/ExamsPage";
+import StudentResultsPage from "./pages/student/ResultsPage";
+import StudentProfilePage from "./pages/student/ProfilePage";
 
 function App() {
   return (
@@ -31,30 +50,57 @@ function App() {
               </GuestRoute>
             }
           />
+
+          {/* Admin routes with sidebar layout */}
           <Route
             path="admin"
             element={
               <AdminRoute>
-                <AdminDashboard />
+                <AdminLayout />
               </AdminRoute>
             }
-          />
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="academic-years" element={<AcademicYearsPage />} />
+            <Route path="academic-terms" element={<AcademicTermsPage />} />
+            <Route path="class-levels" element={<ClassLevelsPage />} />
+            <Route path="programs" element={<ProgramsPage />} />
+            <Route path="subjects" element={<SubjectsPage />} />
+            <Route path="year-groups" element={<YearGroupsPage />} />
+            <Route path="teachers" element={<TeachersPage />} />
+            <Route path="students" element={<StudentsPage />} />
+          </Route>
+
+          {/* Teacher routes with sidebar layout */}
           <Route
             path="teacher"
             element={
               <TeacherRoute>
-                <TeacherDashboard />
+                <TeacherLayout />
               </TeacherRoute>
             }
-          />
+          >
+            <Route index element={<TeacherDashboard />} />
+            <Route path="exams" element={<TeacherExamsPage />} />
+            <Route path="profile" element={<TeacherProfilePage />} />
+          </Route>
+
+          {/* Student routes with sidebar layout */}
           <Route
             path="student"
             element={
               <StudentRoute>
-                <StudentDashboard />
+                <StudentLayout />
               </StudentRoute>
             }
-          />
+          >
+            <Route index element={<StudentDashboard />} />
+            <Route path="exams" element={<StudentExamsPage />} />
+            <Route path="results" element={<StudentResultsPage />} />
+            <Route path="profile" element={<StudentProfilePage />} />
+          </Route>
+
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
     </BrowserRouter>
