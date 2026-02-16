@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { studentService, examResultService, getErrorMessage } from "../../api";
 import { PageLoader, ErrorMessage, PageError } from "../../components";
 
@@ -8,6 +9,7 @@ function getRefName(val) {
 }
 
 function ExamsPage() {
+  const { t } = useTranslation();
   const [exams, setExams] = useState([]);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,27 +39,27 @@ function ExamsPage() {
   );
 
   if (loading) {
-    return <PageLoader message="Loading exams..." />;
+    return <PageLoader message={t("student.loadingExams")} />;
   }
 
   if (error && exams.length === 0) {
-    return <PageError message={error} backTo="/student/exams" backLabel="Back to Exams" />;
+    return <PageError message={error} backTo="/student/exams" backLabel={t("student.backToExams")} />;
   }
 
   return (
     <div>
       <h1 className="text-2xl font-bold text-slate-800 mb-2">
-        Available Exams
+        {t("student.examsPageTitle")}
       </h1>
       <p className="text-slate-600 mb-6">
-        Take exams or view completed ones. Each exam can be taken only once.
+        {t("student.examsPageIntro")}
       </p>
 
       {error && <ErrorMessage message={error} className="mb-4" />}
 
       {exams.length === 0 ? (
         <div className="p-8 bg-white rounded-xl border border-slate-200 text-center text-slate-500">
-          No exams available yet. Check back later.
+          {t("student.noExamsAvailable")}
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -86,18 +88,18 @@ function ExamsPage() {
                       : "—"}
                   </span>
                   <span>•</span>
-                  <span>{questions.length} questions</span>
+                  <span>{questions.length} {t("student.questions")}</span>
                 </div>
                 {taken ? (
                   <span className="inline-block px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-sm">
-                    Completed
+                    {t("student.completed")}
                   </span>
                 ) : (
                   <Link
                     to={`/student/exams/${exam._id}/take`}
                     className="inline-block px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 text-sm font-medium"
                   >
-                    Take Exam
+                    {t("student.takeExamButton")}
                   </Link>
                 )}
               </div>

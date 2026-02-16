@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { studentService, getErrorMessage } from "../../api";
 import { PageLoader, ErrorMessage, PageError } from "../../components";
 
 const OPTIONS = ["A", "B", "C", "D"];
 
 function TakeExamPage() {
+  const { t } = useTranslation();
   const { examId } = useParams();
   const navigate = useNavigate();
   const [exam, setExam] = useState(null);
@@ -71,7 +73,7 @@ function TakeExamPage() {
   };
 
   if (loading) {
-    return <PageLoader message="Loading exam..." />;
+    return <PageLoader message={t("student.loadingExam")} />;
   }
 
   if (error && !exam) {
@@ -79,7 +81,7 @@ function TakeExamPage() {
       <PageError
         message={error}
         backTo="/student/exams"
-        backLabel="Back to Exams"
+        backLabel={t("student.backToExams")}
       />
     );
   }
@@ -95,7 +97,7 @@ function TakeExamPage() {
         to="/student/exams"
         className="inline-block mb-6 text-slate-600 hover:text-slate-800"
       >
-        ← Back to Exams
+        ← {t("student.backToExams")}
       </Link>
 
       <h1 className="text-2xl font-bold text-slate-800 mb-2">{exam.name}</h1>
@@ -103,21 +105,21 @@ function TakeExamPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">Duration</span>
+          <span className="text-sm text-slate-500">{t("student.duration")}</span>
           <p className="font-medium">{exam.duration || "—"}</p>
         </div>
         <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">Date</span>
+          <span className="text-sm text-slate-500">{t("student.date")}</span>
           <p className="font-medium">
             {exam.examDate ? new Date(exam.examDate).toLocaleDateString() : "—"}
           </p>
         </div>
         <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">Time</span>
+          <span className="text-sm text-slate-500">{t("student.time")}</span>
           <p className="font-medium">{exam.examTime || "—"}</p>
         </div>
         <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">Questions</span>
+          <span className="text-sm text-slate-500">{t("student.questions")}</span>
           <p className="font-medium">{questions.length}</p>
         </div>
       </div>
@@ -126,8 +128,7 @@ function TakeExamPage() {
 
       <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
         <p className="text-sm text-slate-600">
-          Progress: <strong>{answeredCount}</strong> of {questions.length}{" "}
-          questions answered
+          {t("student.progress")}: {t("student.progressOf", { answered: answeredCount, total: questions.length })}
         </p>
         <div className="mt-2 h-2 bg-slate-200 rounded-full overflow-hidden">
           <div
@@ -181,7 +182,7 @@ function TakeExamPage() {
             disabled={submitting}
             className="px-6 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50 font-medium"
           >
-            Submit Exam
+            {t("student.submitExam")}
           </button>
         </div>
       </form>
@@ -190,11 +191,10 @@ function TakeExamPage() {
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
           <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
             <h3 className="text-lg font-semibold text-slate-800 mb-2">
-              Submit exam?
+              {t("student.submitConfirmTitle")}
             </h3>
             <p className="text-slate-600 mb-6">
-              You have answered all questions. This action cannot be undone.
-              Submit now?
+              {t("student.submitConfirmMessage")}
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -203,7 +203,7 @@ function TakeExamPage() {
                 disabled={submitting}
                 className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 type="button"
@@ -211,7 +211,7 @@ function TakeExamPage() {
                 disabled={submitting}
                 className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
               >
-                {submitting ? "Submitting..." : "Yes, submit"}
+                {submitting ? t("common.saving") : t("student.submitConfirmYes")}
               </button>
             </div>
           </div>

@@ -1,19 +1,20 @@
 import { Outlet } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import DashboardLayout from "./DashboardLayout";
 
-const ADMIN_SIDEBAR_ITEMS = [
-  { to: "/admin", label: "Overview" },
-  { to: "/admin/academic-setup", label: "Academic Setup" },
-  { to: "/admin/teachers", label: "Teachers" },
-  { to: "/admin/students", label: "Students" },
-  { to: "/admin/exam-results", label: "Exam Results" },
-  { to: "/admin/questions", label: "Questions" },
-  { to: "/admin/profile", label: "Profile" },
-];
-
 function AdminLayout() {
+  const { t } = useTranslation();
+  const sidebarItems = [
+    { to: "/admin", label: t("admin.overview") },
+    { to: "/admin/academic-setup", label: t("admin.academicSetup") },
+    { to: "/admin/teachers", label: t("admin.teachers") },
+    { to: "/admin/students", label: t("admin.students") },
+    { to: "/admin/exam-results", label: t("admin.examResults") },
+    { to: "/admin/questions", label: t("admin.questions") },
+    { to: "/admin/profile", label: t("common.profile") },
+  ];
   return (
-    <DashboardLayout sidebarItems={ADMIN_SIDEBAR_ITEMS} title="Admin">
+    <DashboardLayout sidebarItems={sidebarItems} title={t("admin.title")}>
       <Outlet />
     </DashboardLayout>
   );

@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { studentService, getErrorMessage } from "../../api";
 import { validateProfileForm } from "../../utils/validation";
 import { ErrorMessage, PageLoader, PageError } from "../../components";
 
 export default function ProfilePage() {
+  const { t } = useTranslation();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -65,18 +67,18 @@ export default function ProfilePage() {
   };
 
   if (loading) {
-    return <PageLoader message="Loading profile..." />;
+    return <PageLoader message={t("student.loadingProfile")} />;
   }
 
   if (error && !profile) {
-    return <PageError message={error} backTo="/student" backLabel="Back to Overview" />;
+    return <PageError message={error} backTo="/student" backLabel={t("student.backToOverview")} />;
   }
 
   const studentProfile = profile?.studentProfile ?? profile ?? {};
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-6">Profile</h1>
+      <h1 className="text-2xl font-bold text-slate-800 mb-6">{t("student.profileTitle")}</h1>
 
       {error && (
         <ErrorMessage
@@ -90,29 +92,29 @@ export default function ProfilePage() {
       <div className="grid gap-6 md:grid-cols-2">
         <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">
-            Profile Info
+            {t("student.profileInfo")}
           </h2>
           <dl className="space-y-3 text-sm">
             <div>
-              <dt className="text-slate-500">Name</dt>
+              <dt className="text-slate-500">{t("common.name")}</dt>
               <dd className="font-medium text-slate-800">
                 {studentProfile.name ?? "—"}
               </dd>
             </div>
             <div>
-              <dt className="text-slate-500">Email</dt>
+              <dt className="text-slate-500">{t("common.email")}</dt>
               <dd className="font-medium text-slate-800">
                 {studentProfile.email ?? "—"}
               </dd>
             </div>
             <div>
-              <dt className="text-slate-500">Student ID</dt>
+              <dt className="text-slate-500">{t("student.studentId")}</dt>
               <dd className="font-medium text-slate-800">
                 {studentProfile.studentId ?? "—"}
               </dd>
             </div>
             <div>
-              <dt className="text-slate-500">Program</dt>
+              <dt className="text-slate-500">{t("student.program")}</dt>
               <dd className="font-medium text-slate-800">
                 {typeof studentProfile.program === "object"
                   ? studentProfile.program?.name
@@ -120,7 +122,7 @@ export default function ProfilePage() {
               </dd>
             </div>
             <div>
-              <dt className="text-slate-500">Class Level</dt>
+              <dt className="text-slate-500">{t("student.classLevel")}</dt>
               <dd className="font-medium text-slate-800">
                 {typeof studentProfile.currentClassLevel === "object"
                   ? studentProfile.currentClassLevel?.name
@@ -132,12 +134,12 @@ export default function ProfilePage() {
 
         <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">
-            Edit Profile
+            {t("student.editProfile")}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Name
+                {t("common.name")}
               </label>
               <input
                 type="text"
@@ -151,7 +153,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Email
+                {t("common.email")}
               </label>
               <input
                 type="email"
@@ -165,7 +167,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                New Password
+                {t("common.newPassword")}
               </label>
               <input
                 type="password"
@@ -173,7 +175,7 @@ export default function ProfilePage() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, password: e.target.value }))
                 }
-                placeholder="Leave blank to keep current"
+                placeholder={t("common.passwordPlaceholder")}
                 minLength={6}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
               />
@@ -184,7 +186,7 @@ export default function ProfilePage() {
                 disabled={submitting}
                 className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
               >
-                {submitting ? "Saving..." : "Save"}
+                {submitting ? t("common.saving") : t("common.save")}
               </button>
             </div>
           </form>

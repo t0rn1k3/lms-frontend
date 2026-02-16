@@ -1,15 +1,16 @@
 import { Outlet } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import DashboardLayout from "./DashboardLayout";
 
-const TEACHER_SIDEBAR_ITEMS = [
-  { to: "/teacher", label: "Overview" },
-  { to: "/teacher/exams", label: "Exams" },
-  { to: "/teacher/profile", label: "Profile" },
-];
-
 function TeacherLayout() {
+  const { t } = useTranslation();
+  const sidebarItems = [
+    { to: "/teacher", label: t("teacher.overview") },
+    { to: "/teacher/exams", label: t("teacher.exams") },
+    { to: "/teacher/profile", label: t("common.profile") },
+  ];
   return (
-    <DashboardLayout sidebarItems={TEACHER_SIDEBAR_ITEMS} title="Teacher">
+    <DashboardLayout sidebarItems={sidebarItems} title={t("teacher.title")}>
       <Outlet />
     </DashboardLayout>
   );

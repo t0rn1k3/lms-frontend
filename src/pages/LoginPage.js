@@ -1,18 +1,20 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { getErrorMessage } from "../api";
 import { useAuth } from "../contexts/AuthContext";
 import { validateLoginForm } from "../utils/validation";
 
 const LOGIN_ROLES = [
-  { value: "admin", label: "Admin" },
-  { value: "teacher", label: "Teacher" },
-  { value: "student", label: "Student" },
+  { value: "admin", labelKey: "roles.admin" },
+  { value: "teacher", labelKey: "roles.teacher" },
+  { value: "student", labelKey: "roles.student" },
 ];
 
 const VALID_ROLES = LOGIN_ROLES.map((r) => r.value);
 
 function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { role: roleParam } = useParams();
@@ -57,15 +59,15 @@ function LoginPage() {
   return (
     <div className="max-w-md mx-auto">
       <div className="bg-white rounded-xl shadow-lg p-8 border border-slate-200">
-        <h1 className="text-2xl font-bold text-slate-800 mb-2">Login</h1>
+        <h1 className="text-2xl font-bold text-slate-800 mb-2">{t("auth.login")}</h1>
         <p className="text-slate-600 mb-6">
-          Sign in to access the Learning Management System
+          {t("auth.subtitle")}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Login as
+              {t("auth.loginAs")}
             </label>
             <div className="flex gap-3">
               {LOGIN_ROLES.map((r) => (
@@ -82,7 +84,7 @@ function LoginPage() {
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                   }`}
                 >
-                  {r.label}
+                  {t(r.labelKey)}
                 </button>
               ))}
             </div>
@@ -97,7 +99,7 @@ function LoginPage() {
               htmlFor="email"
               className="block text-sm font-medium text-slate-700 mb-2"
             >
-              Email
+              {t("common.email")}
             </label>
             <input
               id="email"
@@ -114,7 +116,7 @@ function LoginPage() {
               htmlFor="password"
               className="block text-sm font-medium text-slate-700 mb-2"
             >
-              Password
+              {t("common.password")}
             </label>
             <input
               id="password"
@@ -132,13 +134,13 @@ function LoginPage() {
             disabled={loading}
             className="w-full py-3 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? t("auth.signingIn") : t("auth.signIn")}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-500">
           <Link to="/" className="text-slate-700 hover:underline">
-            ← Back to Home
+            {t("auth.backToHome")}
           </Link>
         </p>
       </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { examResultService, getErrorMessage } from "../../api";
 import { PageLoader, PageError } from "../../components";
 
@@ -8,6 +9,7 @@ function getRefName(val) {
 }
 
 function ResultDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,7 +31,7 @@ function ResultDetailPage() {
   }, [id]);
 
   if (loading) {
-    return <PageLoader message="Loading result..." />;
+    return <PageLoader message={t("student.loadingResult")} />;
   }
 
   if (error || !result) {
@@ -37,7 +39,7 @@ function ResultDetailPage() {
       <PageError
         message={error || "Result not found"}
         backTo="/student/results"
-        backLabel="Back to Results"
+        backLabel={t("student.backToResults")}
       />
     );
   }
@@ -50,7 +52,7 @@ function ResultDetailPage() {
         to="/student/results"
         className="inline-block mb-6 text-slate-600 hover:text-slate-800"
       >
-        ← Back to Results
+        ← {t("student.backToResults")}
       </Link>
 
       <h1 className="text-2xl font-bold text-slate-800 mb-2">
@@ -59,17 +61,17 @@ function ResultDetailPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 shadow-sm">
-          <span className="text-sm text-slate-500">Score</span>
+          <span className="text-sm text-slate-500">{t("student.score")}</span>
           <p className="font-medium">{result.score ?? "—"}</p>
         </div>
         <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 shadow-sm">
-          <span className="text-sm text-slate-500">Grade</span>
+          <span className="text-sm text-slate-500">{t("student.grade")}</span>
           <p className="font-medium">
             {result.grade != null ? `${result.grade}%` : "—"}
           </p>
         </div>
         <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 shadow-sm">
-          <span className="text-sm text-slate-500">Status</span>
+          <span className="text-sm text-slate-500">{t("student.status")}</span>
           <p className="font-medium">
             <span
               className={
@@ -81,13 +83,13 @@ function ResultDetailPage() {
           </p>
         </div>
         <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 shadow-sm">
-          <span className="text-sm text-slate-500">Remarks</span>
+          <span className="text-sm text-slate-500">{t("student.remarks")}</span>
           <p className="font-medium">{result.remarks || "—"}</p>
         </div>
       </div>
 
       <h2 className="text-lg font-semibold text-slate-800 mb-4">
-        Answer breakdown
+        {t("student.answerBreakdown")}
       </h2>
       <div className="space-y-4">
         {answeredQuestions.map((aq, i) => (
@@ -104,10 +106,10 @@ function ResultDetailPage() {
             </p>
             <div className="flex flex-wrap gap-4 text-sm">
               <span className="text-slate-600">
-                Your answer: <strong>{aq.studentAnswer}</strong>
+                {t("student.yourAnswer")}: <strong>{aq.studentAnswer}</strong>
               </span>
               <span className="text-slate-600">
-                Correct:{" "}
+                {t("student.correctAnswerLabel")}:{" "}
                 <strong className="text-green-700">{aq.correctAnswer}</strong>
               </span>
               <span
@@ -117,7 +119,7 @@ function ResultDetailPage() {
                     : "text-red-700 font-medium"
                 }
               >
-                {aq.isCorrect ? "Correct" : "Incorrect"}
+                {aq.isCorrect ? t("student.correct") : t("student.incorrect")}
               </span>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { examResultService, getErrorMessage } from "../../api";
 import { PageLoader, ErrorMessage, PageError } from "../../components";
 
@@ -8,6 +9,7 @@ function getRefName(val) {
 }
 
 function ResultsPage() {
+  const { t } = useTranslation();
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -28,25 +30,25 @@ function ResultsPage() {
   }, []);
 
   if (loading) {
-    return <PageLoader message="Loading results..." />;
+    return <PageLoader message={t("student.loadingResults")} />;
   }
 
   if (error && results.length === 0) {
-    return <PageError message={error} backTo="/student" backLabel="Back to Overview" />;
+    return <PageError message={error} backTo="/student" backLabel={t("student.backToOverview")} />;
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">My Results</h1>
+      <h1 className="text-2xl font-bold text-slate-800 mb-2">{t("student.resultsPageTitle")}</h1>
       <p className="text-slate-600 mb-6">
-        View your exam results. Unpublished results may be hidden.
+        {t("student.resultsPageIntro")}
       </p>
 
       {error && <ErrorMessage message={error} className="mb-4" />}
 
       {results.length === 0 ? (
         <div className="p-8 bg-white rounded-xl border border-slate-200 text-center text-slate-500">
-          No exam results yet. Take exams from the My Exams page.
+          {t("student.noResultsYet")}
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
@@ -54,22 +56,22 @@ function ResultsPage() {
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
                 <th className="text-left py-3 px-4 font-semibold text-slate-700">
-                  Exam
+                  {t("student.exam")}
                 </th>
                 <th className="text-left py-3 px-4 font-semibold text-slate-700">
-                  Score
+                  {t("student.score")}
                 </th>
                 <th className="text-left py-3 px-4 font-semibold text-slate-700">
-                  Grade
+                  {t("student.grade")}
                 </th>
                 <th className="text-left py-3 px-4 font-semibold text-slate-700">
-                  Status
+                  {t("student.status")}
                 </th>
                 <th className="text-left py-3 px-4 font-semibold text-slate-700">
-                  Published
+                  {t("student.published")}
                 </th>
                 <th className="text-left py-3 px-4 font-semibold text-slate-700">
-                  Action
+                  {t("student.action")}
                 </th>
               </tr>
             </thead>
@@ -99,9 +101,9 @@ function ResultsPage() {
                   </td>
                   <td className="py-3 px-4">
                     {r.isPublished ? (
-                      <span className="text-green-600 font-medium">Yes</span>
+                      <span className="text-green-600 font-medium">{t("common.yes")}</span>
                     ) : (
-                      <span className="text-amber-600">Pending</span>
+                      <span className="text-amber-600">{t("student.pending")}</span>
                     )}
                   </td>
                   <td className="py-3 px-4">
@@ -110,7 +112,7 @@ function ResultsPage() {
                         to={`/student/results/${r._id}`}
                         className="text-slate-700 hover:text-slate-900 font-medium"
                       >
-                        View
+                        {t("common.view")}
                       </Link>
                     ) : (
                       <span className="text-slate-400">—</span>

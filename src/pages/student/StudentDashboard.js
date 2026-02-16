@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { studentService, examResultService, getErrorMessage } from "../../api";
 import { PageLoader, ErrorMessage } from "../../components";
 
 function StudentDashboard() {
+  const { t } = useTranslation();
   const [profile, setProfile] = useState(null);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +35,7 @@ function StudentDashboard() {
   }, []);
 
   if (loading) {
-    return <PageLoader message="Loading dashboard..." />;
+    return <PageLoader message={t("student.loadingDashboard")} />;
   }
 
   const studentProfile = profile?.studentProfile ?? profile ?? {};
@@ -49,10 +51,10 @@ function StudentDashboard() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-slate-800 mb-2">
-        Welcome, {studentProfile.name || "Student"}
+        {t("student.welcome")}, {studentProfile.name || t("roles.student")}
       </h1>
       <p className="text-slate-600 mb-8">
-        Take exams, view your results, and manage your profile from the sidebar.
+        {t("student.intro")}
       </p>
 
       {error && (
@@ -62,35 +64,35 @@ function StudentDashboard() {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-sm">
           <h2 className="text-sm font-medium text-slate-500 mb-1">
-            Available Exams
+            {t("student.availableExams")}
           </h2>
           <p className="text-2xl font-bold text-slate-800">{availableCount}</p>
           <Link
             to="/student/exams"
             className="mt-2 text-sm text-slate-600 hover:text-slate-800"
           >
-            Take exam →
+            {t("student.takeExam")}
           </Link>
         </div>
         <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-sm">
           <h2 className="text-sm font-medium text-slate-500 mb-1">
-            Exams Taken
+            {t("student.examsTaken")}
           </h2>
           <p className="text-2xl font-bold text-slate-800">{results.length}</p>
           <Link
             to="/student/results"
             className="mt-2 text-sm text-slate-600 hover:text-slate-800"
           >
-            View results →
+            {t("student.viewResults")}
           </Link>
         </div>
         <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-sm">
-          <h2 className="text-sm font-medium text-slate-500 mb-1">Passed</h2>
+          <h2 className="text-sm font-medium text-slate-500 mb-1">{t("student.passed")}</h2>
           <p className="text-2xl font-bold text-green-700">{passed}</p>
         </div>
         <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-sm">
           <h2 className="text-sm font-medium text-slate-500 mb-1">
-            Latest Result
+            {t("student.latestResult")}
           </h2>
           {latestResult ? (
             <>
@@ -113,12 +115,12 @@ function StudentDashboard() {
                   to={`/student/results/${latestResult._id}`}
                   className="mt-2 text-sm text-slate-600 hover:text-slate-800 inline-block"
                 >
-                  View details →
+                  {t("student.viewDetails")}
                 </Link>
               )}
             </>
           ) : (
-            <p className="text-slate-500">No exams taken yet</p>
+            <p className="text-slate-500">{t("student.noExamsYet")}</p>
           )}
         </div>
       </div>
@@ -128,13 +130,13 @@ function StudentDashboard() {
           to="/student/exams"
           className="px-5 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-medium"
         >
-          My Exams
+          {t("student.myExams")}
         </Link>
         <Link
           to="/student/profile"
           className="px-5 py-3 border border-slate-300 rounded-lg hover:bg-slate-50 font-medium"
         >
-          Profile
+          {t("common.profile")}
         </Link>
       </div>
     </div>
