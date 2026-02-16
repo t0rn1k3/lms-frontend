@@ -13,6 +13,12 @@ export const endpoints = {
     update: "/admins",
     delete: (id) => `/admins/${id}`,
     examResults: "/admins/exam-results",
+    exams: "/admins/exams",
+    examsGetOne: (id) => `/admins/exams/${id}`,
+    questions: "/admins/questions",
+    questionsGetOne: (id) => `/admins/questions/${id}`,
+    questionsCreate: (examId) => `/admins/questions/${examId}`,
+    questionsUpdate: (id) => `/admins/questions/${id}`,
   },
   teachers: {
     register: "/teachers/admin/register",

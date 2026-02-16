@@ -7,6 +7,7 @@ const ADMIN_SIDEBAR_ITEMS = [
   { to: "/admin/teachers", label: "Teachers" },
   { to: "/admin/students", label: "Students" },
   { to: "/admin/exam-results", label: "Exam Results" },
+  { to: "/admin/questions", label: "Questions" },
   { to: "/admin/profile", label: "Profile" },
 ];
 

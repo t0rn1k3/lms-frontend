@@ -1,26 +1,40 @@
 import { useState, useEffect } from "react";
-import { adminService, examResultService, getErrorMessage } from "../../api";
+import {
+  adminService,
+  examResultService,
+  studentService,
+  getErrorMessage,
+} from "../../api";
 
 function ExamResultsPage() {
   const [results, setResults] = useState([]);
+  const [studentMap, setStudentMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [togglingId, setTogglingId] = useState(null);
 
-  const fetchResults = async () => {
-    try {
-      setLoading(true);
-      const { data } = await adminService.getExamResults();
-      setResults(data.data || []);
-    } catch (err) {
-      setError(getErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchResults();
+    const fetch = async () => {
+      try {
+        setLoading(true);
+        const [resultsRes, studentsRes] = await Promise.all([
+          adminService.getExamResults(),
+          studentService.list(),
+        ]);
+        setResults(resultsRes.data?.data || []);
+        const students = studentsRes.data?.data || [];
+        const map = {};
+        students.forEach((s) => {
+          if (s.studentId) map[s.studentId] = s.name;
+        });
+        setStudentMap(map);
+      } catch (err) {
+        setError(getErrorMessage(err));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetch();
   }, []);
 
   const handleTogglePublish = async (id, currentStatus) => {
@@ -70,7 +84,7 @@ function ExamResultsPage() {
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                  Student ID
+                  Student
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
                   Exam
@@ -92,8 +106,15 @@ function ExamResultsPage() {
             <tbody className="divide-y divide-slate-100">
               {results.map((item) => (
                 <tr key={item._id} className="hover:bg-slate-50/50">
-                  <td className="px-4 py-3 text-slate-800">
-                    {item.studentId || "—"}
+                  <td className="px-4 py-3">
+                    <span className="font-medium text-slate-800">
+                      {studentMap[item.studentId] || "—"}
+                    </span>
+                    {item.studentId && (
+                      <span className="block text-xs text-slate-500">
+                        {item.studentId}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-slate-600">
                     {getRefName(item.exam)}

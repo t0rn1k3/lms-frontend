@@ -10,3 +10,4 @@ export { teacherService } from "./services/teacherService";
 export { studentService } from "./services/studentService";
 export { adminService } from "./services/adminService";
 export { examResultService } from "./services/examResultService";
+export { questionService } from "./services/questionService";

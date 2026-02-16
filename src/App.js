@@ -20,6 +20,7 @@ import AcademicSetupPage from "./pages/admin/AcademicSetupPage";
 import TeacherDetailPage from "./pages/admin/TeacherDetailPage";
 import StudentDetailPage from "./pages/admin/StudentDetailPage";
 import ExamResultsPage from "./pages/admin/ExamResultsPage";
+import QuestionsPage from "./pages/admin/QuestionsPage";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherExamsPage from "./pages/teacher/ExamsPage";
 import TeacherProfilePage from "./pages/teacher/ProfilePage";
@@ -74,6 +75,7 @@ function App() {
             <Route path="students/:id" element={<StudentDetailPage />} />
             <Route path="students" element={<StudentsPage />} />
             <Route path="exam-results" element={<ExamResultsPage />} />
+            <Route path="questions" element={<QuestionsPage />} />
             <Route path="profile" element={<AdminProfilePage />} />
           </Route>
 
