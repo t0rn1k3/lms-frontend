@@ -38,4 +38,13 @@ export const academicService = {
   updateProgram: (id, data) =>
     apiClient.put(endpoints.programs.update(id), data),
   deleteProgram: (id) => apiClient.delete(endpoints.programs.delete(id)),
+
+  // Subjects (create requires programId in URL)
+  getSubjects: () => apiClient.get(endpoints.subjects.list),
+  getSubject: (id) => apiClient.get(endpoints.subjects.getOne(id)),
+  createSubject: (programId, data) =>
+    apiClient.post(endpoints.subjects.create(programId), data),
+  updateSubject: (id, data) =>
+    apiClient.put(endpoints.subjects.update(id), data),
+  deleteSubject: (id) => apiClient.delete(endpoints.subjects.delete(id)),
 };
