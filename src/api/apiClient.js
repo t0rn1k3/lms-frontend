@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useAuthStore } from "../store/useAuthStore";
 
 const API_BASE_URL =
   process.env.REACT_APP_API_URL || "http://localhost:2020/api/v1";
@@ -10,9 +11,9 @@ const apiClient = axios.create({
   },
 });
 
-// Add auth token to every request
+// Add auth token to every request (from Zustand store)
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = useAuthStore.getState().token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -21,14 +22,10 @@ apiClient.interceptors.request.use((config) => {
 
 // Handle response and errors
 apiClient.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      // Optionally redirect to login - can be handled by auth context
+      useAuthStore.getState().logout();
       window.location.href = "/login";
     }
     return Promise.reject(error);
