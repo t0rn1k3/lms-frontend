@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { getErrorMessage } from "../api";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -13,8 +13,11 @@ const VALID_ROLES = LOGIN_ROLES.map((r) => r.value);
 
 function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { role: roleParam } = useParams();
   const { login } = useAuth();
+  const from = location.state?.from?.pathname;
+  const isAllowedRedirect = from && from === `/${role}`;
 
   const [role, setRole] = useState(() => {
     const r = roleParam?.toLowerCase();
@@ -37,7 +40,7 @@ function LoginPage() {
 
     try {
       await login(email, password, role);
-      navigate(`/${role}`, { replace: true });
+      navigate(isAllowedRedirect ? from : `/${role}`, { replace: true });
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
