@@ -37,7 +37,7 @@ function ResultDetailPage() {
   if (error || !result) {
     return (
       <PageError
-        message={error || "Result not found"}
+        message={error || t("common.resultNotFound")}
         backTo="/student/results"
         backLabel={t("student.backToResults")}
       />

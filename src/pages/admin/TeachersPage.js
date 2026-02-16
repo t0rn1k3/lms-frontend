@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   authService,
   teacherService,
@@ -8,6 +9,7 @@ import {
 } from "../../api";
 
 function TeachersPage() {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const [teachers, setTeachers] = useState([]);
@@ -200,7 +202,7 @@ function TeachersPage() {
           onClick={openCreateForm}
           className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700"
         >
-          Add Teacher
+          {t("admin.addTeacher")}
         </button>
       </div>
 
@@ -214,7 +216,7 @@ function TeachersPage() {
       <div className="mb-4 flex gap-2 items-center">
         <input
           type="text"
-          placeholder="Search by name"
+          placeholder={t("admin.searchByName")}
           value={searchName}
           onChange={(e) => setSearchName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && fetchTeachers()}
@@ -227,14 +229,14 @@ function TeachersPage() {
           }}
           className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
         >
-          Search
+          {t("common.search")}
         </button>
       </div>
 
       {formOpen && (
         <div className="mb-6 p-6 bg-white rounded-xl border border-slate-200">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">
-            {editingId ? "Edit Teacher" : "New Teacher"}
+            {editingId ? t("admin.editTeacher") : t("admin.newTeacher")}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
             <div>
@@ -247,7 +249,7 @@ function TeachersPage() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
-                placeholder="Full name"
+                placeholder={t("common.fullName")}
                 required
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
               />
@@ -269,7 +271,7 @@ function TeachersPage() {
               />
               {editingId && (
                 <p className="text-xs text-slate-500 mt-1">
-                  Email cannot be changed when editing.
+                  {t("common.emailCannotChange")}
                 </p>
               )}
             </div>
@@ -287,7 +289,7 @@ function TeachersPage() {
                       password: e.target.value,
                     }))
                   }
-                  placeholder="Min 6 characters"
+                  placeholder={t("common.minChars")}
                   required={!editingId}
                   minLength={6}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg"
@@ -298,7 +300,7 @@ function TeachersPage() {
               <>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Program
+                    {t("admin.program")}
                   </label>
                   <select
                     value={formData.program}
@@ -310,7 +312,7 @@ function TeachersPage() {
                     }
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg"
                   >
-                    <option value="">— None —</option>
+                    <option value="">— {t("common.none")} —</option>
                     {programs.map((p) => (
                       <option key={p._id} value={p._id}>
                         {p.name}
@@ -320,7 +322,7 @@ function TeachersPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Class Level
+                    {t("admin.classLevel")}
                   </label>
                   <select
                     value={formData.classLevel}
@@ -332,7 +334,7 @@ function TeachersPage() {
                     }
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg"
                   >
-                    <option value="">— None —</option>
+                    <option value="">— {t("common.none")} —</option>
                     {classLevels.map((c) => (
                       <option key={c._id} value={c._id}>
                         {c.name}
@@ -354,7 +356,7 @@ function TeachersPage() {
                     }
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg"
                   >
-                    <option value="">— None —</option>
+                    <option value="">— {t("common.none")} —</option>
                     {academicYears.map((y) => (
                       <option key={y._id} value={y._id}>
                         {getAcademicYearName(y._id)}
@@ -364,7 +366,7 @@ function TeachersPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Subject
+                    {t("admin.subject")}
                   </label>
                   <select
                     value={formData.subject}
@@ -376,7 +378,7 @@ function TeachersPage() {
                     }
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg"
                   >
-                    <option value="">— None —</option>
+                    <option value="">— {t("common.none")} —</option>
                     {subjects.map((s) => (
                       <option key={s._id} value={s._id}>
                         {s.name}
@@ -392,14 +394,14 @@ function TeachersPage() {
                 disabled={submitting}
                 className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
               >
-                {submitting ? "Saving..." : "Save"}
+                {submitting ? t("common.saving") : t("common.save")}
               </button>
               <button
                 type="button"
                 onClick={() => setFormOpen(false)}
                 className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
             </div>
           </form>
@@ -408,10 +410,10 @@ function TeachersPage() {
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-slate-500">Loading...</div>
+          <div className="p-8 text-center text-slate-500">{t("common.loading")}</div>
         ) : teachers.length === 0 ? (
           <div className="p-8 text-center text-slate-500">
-            No teachers yet. Click &quot;Add Teacher&quot; to create one.
+            {t("admin.noTeachers")}
           </div>
         ) : (
           <>
@@ -419,25 +421,25 @@ function TeachersPage() {
               <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                    Name
+                    {t("common.name")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                    Email
+                    {t("common.email")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                    Teacher ID
+                    {t("common.teacherId")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                    Program
+                    {t("admin.program")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                    Class Level
+                    {t("admin.classLevel")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                    Subject
+                    {t("admin.subject")}
                   </th>
                   <th className="px-4 py-3 text-right text-sm font-medium text-slate-700">
-                    Actions
+                    {t("common.actions")}
                   </th>
                 </tr>
               </thead>
@@ -470,13 +472,13 @@ function TeachersPage() {
                         to={`/admin/teachers/${item._id}`}
                         className="text-slate-600 hover:text-slate-800 mr-3"
                       >
-                        View
+                        {t("common.view")}
                       </Link>
                       <button
                         onClick={() => openEditForm(item)}
                         className="text-slate-600 hover:text-slate-800"
                       >
-                        Edit
+                        {t("common.edit")}
                       </button>
                     </td>
                   </tr>
@@ -495,14 +497,14 @@ function TeachersPage() {
                     disabled={!pagination.previous}
                     className="px-3 py-1 border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Previous
+                    {t("common.previous")}
                   </button>
                   <button
                     onClick={() => setPage((p) => p + 1)}
                     disabled={!pagination.next}
                     className="px-3 py-1 border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Next
+                    {t("common.next")}
                   </button>
                 </div>
               </div>

@@ -47,12 +47,12 @@ function TakeExamPage() {
     e.preventDefault();
     const questions = exam?.questions || [];
     if (answers.length !== questions.length) {
-      setError("Please answer all questions.");
+      setError(t("common.answerAllQuestions"));
       return;
     }
     const hasEmpty = answers.some((a) => !a);
     if (hasEmpty) {
-      setError("Please answer all questions.");
+      setError(t("common.answerAllQuestions"));
       return;
     }
     setError("");

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   academicService,
   teacherService,
@@ -7,58 +8,61 @@ import {
   getErrorMessage,
 } from "../../api";
 
-const STAT_CARDS = [
+function getStatCards(t) {
+  return [
   {
     key: "academicYears",
-    label: "Academic Years",
+    label: t("admin.academicYears"),
     to: "/admin/academic-setup",
     color: "bg-blue-50 border-blue-200 text-blue-800",
   },
   {
     key: "academicTerms",
-    label: "Academic Terms",
+    label: t("admin.academicTerms"),
     to: "/admin/academic-setup",
     color: "bg-amber-50 border-amber-200 text-amber-800",
   },
   {
     key: "classLevels",
-    label: "Class Levels",
+    label: t("admin.classLevels"),
     to: "/admin/academic-setup",
     color: "bg-emerald-50 border-emerald-200 text-emerald-800",
   },
   {
     key: "programs",
-    label: "Programs",
+    label: t("admin.programs"),
     to: "/admin/academic-setup",
     color: "bg-violet-50 border-violet-200 text-violet-800",
   },
   {
     key: "subjects",
-    label: "Subjects",
+    label: t("admin.subjects"),
     to: "/admin/academic-setup",
     color: "bg-rose-50 border-rose-200 text-rose-800",
   },
   {
     key: "yearGroups",
-    label: "Year Groups",
+    label: t("admin.yearGroups"),
     to: "/admin/academic-setup",
     color: "bg-cyan-50 border-cyan-200 text-cyan-800",
   },
   {
     key: "teachers",
-    label: "Teachers",
+    label: t("admin.teachers"),
     to: "/admin/teachers",
     color: "bg-slate-100 border-slate-300 text-slate-800",
   },
   {
     key: "students",
-    label: "Students",
+    label: t("admin.students"),
     to: "/admin/students",
     color: "bg-slate-100 border-slate-300 text-slate-800",
   },
 ];
+}
 
 function AdminDashboard() {
+  const { t } = useTranslation();
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -109,8 +113,8 @@ function AdminDashboard() {
   if (loading) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold text-slate-800 mb-6">Overview</h1>
-        <div className="text-slate-500">Loading stats...</div>
+        <h1 className="text-2xl font-bold text-slate-800 mb-6">{t("admin.overview")}</h1>
+        <div className="text-slate-500">{t("admin.loadingStats")}</div>
       </div>
     );
   }
@@ -118,7 +122,7 @@ function AdminDashboard() {
   if (error) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold text-slate-800 mb-6">Overview</h1>
+        <h1 className="text-2xl font-bold text-slate-800 mb-6">{t("admin.overview")}</h1>
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
           {error}
         </div>
@@ -128,13 +132,13 @@ function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">Overview</h1>
+      <h1 className="text-2xl font-bold text-slate-800 mb-2">{t("admin.overview")}</h1>
       <p className="text-slate-600 mb-8">
-        Manage academic setup, teachers, students, and exam results.
+        {t("admin.overviewIntro")}
       </p>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {STAT_CARDS.map(({ key, label, to, color }) => (
+        {getStatCards(t).map(({ key, label, to, color }) => (
           <Link
             key={key}
             to={to}

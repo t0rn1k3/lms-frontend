@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   adminService,
   examResultService,
@@ -7,6 +8,7 @@ import {
 } from "../../api";
 
 function ExamResultsPage() {
+  const { t } = useTranslation();
   const [results, setResults] = useState([]);
   const [studentMap, setStudentMap] = useState({});
   const [loading, setLoading] = useState(true);
@@ -60,10 +62,9 @@ function ExamResultsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-6">Exam Results</h1>
+      <h1 className="text-2xl font-bold text-slate-800 mb-6">{t("admin.examResultsTitle")}</h1>
       <p className="text-slate-600 mb-6">
-        Publish or unpublish exam results. Published results are visible to
-        students.
+        {t("admin.examResultsIntro")}
       </p>
 
       {error && (
@@ -74,32 +75,32 @@ function ExamResultsPage() {
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-slate-500">Loading...</div>
+          <div className="p-8 text-center text-slate-500">{t("common.loading")}</div>
         ) : results.length === 0 ? (
           <div className="p-8 text-center text-slate-500">
-            No exam results yet.
+            {t("admin.noExamResults")}
           </div>
         ) : (
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                  Student
+                  {t("admin.tableStudent")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                  Exam
+                  {t("admin.tableExam")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                  Score
+                  {t("admin.tableScore")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                  Status
+                  {t("admin.tableStatus")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                  Published
+                  {t("admin.tablePublished")}
                 </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-slate-700">
-                  Action
+                  {t("admin.tableAction")}
                 </th>
               </tr>
             </thead>
@@ -141,7 +142,7 @@ function ExamResultsPage() {
                           : "bg-slate-100 text-slate-600"
                       }`}
                     >
-                      {item.isPublished ? "Published" : "Unpublished"}
+                      {item.isPublished ? t("admin.pub") : t("admin.unpub")}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -159,8 +160,8 @@ function ExamResultsPage() {
                       {togglingId === item._id
                         ? "..."
                         : item.isPublished
-                          ? "Unpublish"
-                          : "Publish"}
+                          ? t("admin.unpublish")
+                          : t("admin.publish")}
                     </button>
                   </td>
                 </tr>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   examService,
   teacherQuestionService,
@@ -9,6 +10,7 @@ import {
 const OPTIONS = ["A", "B", "C", "D"];
 
 function ExamDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [exam, setExam] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -129,7 +131,7 @@ function ExamDetailPage() {
           onClick={openAddQuestion}
           className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700"
         >
-          Add Question
+          {t("teacher.addQuestion")}
         </button>
       </div>
 
@@ -166,7 +168,7 @@ function ExamDetailPage() {
       {questionFormOpen && (
         <div className="mb-8 p-6 bg-white rounded-xl border border-slate-200">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">
-            {editingQuestionId ? "Edit Question" : "New Question"}
+            {editingQuestionId ? t("teacher.editQuestion") : t("teacher.newQuestion")}
           </h2>
           <form onSubmit={handleQuestionSubmit} className="space-y-4 max-w-2xl">
             <div>
@@ -229,14 +231,14 @@ function ExamDetailPage() {
                 disabled={submitting}
                 className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
               >
-                {submitting ? "Saving..." : "Save"}
+                {submitting ? t("common.saving") : t("common.save")}
               </button>
               <button
                 type="button"
                 onClick={() => setQuestionFormOpen(false)}
                 className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
             </div>
           </form>
