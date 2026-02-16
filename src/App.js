@@ -6,6 +6,7 @@ import { AdminRoute, TeacherRoute, StudentRoute, GuestRoute } from "./routes";
 import { AdminLayout, TeacherLayout, StudentLayout } from "./layouts";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AcademicYearsPage from "./pages/admin/AcademicYearsPage";
 import AcademicTermsPage from "./pages/admin/AcademicTermsPage";
@@ -52,6 +53,14 @@ function App() {
             element={
               <GuestRoute>
                 <LoginPage />
+              </GuestRoute>
+            }
+          />
+          <Route
+            path="register"
+            element={
+              <GuestRoute>
+                <RegisterPage />
               </GuestRoute>
             }
           />

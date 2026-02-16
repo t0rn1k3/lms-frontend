@@ -18,6 +18,12 @@ function HomePage() {
         >
           {t("home.getStarted")}
         </Link>
+        <Link
+          to="/register"
+          className="inline-flex items-center px-6 py-3 border-2 border-slate-800 text-slate-800 font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors duration-200 shadow-md"
+        >
+          {t("auth.registerButton")}
+        </Link>
       </div>
     </div>
   );

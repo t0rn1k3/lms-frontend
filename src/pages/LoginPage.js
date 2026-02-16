@@ -139,6 +139,15 @@ function LoginPage() {
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-500">
+          {role === "admin" && (
+            <>
+              {t("auth.noAccount")}{" "}
+              <Link to="/register" className="text-slate-700 font-medium hover:underline">
+                {t("auth.register")}
+              </Link>
+              <br />
+            </>
+          )}
           <Link to="/" className="text-slate-700 hover:underline">
             {t("auth.backToHome")}
           </Link>

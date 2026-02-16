@@ -54,3 +54,14 @@ export function validateLoginForm({ email, password }) {
   if (pwdErr) errors.password = pwdErr;
   return Object.keys(errors).length ? errors : null;
 }
+
+export function validateRegisterForm({ name, email, password }) {
+  const errors = {};
+  const nameErr = validateName(name);
+  if (nameErr) errors.name = nameErr;
+  const emailErr = validateEmail(email);
+  if (emailErr) errors.email = emailErr;
+  const pwdErr = validatePassword(password);
+  if (pwdErr) errors.password = pwdErr;
+  return Object.keys(errors).length ? errors : null;
+}

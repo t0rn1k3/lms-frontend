@@ -38,7 +38,16 @@
     "signIn": "Sign In",
     "signingIn": "Signing in...",
     "subtitle": "Sign in to access the Learning Management System",
-    "backToHome": "← Back to Home"
+    "backToHome": "← Back to Home",
+    "register": "Create Admin Account",
+    "registerButton": "Register as Admin",
+    "registerSubtitle": "Register a new administrator to manage the system.",
+    "createAccount": "Create Account",
+    "registering": "Creating account...",
+    "registerSuccess": "Account created successfully!",
+    "registerRedirect": "Redirecting to login...",
+    "alreadyHaveAccount": "Already have an account?",
+    "noAccount": "Don't have an account?"
   },
   "student": {
     "title": "Student",
