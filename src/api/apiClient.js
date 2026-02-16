@@ -24,26 +24,51 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle responses and errors
+// Normalize success response: { status, data, message }
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const body = response.data ?? {};
+    response.data = {
+      status: body.status ?? "success",
+      data: body.data ?? body,
+      message: body.message ?? "",
+    };
+    return response;
+  },
   (error) => {
     if (error.response?.status === 401) {
       useAuthStore.getState().logout();
       window.location.href = "/login";
     }
+
+    // Normalize error: { status, message, statusCode }
+    const body = error.response?.data ?? {};
+    const message =
+      typeof body.message === "string"
+        ? body.message
+        : error.message || "Something went wrong";
+
+    error.apiError = {
+      status: body.status ?? "failed",
+      message,
+      statusCode: error.response?.status,
+    };
+
     return Promise.reject(error);
   },
 );
 
 /**
  * Extract error message from axios error.
- * Backend returns { message: "..." } or { status, message }.
+ * Use error.apiError for full normalized shape.
  */
 export const getErrorMessage = (error) => {
-  const msg = error.response?.data?.message;
-  if (typeof msg === "string") return msg;
-  return error.message || "Something went wrong";
+  return (
+    error?.apiError?.message ??
+    error?.response?.data?.message ??
+    error?.message ??
+    "Something went wrong"
+  );
 };
 
 export default apiClient;
