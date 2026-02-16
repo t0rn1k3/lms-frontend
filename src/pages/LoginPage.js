@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { authService, getErrorMessage } from "../api";
-import { useAuthStore } from "../store";
+import { getErrorMessage } from "../api";
+import { useAuth } from "../contexts/AuthContext";
 
 const LOGIN_ROLES = [
   { value: "admin", label: "Admin" },
@@ -14,7 +14,7 @@ const VALID_ROLES = LOGIN_ROLES.map((r) => r.value);
 function LoginPage() {
   const navigate = useNavigate();
   const { role: roleParam } = useParams();
-  const setAuth = useAuthStore((s) => s.setAuth);
+  const { login } = useAuth();
 
   const [role, setRole] = useState(() => {
     const r = roleParam?.toLowerCase();
@@ -35,22 +35,8 @@ function LoginPage() {
     setError("");
     setLoading(true);
 
-    const loginByRole = {
-      admin: authService.adminLogin,
-      teacher: authService.teacherLogin,
-      student: authService.studentLogin,
-    };
-
     try {
-      const login = loginByRole[role];
-      const { data } = await login(email, password);
-      const token = data.data;
-      // Backend returns 200 with { message } on failed login - token will be missing
-      if (!token || typeof token !== "string") {
-        setError(data.message || "Invalid credentials");
-        return;
-      }
-      setAuth(token, role, { email });
+      await login(email, password, role);
       navigate(`/${role}`, { replace: true });
     } catch (err) {
       setError(getErrorMessage(err));

@@ -1,11 +1,10 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store";
+import { useAuth } from "../contexts/AuthContext";
 
 function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { role, logout } = useAuthStore();
-  const isLoggedIn = !!role;
+  const { role, logout, isLoggedIn } = useAuth();
 
   const navLinkClass = (path) =>
     `px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
