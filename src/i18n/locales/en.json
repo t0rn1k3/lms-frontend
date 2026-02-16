@@ -130,6 +130,7 @@
     "overview": "Overview",
     "exams": "Exams",
     "addExam": "Add Exam",
+    "addQuestion": "Add Question",
     "editQuestion": "Edit Question",
     "newQuestion": "New Question",
     "examTypeQuiz": "Quiz",

@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { adminService, getErrorMessage } from "../../api";
 
 function AdminProfilePage() {
+  const { t } = useTranslation();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -123,7 +125,7 @@ function AdminProfilePage() {
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, password: e.target.value }))
               }
-              placeholder="Leave blank to keep current"
+              placeholder={t("common.passwordPlaceholder")}
               minLength={6}
               className="w-full px-3 py-2 border border-slate-300 rounded-lg"
             />
@@ -134,7 +136,7 @@ function AdminProfilePage() {
               disabled={submitting}
               className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
             >
-              {submitting ? "Saving..." : "Save"}
+              {submitting ? t("common.saving") : t("common.save")}
             </button>
           </div>
         </form>

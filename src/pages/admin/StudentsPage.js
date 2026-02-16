@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   authService,
   studentService,
@@ -8,6 +9,7 @@ import {
 } from "../../api";
 
 function StudentsPage() {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const [students, setStudents] = useState([]);
@@ -188,7 +190,7 @@ function StudentsPage() {
           onClick={openCreateForm}
           className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700"
         >
-          Add Student
+          {t("admin.addStudent")}
         </button>
       </div>
 
@@ -201,7 +203,7 @@ function StudentsPage() {
       {formOpen && (
         <div className="mb-6 p-6 bg-white rounded-xl border border-slate-200">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">
-            {editingId ? "Edit Student" : "New Student"}
+            {editingId ? t("admin.editStudent") : t("admin.newStudent")}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
             <div>
@@ -214,7 +216,7 @@ function StudentsPage() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
-                placeholder="Full name"
+                placeholder={t("common.fullName")}
                 required
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
               />
@@ -236,7 +238,7 @@ function StudentsPage() {
               />
               {editingId && (
                 <p className="text-xs text-slate-500 mt-1">
-                  Email cannot be changed when editing.
+                  {t("common.emailCannotChange")}
                 </p>
               )}
             </div>
@@ -254,7 +256,7 @@ function StudentsPage() {
                       password: e.target.value,
                     }))
                   }
-                  placeholder="Min 6 characters"
+                  placeholder={t("common.minChars")}
                   required={!editingId}
                   minLength={6}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg"
@@ -277,7 +279,7 @@ function StudentsPage() {
                     }
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg"
                   >
-                    <option value="">— None —</option>
+                    <option value="">— {t("common.none")} —</option>
                     {programs.map((p) => (
                       <option key={p._id} value={p._id}>
                         {p.name}
@@ -299,7 +301,7 @@ function StudentsPage() {
                     }
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg"
                   >
-                    <option value="">— None —</option>
+                    <option value="">— {t("common.none")} —</option>
                     {classLevels.map((c) => (
                       <option key={c._id} value={c._id}>
                         {c.name}
@@ -342,7 +344,7 @@ function StudentsPage() {
                     }
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg"
                   >
-                    <option value="">— None —</option>
+                    <option value="">— {t("common.none")} —</option>
                     {academicYears.map((y) => (
                       <option key={y._id} value={y._id}>
                         {getAcademicYearName(y._id)}
@@ -358,14 +360,14 @@ function StudentsPage() {
                 disabled={submitting}
                 className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
               >
-                {submitting ? "Saving..." : "Save"}
+                {submitting ? t("common.saving") : t("common.save")}
               </button>
               <button
                 type="button"
                 onClick={() => setFormOpen(false)}
                 className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
             </div>
           </form>
@@ -374,10 +376,10 @@ function StudentsPage() {
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-slate-500">Loading...</div>
+          <div className="p-8 text-center text-slate-500">{t("common.loading")}</div>
         ) : students.length === 0 ? (
           <div className="p-8 text-center text-slate-500">
-            No students yet. Click &quot;Add Student&quot; to create one.
+            {t("admin.noStudents")}
           </div>
         ) : (
           <table className="w-full">
