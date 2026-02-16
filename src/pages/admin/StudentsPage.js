@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import {
   authService,
   studentService,
@@ -7,6 +8,8 @@ import {
 } from "../../api";
 
 function StudentsPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [students, setStudents] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [classLevels, setClassLevels] = useState([]);
@@ -60,6 +63,23 @@ function StudentsPage() {
   useEffect(() => {
     fetchLookups();
   }, [fetchLookups]);
+
+  useEffect(() => {
+    const editId = location.state?.editId;
+    if (!editId) return;
+    const openEdit = async () => {
+      try {
+        const { data } = await studentService.getOne(editId);
+        const s = data.data ?? data;
+        if (s) openEditForm(s);
+        navigate("/admin/students", { replace: true, state: {} });
+      } catch {
+        navigate("/admin/students", { replace: true, state: {} });
+      }
+    };
+    openEdit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state?.editId]);
 
   const getProgramName = (id) => {
     if (!id) return "—";
@@ -389,8 +409,13 @@ function StudentsPage() {
             <tbody className="divide-y divide-slate-100">
               {students.map((item) => (
                 <tr key={item._id} className="hover:bg-slate-50/50">
-                  <td className="px-4 py-3 font-medium text-slate-800">
-                    {item.name}
+                  <td className="px-4 py-3">
+                    <Link
+                      to={`/admin/students/${item._id}`}
+                      className="font-medium text-slate-800 hover:underline"
+                    >
+                      {item.name}
+                    </Link>
                   </td>
                   <td className="px-4 py-3 text-slate-600">{item.email}</td>
                   <td className="px-4 py-3 text-slate-500 text-sm">
@@ -406,6 +431,12 @@ function StudentsPage() {
                     {getAcademicYearName(getRefId(item.academicYear))}
                   </td>
                   <td className="px-4 py-3 text-right">
+                    <Link
+                      to={`/admin/students/${item._id}`}
+                      className="text-slate-600 hover:text-slate-800 mr-3"
+                    >
+                      View
+                    </Link>
                     <button
                       onClick={() => openEditForm(item)}
                       className="text-slate-600 hover:text-slate-800"

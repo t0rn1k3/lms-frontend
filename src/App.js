@@ -16,6 +16,10 @@ import YearGroupsPage from "./pages/admin/YearGroupsPage";
 import TeachersPage from "./pages/admin/TeachersPage";
 import StudentsPage from "./pages/admin/StudentsPage";
 import AdminProfilePage from "./pages/admin/AdminProfilePage";
+import AcademicSetupPage from "./pages/admin/AcademicSetupPage";
+import TeacherDetailPage from "./pages/admin/TeacherDetailPage";
+import StudentDetailPage from "./pages/admin/StudentDetailPage";
+import ExamResultsPage from "./pages/admin/ExamResultsPage";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherExamsPage from "./pages/teacher/ExamsPage";
 import TeacherProfilePage from "./pages/teacher/ProfilePage";
@@ -58,14 +62,18 @@ function App() {
             }
           >
             <Route index element={<AdminDashboard />} />
+            <Route path="academic-setup" element={<AcademicSetupPage />} />
             <Route path="academic-years" element={<AcademicYearsPage />} />
             <Route path="academic-terms" element={<AcademicTermsPage />} />
             <Route path="class-levels" element={<ClassLevelsPage />} />
             <Route path="programs" element={<ProgramsPage />} />
             <Route path="subjects" element={<SubjectsPage />} />
             <Route path="year-groups" element={<YearGroupsPage />} />
+            <Route path="teachers/:id" element={<TeacherDetailPage />} />
             <Route path="teachers" element={<TeachersPage />} />
+            <Route path="students/:id" element={<StudentDetailPage />} />
             <Route path="students" element={<StudentsPage />} />
+            <Route path="exam-results" element={<ExamResultsPage />} />
             <Route path="profile" element={<AdminProfilePage />} />
           </Route>
 

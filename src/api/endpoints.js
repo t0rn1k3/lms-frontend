@@ -12,6 +12,7 @@ export const endpoints = {
     list: "/admins",
     update: "/admins",
     delete: (id) => `/admins/${id}`,
+    examResults: "/admins/exam-results",
   },
   teachers: {
     register: "/teachers/admin/register",
@@ -90,6 +91,7 @@ export const endpoints = {
   },
   examResults: {
     list: "/exam-results",
+    adminList: "/admins/exam-results",
     getOne: (id) => `/exam-results/${id}`,
     togglePublish: (id) => `/exam-results/${id}`,
   },

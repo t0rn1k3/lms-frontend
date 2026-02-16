@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import {
   authService,
   teacherService,
@@ -7,6 +8,8 @@ import {
 } from "../../api";
 
 function TeachersPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [teachers, setTeachers] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [classLevels, setClassLevels] = useState([]);
@@ -51,7 +54,7 @@ function TeachersPage() {
         setLoading(false);
       }
     },
-    [page, limit, searchName]
+    [page, limit, searchName],
   );
 
   const fetchLookups = useCallback(async () => {
@@ -78,6 +81,23 @@ function TeachersPage() {
   useEffect(() => {
     fetchLookups();
   }, [fetchLookups]);
+
+  useEffect(() => {
+    const editId = location.state?.editId;
+    if (!editId) return;
+    const openEdit = async () => {
+      try {
+        const { data } = await teacherService.getOne(editId);
+        const t = data.data ?? data;
+        if (t) openEditForm(t);
+        navigate("/admin/teachers", { replace: true, state: {} });
+      } catch {
+        navigate("/admin/teachers", { replace: true, state: {} });
+      }
+    };
+    openEdit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state?.editId]);
 
   const getProgramName = (id) => {
     if (!id) return "—";
@@ -424,8 +444,13 @@ function TeachersPage() {
               <tbody className="divide-y divide-slate-100">
                 {teachers.map((item) => (
                   <tr key={item._id} className="hover:bg-slate-50/50">
-                    <td className="px-4 py-3 font-medium text-slate-800">
-                      {item.name}
+                    <td className="px-4 py-3">
+                      <Link
+                        to={`/admin/teachers/${item._id}`}
+                        className="font-medium text-slate-800 hover:underline"
+                      >
+                        {item.name}
+                      </Link>
                     </td>
                     <td className="px-4 py-3 text-slate-600">{item.email}</td>
                     <td className="px-4 py-3 text-slate-500 text-sm">
@@ -441,6 +466,12 @@ function TeachersPage() {
                       {getSubjectName(getRefId(item.subject))}
                     </td>
                     <td className="px-4 py-3 text-right">
+                      <Link
+                        to={`/admin/teachers/${item._id}`}
+                        className="text-slate-600 hover:text-slate-800 mr-3"
+                      >
+                        View
+                      </Link>
                       <button
                         onClick={() => openEditForm(item)}
                         className="text-slate-600 hover:text-slate-800"
