@@ -11,6 +11,7 @@ const ADMIN_SIDEBAR_ITEMS = [
   { to: "/admin/year-groups", label: "Year Groups" },
   { to: "/admin/teachers", label: "Teachers" },
   { to: "/admin/students", label: "Students" },
+  { to: "/admin/profile", label: "Profile" },
 ];
 
 function AdminLayout() {

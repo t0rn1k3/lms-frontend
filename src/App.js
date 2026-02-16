@@ -15,6 +15,7 @@ import SubjectsPage from "./pages/admin/SubjectsPage";
 import YearGroupsPage from "./pages/admin/YearGroupsPage";
 import TeachersPage from "./pages/admin/TeachersPage";
 import StudentsPage from "./pages/admin/StudentsPage";
+import AdminProfilePage from "./pages/admin/AdminProfilePage";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherExamsPage from "./pages/teacher/ExamsPage";
 import TeacherProfilePage from "./pages/teacher/ProfilePage";
@@ -65,6 +66,7 @@ function App() {
             <Route path="year-groups" element={<YearGroupsPage />} />
             <Route path="teachers" element={<TeachersPage />} />
             <Route path="students" element={<StudentsPage />} />
+            <Route path="profile" element={<AdminProfilePage />} />
           </Route>
 
           {/* Protected: Teacher routes */}
