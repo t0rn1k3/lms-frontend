@@ -1,13 +1,12 @@
 /**
  * Route configuration: public vs protected per role.
  *
- * Public routes (no auth required):
- *   - /, /login, /login/:role
+ * Public: /, /login, /login/:role
  *
- * Protected routes per role (auth + matching role required):
- *   - admin:   /admin, /admin/*
- *   - teacher: /teacher, /teacher/*
- *   - student: /student, /student/*
+ * Protected (require login + role-specific token):
+ *   - admin:   /admin/*  → POST /admins/login → isLogin + isAdmin
+ *   - teacher: /teacher/* → POST /teachers/login → isTeacherLogin
+ *   - student: /student/* → POST /students/login → isStudentLogin
  */
 export const PUBLIC_ROUTES = ["/", "/login"];
 

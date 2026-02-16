@@ -2,10 +2,9 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 /**
- * Protects routes from unauthenticated users.
- * @param {object} props
- * @param {React.ReactNode} props.children - Content to render when allowed
- * @param {string} [props.requiredRole] - If set, user must have this role (admin|teacher|student)
+ * Protects routes: requires login (token) and optionally a specific role.
+ * Backend mapping: isLogin + isAdmin → admin token, isTeacherLogin → teacher token, etc.
+ * Token is obtained from role-specific login (POST /admins/login, etc.) and sent via apiClient.
  */
 function ProtectedRoute({ children, requiredRole }) {
   const location = useLocation();
