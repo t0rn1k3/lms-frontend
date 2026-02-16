@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { studentService, getErrorMessage } from "../../api";
+import { PageLoader, ErrorMessage, PageError } from "../../components";
 
 const OPTIONS = ["A", "B", "C", "D"];
 
@@ -70,24 +71,16 @@ function TakeExamPage() {
   };
 
   if (loading) {
-    return (
-      <div className="p-8 text-center text-slate-500">Loading exam...</div>
-    );
+    return <PageLoader message="Loading exam..." />;
   }
 
   if (error && !exam) {
     return (
-      <div className="p-6">
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-          {error}
-        </div>
-        <Link
-          to="/student/exams"
-          className="text-slate-600 hover:text-slate-800"
-        >
-          ← Back to Exams
-        </Link>
-      </div>
+      <PageError
+        message={error}
+        backTo="/student/exams"
+        backLabel="Back to Exams"
+      />
     );
   }
 
@@ -129,11 +122,7 @@ function TakeExamPage() {
         </div>
       </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-          {error}
-        </div>
-      )}
+      {error && <ErrorMessage message={error} className="mb-4" />}
 
       <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
         <p className="text-sm text-slate-600">

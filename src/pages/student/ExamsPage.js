@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { studentService, examResultService, getErrorMessage } from "../../api";
+import { PageLoader, ErrorMessage, PageError } from "../../components";
 
 function getRefName(val) {
   return typeof val === "object" ? val?.name : val;
@@ -36,17 +37,11 @@ function ExamsPage() {
   );
 
   if (loading) {
-    return (
-      <div className="p-8 text-center text-slate-500">Loading exams...</div>
-    );
+    return <PageLoader message="Loading exams..." />;
   }
 
   if (error && exams.length === 0) {
-    return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-        {error}
-      </div>
-    );
+    return <PageError message={error} backTo="/student/exams" backLabel="Back to Exams" />;
   }
 
   return (
@@ -58,11 +53,7 @@ function ExamsPage() {
         Take exams or view completed ones. Each exam can be taken only once.
       </p>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-          {error}
-        </div>
-      )}
+      {error && <ErrorMessage message={error} className="mb-4" />}
 
       {exams.length === 0 ? (
         <div className="p-8 bg-white rounded-xl border border-slate-200 text-center text-slate-500">

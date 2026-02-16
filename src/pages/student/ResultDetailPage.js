@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { examResultService, getErrorMessage } from "../../api";
+import { PageLoader, PageError } from "../../components";
 
 function getRefName(val) {
   return typeof val === "object" ? val?.name : val;
@@ -28,24 +29,16 @@ function ResultDetailPage() {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="p-8 text-center text-slate-500">Loading result...</div>
-    );
+    return <PageLoader message="Loading result..." />;
   }
 
   if (error || !result) {
     return (
-      <div className="p-6">
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-          {error || "Result not found"}
-        </div>
-        <Link
-          to="/student/results"
-          className="text-slate-600 hover:text-slate-800"
-        >
-          ← Back to Results
-        </Link>
-      </div>
+      <PageError
+        message={error || "Result not found"}
+        backTo="/student/results"
+        backLabel="Back to Results"
+      />
     );
   }
 

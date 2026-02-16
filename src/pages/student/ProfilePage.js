@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { studentService, getErrorMessage } from "../../api";
+import { validateProfileForm } from "../../utils/validation";
+import { ErrorMessage, PageLoader, PageError } from "../../components";
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
@@ -38,6 +40,11 @@ export default function ProfilePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    const formErrors = validateProfileForm(formData);
+    if (formErrors) {
+      setError(Object.values(formErrors).join(". "));
+      return;
+    }
     setSubmitting(true);
     try {
       const payload = {
@@ -58,17 +65,11 @@ export default function ProfilePage() {
   };
 
   if (loading) {
-    return (
-      <div className="p-8 text-center text-slate-500">Loading profile...</div>
-    );
+    return <PageLoader message="Loading profile..." />;
   }
 
   if (error && !profile) {
-    return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-        {error}
-      </div>
-    );
+    return <PageError message={error} backTo="/student" backLabel="Back to Overview" />;
   }
 
   const studentProfile = profile?.studentProfile ?? profile ?? {};
@@ -78,9 +79,12 @@ export default function ProfilePage() {
       <h1 className="text-2xl font-bold text-slate-800 mb-6">Profile</h1>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-          {error}
-        </div>
+        <ErrorMessage
+          message={error}
+          dismissible
+          onDismiss={() => setError("")}
+          className="mb-4"
+        />
       )}
 
       <div className="grid gap-6 md:grid-cols-2">

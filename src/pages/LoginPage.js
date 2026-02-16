@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { getErrorMessage } from "../api";
 import { useAuth } from "../contexts/AuthContext";
+import { validateLoginForm } from "../utils/validation";
 
 const LOGIN_ROLES = [
   { value: "admin", label: "Admin" },
@@ -35,6 +36,11 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    const formErrors = validateLoginForm({ email, password });
+    if (formErrors) {
+      setError(formErrors.email || formErrors.password);
+      return;
+    }
     setLoading(true);
 
     try {
@@ -99,8 +105,8 @@ function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={`${role}@school.com`}
-              required
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 outline-none transition-shadow"
+              autoComplete="email"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 outline-none transition-shadow invalid:border-red-400"
             />
           </div>
           <div>
@@ -116,7 +122,8 @@ function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              required
+              autoComplete="current-password"
+              minLength={6}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 outline-none transition-shadow"
             />
           </div>

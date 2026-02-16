@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { studentService, examResultService, getErrorMessage } from "../../api";
+import { PageLoader, ErrorMessage } from "../../components";
 
 function StudentDashboard() {
   const [profile, setProfile] = useState(null);
@@ -32,7 +33,7 @@ function StudentDashboard() {
   }, []);
 
   if (loading) {
-    return <div className="p-8 text-center text-slate-500">Loading...</div>;
+    return <PageLoader message="Loading dashboard..." />;
   }
 
   const studentProfile = profile?.studentProfile ?? profile ?? {};
@@ -55,9 +56,7 @@ function StudentDashboard() {
       </p>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-          {error}
-        </div>
+        <ErrorMessage message={error} className="mb-4" />
       )}
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
