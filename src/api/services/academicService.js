@@ -47,4 +47,12 @@ export const academicService = {
   updateSubject: (id, data) =>
     apiClient.put(endpoints.subjects.update(id), data),
   deleteSubject: (id) => apiClient.delete(endpoints.subjects.delete(id)),
+
+  // Year Groups
+  getYearGroups: () => apiClient.get(endpoints.yearGroups.list),
+  getYearGroup: (id) => apiClient.get(endpoints.yearGroups.getOne(id)),
+  createYearGroup: (data) => apiClient.post(endpoints.yearGroups.create, data),
+  updateYearGroup: (id, data) =>
+    apiClient.put(endpoints.yearGroups.update(id), data),
+  deleteYearGroup: (id) => apiClient.delete(endpoints.yearGroups.delete(id)),
 };
