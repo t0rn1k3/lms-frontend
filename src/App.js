@@ -2,12 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 
 import Layout from "./components/Layout";
-import {
-  AdminRoute,
-  TeacherRoute,
-  StudentRoute,
-  GuestRoute,
-} from "./routes";
+import { AdminRoute, TeacherRoute, StudentRoute, GuestRoute } from "./routes";
 import { AdminLayout, TeacherLayout, StudentLayout } from "./layouts";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
@@ -33,6 +28,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
+          {/* Public routes */}
           <Route index element={<HomePage />} />
           <Route
             path="login"
@@ -51,7 +47,7 @@ function App() {
             }
           />
 
-          {/* Admin routes with sidebar layout */}
+          {/* Protected: Admin routes */}
           <Route
             path="admin"
             element={
@@ -71,7 +67,7 @@ function App() {
             <Route path="students" element={<StudentsPage />} />
           </Route>
 
-          {/* Teacher routes with sidebar layout */}
+          {/* Protected: Teacher routes */}
           <Route
             path="teacher"
             element={
@@ -85,7 +81,7 @@ function App() {
             <Route path="profile" element={<TeacherProfilePage />} />
           </Route>
 
-          {/* Student routes with sidebar layout */}
+          {/* Protected: Student routes */}
           <Route
             path="student"
             element={

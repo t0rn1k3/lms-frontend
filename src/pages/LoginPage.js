@@ -17,7 +17,6 @@ function LoginPage() {
   const { role: roleParam } = useParams();
   const { login } = useAuth();
   const from = location.state?.from?.pathname;
-  const isAllowedRedirect = from && from === `/${role}`;
 
   const [role, setRole] = useState(() => {
     const r = roleParam?.toLowerCase();
@@ -40,6 +39,7 @@ function LoginPage() {
 
     try {
       await login(email, password, role);
+      const isAllowedRedirect = from && from === `/${role}`;
       navigate(isAllowedRedirect ? from : `/${role}`, { replace: true });
     } catch (err) {
       setError(getErrorMessage(err));
