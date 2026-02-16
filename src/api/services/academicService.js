@@ -30,4 +30,12 @@ export const academicService = {
   updateClassLevel: (id, data) =>
     apiClient.put(endpoints.classLevels.update(id), data),
   deleteClassLevel: (id) => apiClient.delete(endpoints.classLevels.delete(id)),
+
+  // Programs
+  getPrograms: () => apiClient.get(endpoints.programs.list),
+  getProgram: (id) => apiClient.get(endpoints.programs.getOne(id)),
+  createProgram: (data) => apiClient.post(endpoints.programs.create, data),
+  updateProgram: (id, data) =>
+    apiClient.put(endpoints.programs.update(id), data),
+  deleteProgram: (id) => apiClient.delete(endpoints.programs.delete(id)),
 };
