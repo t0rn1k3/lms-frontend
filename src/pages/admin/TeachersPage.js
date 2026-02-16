@@ -1,8 +1,484 @@
+import { useState, useEffect, useCallback } from "react";
+import {
+  authService,
+  teacherService,
+  academicService,
+  getErrorMessage,
+} from "../../api";
+
 function TeachersPage() {
+  const [teachers, setTeachers] = useState([]);
+  const [programs, setPrograms] = useState([]);
+  const [classLevels, setClassLevels] = useState([]);
+  const [academicYears, setAcademicYears] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    program: "",
+    classLevel: "",
+    academicYear: "",
+    subject: "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [searchName, setSearchName] = useState("");
+  const [totalTeachers, setTotalTeachers] = useState(0);
+  const [pagination, setPagination] = useState({});
+
+  const fetchTeachers = useCallback(
+    async (opts = {}) => {
+      try {
+        setLoading(true);
+        const params = {
+          page: opts.page ?? page,
+          limit: opts.limit ?? limit,
+        };
+        if (searchName.trim()) params.name = searchName.trim();
+        const { data } = await teacherService.list(params);
+        setTeachers(data.data || []);
+        setTotalTeachers(data.totalTeachers ?? 0);
+        setPagination(data.pagination || {});
+      } catch (err) {
+        setError(getErrorMessage(err));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [page, limit, searchName]
+  );
+
+  const fetchLookups = useCallback(async () => {
+    try {
+      const [pRes, cRes, aRes, sRes] = await Promise.all([
+        academicService.getPrograms(),
+        academicService.getClassLevels(),
+        academicService.getAcademicYears(),
+        academicService.getSubjects(),
+      ]);
+      setPrograms(pRes.data?.data || []);
+      setClassLevels(cRes.data?.data || []);
+      setAcademicYears(aRes.data?.data || []);
+      setSubjects(sRes.data?.data || []);
+    } catch (err) {
+      console.error("Failed to fetch lookups:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTeachers();
+  }, [fetchTeachers]);
+
+  useEffect(() => {
+    fetchLookups();
+  }, [fetchLookups]);
+
+  const getProgramName = (id) => {
+    if (!id) return "—";
+    const p = programs.find((x) => x._id === id);
+    return p?.name || id;
+  };
+
+  const getClassLevelName = (id) => {
+    if (!id) return "—";
+    const c = classLevels.find((x) => x._id === id);
+    return c?.name || id;
+  };
+
+  const getAcademicYearName = (id) => {
+    if (!id) return "—";
+    const y = academicYears.find((x) => x._id === id);
+    if (!y) return id;
+    const from = y.fromYear ? new Date(y.fromYear).getFullYear() : "";
+    const to = y.toYear ? new Date(y.toYear).getFullYear() : "";
+    return y.name || (from && to ? `${from}-${to}` : id);
+  };
+
+  const getSubjectName = (id) => {
+    if (!id) return "—";
+    const s = subjects.find((x) => x._id === id);
+    return s?.name || id;
+  };
+
+  const getRefId = (val) => (typeof val === "object" ? val?._id : val);
+
+  const openCreateForm = () => {
+    setEditingId(null);
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      program: "",
+      classLevel: "",
+      academicYear: "",
+      subject: "",
+    });
+    setFormOpen(true);
+  };
+
+  const openEditForm = (item) => {
+    setEditingId(item._id);
+    setFormData({
+      name: item.name || "",
+      email: item.email || "",
+      password: "",
+      program: getRefId(item.program) || "",
+      classLevel: getRefId(item.classLevel) || "",
+      academicYear: getRefId(item.academicYear) || "",
+      subject: getRefId(item.subject) || "",
+    });
+    setFormOpen(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSubmitting(true);
+    try {
+      if (editingId) {
+        const payload = {
+          name: formData.name.trim(),
+          email: formData.email.trim().toLowerCase(),
+          program: formData.program || "",
+          classLevel: formData.classLevel || "",
+          academicYear: formData.academicYear || "",
+          ...(formData.subject && { subject: formData.subject }),
+        };
+        await teacherService.update(editingId, payload);
+      } else {
+        if (!formData.password || formData.password.length < 6) {
+          setError("Password must be at least 6 characters.");
+          setSubmitting(false);
+          return;
+        }
+        await authService.teacherRegister(
+          formData.name.trim(),
+          formData.email.trim().toLowerCase(),
+          formData.password,
+        );
+      }
+      setFormOpen(false);
+      fetchTeachers();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800">Teachers</h1>
-      <p className="text-slate-600 mt-2">Manage teachers. (Coming soon)</p>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-slate-800">Teachers</h1>
+        <button
+          onClick={openCreateForm}
+          className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700"
+        >
+          Add Teacher
+        </button>
+      </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
+      {/* Search */}
+      <div className="mb-4 flex gap-2 items-center">
+        <input
+          type="text"
+          placeholder="Search by name"
+          value={searchName}
+          onChange={(e) => setSearchName(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && fetchTeachers()}
+          className="px-3 py-2 border border-slate-300 rounded-lg w-64"
+        />
+        <button
+          onClick={() => {
+            setPage(1);
+            fetchTeachers({ page: 1 });
+          }}
+          className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
+        >
+          Search
+        </button>
+      </div>
+
+      {formOpen && (
+        <div className="mb-6 p-6 bg-white rounded-xl border border-slate-200">
+          <h2 className="text-lg font-semibold text-slate-800 mb-4">
+            {editingId ? "Edit Teacher" : "New Teacher"}
+          </h2>
+          <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
+                placeholder="Full name"
+                required
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Email <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, email: e.target.value }))
+                }
+                placeholder="email@school.com"
+                required
+                disabled={!!editingId}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg disabled:bg-slate-100 disabled:text-slate-500"
+              />
+              {editingId && (
+                <p className="text-xs text-slate-500 mt-1">
+                  Email cannot be changed when editing.
+                </p>
+              )}
+            </div>
+            {!editingId && (
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Password <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      password: e.target.value,
+                    }))
+                  }
+                  placeholder="Min 6 characters"
+                  required={!editingId}
+                  minLength={6}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                />
+              </div>
+            )}
+            {editingId && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Program
+                  </label>
+                  <select
+                    value={formData.program}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        program: e.target.value,
+                      }))
+                    }
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                  >
+                    <option value="">— None —</option>
+                    {programs.map((p) => (
+                      <option key={p._id} value={p._id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Class Level
+                  </label>
+                  <select
+                    value={formData.classLevel}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        classLevel: e.target.value,
+                      }))
+                    }
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                  >
+                    <option value="">— None —</option>
+                    {classLevels.map((c) => (
+                      <option key={c._id} value={c._id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Academic Year
+                  </label>
+                  <select
+                    value={formData.academicYear}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        academicYear: e.target.value,
+                      }))
+                    }
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                  >
+                    <option value="">— None —</option>
+                    {academicYears.map((y) => (
+                      <option key={y._id} value={y._id}>
+                        {getAcademicYearName(y._id)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Subject
+                  </label>
+                  <select
+                    value={formData.subject}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        subject: e.target.value,
+                      }))
+                    }
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                  >
+                    <option value="">— None —</option>
+                    {subjects.map((s) => (
+                      <option key={s._id} value={s._id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
+              >
+                {submitting ? "Saving..." : "Save"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormOpen(false)}
+                className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        {loading ? (
+          <div className="p-8 text-center text-slate-500">Loading...</div>
+        ) : teachers.length === 0 ? (
+          <div className="p-8 text-center text-slate-500">
+            No teachers yet. Click &quot;Add Teacher&quot; to create one.
+          </div>
+        ) : (
+          <>
+            <table className="w-full">
+              <thead className="bg-slate-50 border-b border-slate-200">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                    Name
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                    Email
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                    Teacher ID
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                    Program
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                    Class Level
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                    Subject
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-slate-700">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {teachers.map((item) => (
+                  <tr key={item._id} className="hover:bg-slate-50/50">
+                    <td className="px-4 py-3 font-medium text-slate-800">
+                      {item.name}
+                    </td>
+                    <td className="px-4 py-3 text-slate-600">{item.email}</td>
+                    <td className="px-4 py-3 text-slate-500 text-sm">
+                      {item.teacherId || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-slate-600">
+                      {getProgramName(getRefId(item.program))}
+                    </td>
+                    <td className="px-4 py-3 text-slate-600">
+                      {getClassLevelName(getRefId(item.classLevel))}
+                    </td>
+                    <td className="px-4 py-3 text-slate-600">
+                      {getSubjectName(getRefId(item.subject))}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        onClick={() => openEditForm(item)}
+                        className="text-slate-600 hover:text-slate-800"
+                      >
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {(pagination.next || pagination.previous) && (
+              <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between text-sm text-slate-600">
+                <span>
+                  Showing page {page} of {Math.ceil(totalTeachers / limit) || 1}{" "}
+                  ({totalTeachers} total)
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={!pagination.previous}
+                    className="px-3 py-1 border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setPage((p) => p + 1)}
+                    disabled={!pagination.next}
+                    className="px-3 py-1 border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
