@@ -1,9 +1,13 @@
 import axios from "axios";
 import { useAuthStore } from "../store/useAuthStore";
+import { API_BASE_URL } from "./config";
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_URL || "http://localhost:2020/api/v1";
-
+/**
+ * Centralized Axios instance for all API calls.
+ * - Base URL from config (env)
+ * - Token auto-injected from Zustand store
+ * - 401 triggers logout + redirect
+ */
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -11,7 +15,7 @@ const apiClient = axios.create({
   },
 });
 
-// Add auth token to every request (from Zustand store)
+// Inject auth token into every request
 apiClient.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token;
   if (token) {
@@ -20,7 +24,7 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle response and errors
+// Handle responses and errors
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -31,6 +35,16 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+/**
+ * Extract error message from axios error.
+ * Backend returns { message: "..." } or { status, message }.
+ */
+export const getErrorMessage = (error) => {
+  const msg = error.response?.data?.message;
+  if (typeof msg === "string") return msg;
+  return error.message || "Something went wrong";
+};
 
 export default apiClient;
 export { API_BASE_URL };
