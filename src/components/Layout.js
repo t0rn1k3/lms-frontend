@@ -1,7 +1,11 @@
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store";
 
 function Layout() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { role, logout } = useAuthStore();
+  const isLoggedIn = !!role;
 
   const navLinkClass = (path) =>
     `px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
@@ -21,13 +25,30 @@ function Layout() {
             >
               LMS
             </Link>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <Link to="/" className={navLinkClass("/")}>
                 Home
               </Link>
-              <Link to="/login" className={navLinkClass("/login")}>
-                Login
-              </Link>
+              {isLoggedIn ? (
+                <>
+                  <Link to={`/${role}`} className={navLinkClass(`/${role}`)}>
+                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      navigate("/");
+                    }}
+                    className="px-4 py-2 rounded-lg font-medium text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <Link to="/login" className={navLinkClass("/login")}>
+                  Login
+                </Link>
+              )}
             </div>
           </div>
         </div>

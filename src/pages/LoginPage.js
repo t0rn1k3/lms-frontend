@@ -1,12 +1,30 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { authService, getErrorMessage } from "../api";
 import { useAuthStore } from "../store";
 
+const LOGIN_ROLES = [
+  { value: "admin", label: "Admin" },
+  { value: "teacher", label: "Teacher" },
+  { value: "student", label: "Student" },
+];
+
+const VALID_ROLES = LOGIN_ROLES.map((r) => r.value);
+
 function LoginPage() {
   const navigate = useNavigate();
+  const { role: roleParam } = useParams();
   const setAuth = useAuthStore((s) => s.setAuth);
 
+  const [role, setRole] = useState(() => {
+    const r = roleParam?.toLowerCase();
+    return VALID_ROLES.includes(r) ? r : "admin";
+  });
+
+  useEffect(() => {
+    const r = roleParam?.toLowerCase();
+    if (r && VALID_ROLES.includes(r)) setRole(r);
+  }, [roleParam]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -17,11 +35,23 @@ function LoginPage() {
     setError("");
     setLoading(true);
 
+    const loginByRole = {
+      admin: authService.adminLogin,
+      teacher: authService.teacherLogin,
+      student: authService.studentLogin,
+    };
+
     try {
-      const { data } = await authService.adminLogin(email, password);
+      const login = loginByRole[role];
+      const { data } = await login(email, password);
       const token = data.data;
-      setAuth(token, "admin", { email });
-      navigate("/", { replace: true });
+      // Backend returns 200 with { message } on failed login - token will be missing
+      if (!token || typeof token !== "string") {
+        setError(data.message || "Invalid credentials");
+        return;
+      }
+      setAuth(token, role, { email });
+      navigate(`/${role}`, { replace: true });
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -32,12 +62,36 @@ function LoginPage() {
   return (
     <div className="max-w-md mx-auto">
       <div className="bg-white rounded-xl shadow-lg p-8 border border-slate-200">
-        <h1 className="text-2xl font-bold text-slate-800 mb-2">Admin Login</h1>
-        <p className="text-slate-600 mb-8">
+        <h1 className="text-2xl font-bold text-slate-800 mb-2">Login</h1>
+        <p className="text-slate-600 mb-6">
           Sign in to access the Learning Management System
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Login as
+            </label>
+            <div className="flex gap-3">
+              {LOGIN_ROLES.map((r) => (
+                <button
+                  key={r.value}
+                  type="button"
+                  onClick={() => {
+                    setRole(r.value);
+                    navigate(`/login/${r.value}`, { replace: true });
+                  }}
+                  className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                    role === r.value
+                      ? "bg-slate-800 text-white"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </div>
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
               {error}
@@ -55,7 +109,7 @@ function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@school.com"
+              placeholder={`${role}@school.com`}
               required
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 outline-none transition-shadow"
             />
