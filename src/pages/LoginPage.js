@@ -1,15 +1,48 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { authService, getErrorMessage } from "../api";
+import { useAuthStore } from "../store";
 
 function LoginPage() {
+  const navigate = useNavigate();
+  const setAuth = useAuthStore((s) => s.setAuth);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const { data } = await authService.adminLogin(email, password);
+      const token = data.data;
+      setAuth(token, "admin", { email });
+      navigate("/", { replace: true });
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-md mx-auto">
       <div className="bg-white rounded-xl shadow-lg p-8 border border-slate-200">
-        <h1 className="text-2xl font-bold text-slate-800 mb-2">Login</h1>
+        <h1 className="text-2xl font-bold text-slate-800 mb-2">Admin Login</h1>
         <p className="text-slate-600 mb-8">
           Sign in to access the Learning Management System
         </p>
 
-        <form className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              {error}
+            </div>
+          )}
           <div>
             <label
               htmlFor="email"
@@ -20,7 +53,10 @@ function LoginPage() {
             <input
               id="email"
               type="email"
-              placeholder="you@school.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@school.com"
+              required
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 outline-none transition-shadow"
             />
           </div>
@@ -34,15 +70,19 @@ function LoginPage() {
             <input
               id="password"
               type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
+              required
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 outline-none transition-shadow"
             />
           </div>
           <button
             type="submit"
-            className="w-full py-3 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-700 transition-colors duration-200"
+            disabled={loading}
+            className="w-full py-3 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Sign In
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
