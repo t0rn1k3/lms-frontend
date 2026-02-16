@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 
 import Layout from "./components/Layout";
-import ProtectedRoute from "./components/ProtectedRoute";
+import { AdminRoute, TeacherRoute, StudentRoute, GuestRoute } from "./routes";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -15,30 +15,44 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
-          <Route path="login" element={<LoginPage />} />
-          <Route path="login/:role" element={<LoginPage />} />
+          <Route
+            path="login"
+            element={
+              <GuestRoute>
+                <LoginPage />
+              </GuestRoute>
+            }
+          />
+          <Route
+            path="login/:role"
+            element={
+              <GuestRoute>
+                <LoginPage />
+              </GuestRoute>
+            }
+          />
           <Route
             path="admin"
             element={
-              <ProtectedRoute requiredRole="admin">
+              <AdminRoute>
                 <AdminDashboard />
-              </ProtectedRoute>
+              </AdminRoute>
             }
           />
           <Route
             path="teacher"
             element={
-              <ProtectedRoute requiredRole="teacher">
+              <TeacherRoute>
                 <TeacherDashboard />
-              </ProtectedRoute>
+              </TeacherRoute>
             }
           />
           <Route
             path="student"
             element={
-              <ProtectedRoute requiredRole="student">
+              <StudentRoute>
                 <StudentDashboard />
-              </ProtectedRoute>
+              </StudentRoute>
             }
           />
         </Route>
