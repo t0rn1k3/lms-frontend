@@ -84,11 +84,23 @@ export default function ProfilePage() {
       )}
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">
             Profile Info
           </h2>
           <dl className="space-y-3 text-sm">
+            <div>
+              <dt className="text-slate-500">Name</dt>
+              <dd className="font-medium text-slate-800">
+                {studentProfile.name ?? "—"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-slate-500">Email</dt>
+              <dd className="font-medium text-slate-800">
+                {studentProfile.email ?? "—"}
+              </dd>
+            </div>
             <div>
               <dt className="text-slate-500">Student ID</dt>
               <dd className="font-medium text-slate-800">
@@ -114,7 +126,7 @@ export default function ProfilePage() {
           </dl>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">
             Edit Profile
           </h2>

@@ -58,7 +58,7 @@ function ResultsPage() {
           No exam results yet. Take exams from the My Exams page.
         </div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
@@ -106,7 +106,13 @@ function ResultsPage() {
                       {r.status || "—"}
                     </span>
                   </td>
-                  <td className="py-3 px-4">{r.isPublished ? "Yes" : "No"}</td>
+                  <td className="py-3 px-4">
+                    {r.isPublished ? (
+                      <span className="text-green-600 font-medium">Yes</span>
+                    ) : (
+                      <span className="text-amber-600">Pending</span>
+                    )}
+                  </td>
                   <td className="py-3 px-4">
                     {r.isPublished ? (
                       <Link

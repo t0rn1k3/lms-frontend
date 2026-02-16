@@ -51,9 +51,11 @@ function ExamsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">My Exams</h1>
+      <h1 className="text-2xl font-bold text-slate-800 mb-2">
+        Available Exams
+      </h1>
       <p className="text-slate-600 mb-6">
-        Take available exams and view your submitted exams.
+        Take exams or view completed ones. Each exam can be taken only once.
       </p>
 
       {error && (
@@ -74,7 +76,7 @@ function ExamsPage() {
             return (
               <div
                 key={exam._id}
-                className="p-5 bg-white rounded-xl border border-slate-200 hover:border-slate-300 transition-colors"
+                className="p-5 bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all"
               >
                 <h2 className="font-semibold text-slate-800 mb-1">
                   {exam.name}
@@ -84,6 +86,8 @@ function ExamsPage() {
                 </p>
                 <div className="flex flex-wrap gap-2 text-xs text-slate-500 mb-4">
                   <span>{getRefName(exam.subject)}</span>
+                  <span>•</span>
+                  <span>{exam.duration || "—"}</span>
                   <span>•</span>
                   <span>
                     {exam.examDate

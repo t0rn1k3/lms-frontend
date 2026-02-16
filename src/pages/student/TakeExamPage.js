@@ -12,6 +12,7 @@ function TakeExamPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
@@ -39,7 +40,7 @@ function TakeExamPage() {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmitClick = (e) => {
     e.preventDefault();
     const questions = exam?.questions || [];
     if (answers.length !== questions.length) {
@@ -51,14 +52,18 @@ function TakeExamPage() {
       setError("Please answer all questions.");
       return;
     }
-
     setError("");
+    setShowConfirm(true);
+  };
+
+  const handleSubmitConfirm = async () => {
     setSubmitting(true);
     try {
       await studentService.writeExam(examId, { answers });
       navigate("/student/results", { replace: true });
     } catch (err) {
       setError(getErrorMessage(err));
+      setShowConfirm(false);
     } finally {
       setSubmitting(false);
     }
@@ -89,6 +94,7 @@ function TakeExamPage() {
   if (!exam) return null;
 
   const questions = exam.questions || [];
+  const answeredCount = answers.filter((a) => a).length;
 
   return (
     <div>
@@ -129,7 +135,22 @@ function TakeExamPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
+        <p className="text-sm text-slate-600">
+          Progress: <strong>{answeredCount}</strong> of {questions.length}{" "}
+          questions answered
+        </p>
+        <div className="mt-2 h-2 bg-slate-200 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-slate-700 transition-all"
+            style={{
+              width: `${questions.length ? (answeredCount / questions.length) * 100 : 0}%`,
+            }}
+          />
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmitClick} className="space-y-6">
         {questions.map((q, i) => (
           <div
             key={q._id}
@@ -171,10 +192,42 @@ function TakeExamPage() {
             disabled={submitting}
             className="px-6 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50 font-medium"
           >
-            {submitting ? "Submitting..." : "Submit Exam"}
+            Submit Exam
           </button>
         </div>
       </form>
+
+      {showConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+            <h3 className="text-lg font-semibold text-slate-800 mb-2">
+              Submit exam?
+            </h3>
+            <p className="text-slate-600 mb-6">
+              You have answered all questions. This action cannot be undone.
+              Submit now?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setShowConfirm(false)}
+                disabled={submitting}
+                className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmitConfirm}
+                disabled={submitting}
+                className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
+              >
+                {submitting ? "Submitting..." : "Yes, submit"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

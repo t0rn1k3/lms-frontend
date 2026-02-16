@@ -65,17 +65,17 @@ function ResultDetailPage() {
       </h1>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
+        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 shadow-sm">
           <span className="text-sm text-slate-500">Score</span>
           <p className="font-medium">{result.score ?? "—"}</p>
         </div>
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
+        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 shadow-sm">
           <span className="text-sm text-slate-500">Grade</span>
           <p className="font-medium">
             {result.grade != null ? `${result.grade}%` : "—"}
           </p>
         </div>
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
+        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 shadow-sm">
           <span className="text-sm text-slate-500">Status</span>
           <p className="font-medium">
             <span
@@ -87,7 +87,7 @@ function ResultDetailPage() {
             </span>
           </p>
         </div>
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
+        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 shadow-sm">
           <span className="text-sm text-slate-500">Remarks</span>
           <p className="font-medium">{result.remarks || "—"}</p>
         </div>

@@ -8,16 +8,20 @@ function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [exams, setExams] = useState([]);
+
   useEffect(() => {
     const fetch = async () => {
       try {
         setLoading(true);
-        const [profileRes, resultsRes] = await Promise.all([
+        const [profileRes, resultsRes, examsRes] = await Promise.all([
           studentService.getProfile(),
           examResultService.list(),
+          studentService.getExams(),
         ]);
         setProfile(profileRes.data?.data ?? profileRes.data);
         setResults(resultsRes.data?.data ?? resultsRes.data ?? []);
+        setExams(examsRes.data?.data ?? examsRes.data ?? []);
       } catch (err) {
         setError(getErrorMessage(err));
       } finally {
@@ -34,6 +38,12 @@ function StudentDashboard() {
   const studentProfile = profile?.studentProfile ?? profile ?? {};
   const passed = results.filter((r) => r.status === "Passed").length;
   const latestResult = results[0]; // sorted by createdAt -1
+  const takenExamIds = results.map((r) =>
+    typeof r.exam === "object" ? r.exam?._id : r.exam
+  );
+  const availableCount = exams.filter(
+    (e) => !takenExamIds.includes(e._id)
+  ).length;
 
   return (
     <div>
@@ -50,8 +60,20 @@ function StudentDashboard() {
         </div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-3 mb-8">
-        <div className="p-6 bg-white rounded-xl border border-slate-200">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-sm">
+          <h2 className="text-sm font-medium text-slate-500 mb-1">
+            Available Exams
+          </h2>
+          <p className="text-2xl font-bold text-slate-800">{availableCount}</p>
+          <Link
+            to="/student/exams"
+            className="mt-2 text-sm text-slate-600 hover:text-slate-800"
+          >
+            Take exam →
+          </Link>
+        </div>
+        <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-sm">
           <h2 className="text-sm font-medium text-slate-500 mb-1">
             Exams Taken
           </h2>
@@ -63,11 +85,11 @@ function StudentDashboard() {
             View results →
           </Link>
         </div>
-        <div className="p-6 bg-white rounded-xl border border-slate-200">
+        <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-sm">
           <h2 className="text-sm font-medium text-slate-500 mb-1">Passed</h2>
           <p className="text-2xl font-bold text-green-700">{passed}</p>
         </div>
-        <div className="p-6 bg-white rounded-xl border border-slate-200">
+        <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-sm">
           <h2 className="text-sm font-medium text-slate-500 mb-1">
             Latest Result
           </h2>
