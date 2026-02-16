@@ -23,6 +23,7 @@ import ExamResultsPage from "./pages/admin/ExamResultsPage";
 import QuestionsPage from "./pages/admin/QuestionsPage";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherExamsPage from "./pages/teacher/ExamsPage";
+import TeacherExamDetailPage from "./pages/teacher/ExamDetailPage";
 import TeacherProfilePage from "./pages/teacher/ProfilePage";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentExamsPage from "./pages/student/ExamsPage";
@@ -89,6 +90,7 @@ function App() {
             }
           >
             <Route index element={<TeacherDashboard />} />
+            <Route path="exams/:id" element={<TeacherExamDetailPage />} />
             <Route path="exams" element={<TeacherExamsPage />} />
             <Route path="profile" element={<TeacherProfilePage />} />
           </Route>

@@ -11,3 +11,5 @@ export { studentService } from "./services/studentService";
 export { adminService } from "./services/adminService";
 export { examResultService } from "./services/examResultService";
 export { questionService } from "./services/questionService";
+export { examService } from "./services/examService";
+export { teacherQuestionService } from "./services/teacherQuestionService";

@@ -24,6 +24,7 @@ export const endpoints = {
     register: "/teachers/admin/register",
     login: "/teachers/login",
     profile: "/teachers/profile",
+    profileUpdate: "/teachers/profile",
     list: "/teachers/admin",
     getOne: (id) => `/teachers/${id}/admin`,
     update: (id) => `/teachers/${id}`,

@@ -1,0 +1,293 @@
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import {
+  examService,
+  teacherQuestionService,
+  academicService,
+  getErrorMessage,
+} from "../../api";
+
+const OPTIONS = ["A", "B", "C", "D"];
+
+function ExamDetailPage() {
+  const { id } = useParams();
+  const [exam, setExam] = useState(null);
+  const [subjects, setSubjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [questionFormOpen, setQuestionFormOpen] = useState(false);
+  const [editingQuestionId, setEditingQuestionId] = useState(null);
+  const [questionForm, setQuestionForm] = useState({
+    question: "",
+    optionA: "",
+    optionB: "",
+    optionC: "",
+    optionD: "",
+    correctAnswer: "A",
+  });
+  const [submitting, setSubmitting] = useState(false);
+
+  const getRefName = (val) => (typeof val === "object" ? val?.name : val);
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        setLoading(true);
+        const [examRes, subjRes] = await Promise.all([
+          examService.getOne(id),
+          academicService.getSubjects(),
+        ]);
+        setExam(examRes.data?.data ?? examRes.data);
+        setSubjects(subjRes.data?.data || []);
+      } catch (err) {
+        setError(getErrorMessage(err));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetch();
+  }, [id]);
+
+  const refreshExam = async () => {
+    try {
+      const { data } = await examService.getOne(id);
+      setExam(data.data ?? data);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+  };
+
+  const openAddQuestion = () => {
+    setEditingQuestionId(null);
+    setQuestionForm({
+      question: "",
+      optionA: "",
+      optionB: "",
+      optionC: "",
+      optionD: "",
+      correctAnswer: "A",
+    });
+    setQuestionFormOpen(true);
+  };
+
+  const openEditQuestion = (q) => {
+    setEditingQuestionId(q._id);
+    setQuestionForm({
+      question: q.question || "",
+      optionA: q.optionA || "",
+      optionB: q.optionB || "",
+      optionC: q.optionC || "",
+      optionD: q.optionD || "",
+      correctAnswer: q.correctAnswer || "A",
+    });
+    setQuestionFormOpen(true);
+  };
+
+  const handleQuestionSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSubmitting(true);
+    try {
+      const payload = {
+        question: questionForm.question.trim(),
+        optionA: questionForm.optionA.trim(),
+        optionB: questionForm.optionB.trim(),
+        optionC: questionForm.optionC.trim(),
+        optionD: questionForm.optionD.trim(),
+        correctAnswer: questionForm.correctAnswer,
+      };
+      if (editingQuestionId) {
+        await teacherQuestionService.update(editingQuestionId, payload);
+      } else {
+        await teacherQuestionService.create(id, payload);
+      }
+      setQuestionFormOpen(false);
+      refreshExam();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) return <div className="p-8 text-slate-500">Loading...</div>;
+  if (error && !exam) {
+    return (
+      <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        {error}
+      </div>
+    );
+  }
+  if (!exam) return null;
+
+  const questions = exam.questions || [];
+
+  return (
+    <div>
+      <div className="flex items-center gap-4 mb-6">
+        <Link to="/teacher/exams" className="text-slate-600 hover:text-slate-800">
+          ← Back to Exams
+        </Link>
+        <button
+          onClick={openAddQuestion}
+          className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700"
+        >
+          Add Question
+        </button>
+      </div>
+
+      <h1 className="text-2xl font-bold text-slate-800 mb-2">{exam.name}</h1>
+      <p className="text-slate-600 mb-6">{exam.description}</p>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
+          <span className="text-sm text-slate-500">Subject</span>
+          <p className="font-medium">{getRefName(exam.subject)}</p>
+        </div>
+        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
+          <span className="text-sm text-slate-500">Date</span>
+          <p className="font-medium">
+            {exam.examDate
+              ? new Date(exam.examDate).toLocaleDateString()
+              : "—"}
+          </p>
+        </div>
+        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
+          <span className="text-sm text-slate-500">Time</span>
+          <p className="font-medium">{exam.examTime || "—"}</p>
+        </div>
+        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
+          <span className="text-sm text-slate-500">Questions</span>
+          <p className="font-medium">{questions.length}</p>
+        </div>
+      </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
+      {questionFormOpen && (
+        <div className="mb-8 p-6 bg-white rounded-xl border border-slate-200">
+          <h2 className="text-lg font-semibold text-slate-800 mb-4">
+            {editingQuestionId ? "Edit Question" : "New Question"}
+          </h2>
+          <form onSubmit={handleQuestionSubmit} className="space-y-4 max-w-2xl">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Question *
+              </label>
+              <textarea
+                value={questionForm.question}
+                onChange={(e) =>
+                  setQuestionForm((p) => ({ ...p, question: e.target.value }))
+                }
+                required
+                rows={3}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+              />
+            </div>
+            {OPTIONS.map((opt) => (
+              <div key={opt}>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Option {opt} *
+                </label>
+                <input
+                  type="text"
+                  value={questionForm[`option${opt}`]}
+                  onChange={(e) =>
+                    setQuestionForm((p) => ({
+                      ...p,
+                      [`option${opt}`]: e.target.value,
+                    }))
+                  }
+                  required
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                />
+              </div>
+            ))}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Correct Answer *
+              </label>
+              <select
+                value={questionForm.correctAnswer}
+                onChange={(e) =>
+                  setQuestionForm((p) => ({
+                    ...p,
+                    correctAnswer: e.target.value,
+                  }))
+                }
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+              >
+                {OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    Option {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
+              >
+                {submitting ? "Saving..." : "Save"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setQuestionFormOpen(false)}
+                className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <h2 className="text-lg font-semibold text-slate-800 mb-4">Questions</h2>
+      {questions.length === 0 ? (
+        <div className="p-8 bg-white rounded-xl border border-slate-200 text-center text-slate-500">
+          No questions yet. Click &quot;Add Question&quot; to add one.
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {questions.map((q, i) => (
+            <div
+              key={q._id}
+              className="p-4 bg-white rounded-xl border border-slate-200"
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <p className="font-medium text-slate-800">
+                    {i + 1}. {q.question}
+                  </p>
+                  <div className="mt-2 grid grid-cols-2 gap-2 text-sm text-slate-600">
+                    <span>A. {q.optionA}</span>
+                    <span>B. {q.optionB}</span>
+                    <span>C. {q.optionC}</span>
+                    <span>D. {q.optionD}</span>
+                  </div>
+                  <p className="mt-2 text-xs text-green-700">
+                    Correct: {q.correctAnswer}
+                  </p>
+                </div>
+                <button
+                  onClick={() => openEditQuestion(q)}
+                  className="text-slate-600 hover:text-slate-800 text-sm"
+                >
+                  Edit
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default ExamDetailPage;
