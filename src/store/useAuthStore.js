@@ -1,15 +1,14 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-const STORAGE_KEYS = {
-  token: "lms_token",
-  user: "lms_user",
-  role: "lms_role",
-};
-
+/**
+ * Auth store: token + role in Zustand state and localStorage.
+ * persist middleware syncs token, user, role to localStorage["lms-auth"].
+ */
 export const useAuthStore = create(
   persist(
     (set) => ({
+      // State (also persisted to localStorage)
       token: null,
       user: null,
       role: null, // "admin" | "teacher" | "student"
