@@ -3,7 +3,6 @@ import { useParams, Link } from "react-router-dom";
 import {
   examService,
   teacherQuestionService,
-  academicService,
   getErrorMessage,
 } from "../../api";
 
@@ -12,7 +11,6 @@ const OPTIONS = ["A", "B", "C", "D"];
 function ExamDetailPage() {
   const { id } = useParams();
   const [exam, setExam] = useState(null);
-  const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [questionFormOpen, setQuestionFormOpen] = useState(false);
@@ -33,12 +31,8 @@ function ExamDetailPage() {
     const fetch = async () => {
       try {
         setLoading(true);
-        const [examRes, subjRes] = await Promise.all([
-          examService.getOne(id),
-          academicService.getSubjects(),
-        ]);
+        const examRes = await examService.getOne(id);
         setExam(examRes.data?.data ?? examRes.data);
-        setSubjects(subjRes.data?.data || []);
       } catch (err) {
         setError(getErrorMessage(err));
       } finally {
@@ -125,7 +119,10 @@ function ExamDetailPage() {
   return (
     <div>
       <div className="flex items-center gap-4 mb-6">
-        <Link to="/teacher/exams" className="text-slate-600 hover:text-slate-800">
+        <Link
+          to="/teacher/exams"
+          className="text-slate-600 hover:text-slate-800"
+        >
           ← Back to Exams
         </Link>
         <button
@@ -147,9 +144,7 @@ function ExamDetailPage() {
         <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
           <span className="text-sm text-slate-500">Date</span>
           <p className="font-medium">
-            {exam.examDate
-              ? new Date(exam.examDate).toLocaleDateString()
-              : "—"}
+            {exam.examDate ? new Date(exam.examDate).toLocaleDateString() : "—"}
           </p>
         </div>
         <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">

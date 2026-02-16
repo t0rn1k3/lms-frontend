@@ -27,7 +27,9 @@ import TeacherExamDetailPage from "./pages/teacher/ExamDetailPage";
 import TeacherProfilePage from "./pages/teacher/ProfilePage";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentExamsPage from "./pages/student/ExamsPage";
+import TakeExamPage from "./pages/student/TakeExamPage";
 import StudentResultsPage from "./pages/student/ResultsPage";
+import ResultDetailPage from "./pages/student/ResultDetailPage";
 import StudentProfilePage from "./pages/student/ProfilePage";
 
 function App() {
@@ -106,7 +108,9 @@ function App() {
           >
             <Route index element={<StudentDashboard />} />
             <Route path="exams" element={<StudentExamsPage />} />
+            <Route path="exams/:examId/take" element={<TakeExamPage />} />
             <Route path="results" element={<StudentResultsPage />} />
+            <Route path="results/:id" element={<ResultDetailPage />} />
             <Route path="profile" element={<StudentProfilePage />} />
           </Route>
 

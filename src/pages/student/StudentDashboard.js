@@ -1,10 +1,121 @@
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { studentService, examResultService, getErrorMessage } from "../../api";
+
 function StudentDashboard() {
+  const [profile, setProfile] = useState(null);
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        setLoading(true);
+        const [profileRes, resultsRes] = await Promise.all([
+          studentService.getProfile(),
+          examResultService.list(),
+        ]);
+        setProfile(profileRes.data?.data ?? profileRes.data);
+        setResults(resultsRes.data?.data ?? resultsRes.data ?? []);
+      } catch (err) {
+        setError(getErrorMessage(err));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetch();
+  }, []);
+
+  if (loading) {
+    return <div className="p-8 text-center text-slate-500">Loading...</div>;
+  }
+
+  const studentProfile = profile?.studentProfile ?? profile ?? {};
+  const passed = results.filter((r) => r.status === "Passed").length;
+  const latestResult = results[0]; // sorted by createdAt -1
+
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800">Student Overview</h1>
-      <p className="text-slate-600 mt-2">
+      <h1 className="text-2xl font-bold text-slate-800 mb-2">
+        Welcome, {studentProfile.name || "Student"}
+      </h1>
+      <p className="text-slate-600 mb-8">
         Take exams, view your results, and manage your profile from the sidebar.
       </p>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
+      <div className="grid gap-6 md:grid-cols-3 mb-8">
+        <div className="p-6 bg-white rounded-xl border border-slate-200">
+          <h2 className="text-sm font-medium text-slate-500 mb-1">
+            Exams Taken
+          </h2>
+          <p className="text-2xl font-bold text-slate-800">{results.length}</p>
+          <Link
+            to="/student/results"
+            className="mt-2 text-sm text-slate-600 hover:text-slate-800"
+          >
+            View results →
+          </Link>
+        </div>
+        <div className="p-6 bg-white rounded-xl border border-slate-200">
+          <h2 className="text-sm font-medium text-slate-500 mb-1">Passed</h2>
+          <p className="text-2xl font-bold text-green-700">{passed}</p>
+        </div>
+        <div className="p-6 bg-white rounded-xl border border-slate-200">
+          <h2 className="text-sm font-medium text-slate-500 mb-1">
+            Latest Result
+          </h2>
+          {latestResult ? (
+            <>
+              <p className="text-lg font-semibold text-slate-800">
+                {typeof latestResult.exam === "object"
+                  ? latestResult.exam?.name
+                  : "—"}
+              </p>
+              <p
+                className={`text-sm ${
+                  latestResult.status === "Passed"
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                {latestResult.status} ({latestResult.grade}%)
+              </p>
+              {latestResult.isPublished && (
+                <Link
+                  to={`/student/results/${latestResult._id}`}
+                  className="mt-2 text-sm text-slate-600 hover:text-slate-800 inline-block"
+                >
+                  View details →
+                </Link>
+              )}
+            </>
+          ) : (
+            <p className="text-slate-500">No exams taken yet</p>
+          )}
+        </div>
+      </div>
+
+      <div className="flex gap-4">
+        <Link
+          to="/student/exams"
+          className="px-5 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-medium"
+        >
+          My Exams
+        </Link>
+        <Link
+          to="/student/profile"
+          className="px-5 py-3 border border-slate-300 rounded-lg hover:bg-slate-50 font-medium"
+        >
+          Profile
+        </Link>
+      </div>
     </div>
   );
 }
