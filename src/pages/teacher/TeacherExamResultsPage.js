@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { examResultService, getErrorMessage } from "../../api";
-import { PageLoader, ErrorMessage, PageError } from "../../components";
+import { PageLoader, ErrorMessage } from "../../components";
 
-function getRefName(val) {
-  return typeof val === "object" ? val?.name : val;
+function getRefName(val, key = "name") {
+  if (!val) return "—";
+  return typeof val === "object" ? val?.[key] || val?._id : val;
 }
 
-function ResultsPage() {
+function TeacherExamResultsPage() {
   const { t } = useTranslation();
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +19,8 @@ function ResultsPage() {
     const fetch = async () => {
       try {
         setLoading(true);
-        const { data } = await examResultService.list();
+        setError("");
+        const { data } = await examResultService.teacherList();
         setResults(data?.data ?? data ?? []);
       } catch (err) {
         setError(getErrorMessage(err));
@@ -29,26 +31,30 @@ function ResultsPage() {
     fetch();
   }, []);
 
-  if (loading) {
-    return <PageLoader message={t("student.loadingResults")} />;
-  }
+  const statusBadgeClass = (status) => {
+    if (status === "Passed") return "bg-green-100 text-green-800";
+    if (status === "Pending") return "bg-amber-100 text-amber-800";
+    return "bg-red-100 text-red-800";
+  };
 
-  if (error && results.length === 0) {
-    return <PageError message={error} backTo="/student" backLabel={t("student.backToOverview")} />;
+  if (loading) {
+    return <PageLoader message={t("common.loading")} />;
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">{t("student.resultsPageTitle")}</h1>
+      <h1 className="text-2xl font-bold text-slate-800 mb-2">
+        {t("teacher.examResults")}
+      </h1>
       <p className="text-slate-600 mb-6">
-        {t("student.resultsPageIntro")}
+        {t("teacher.examResultsIntro")}
       </p>
 
       {error && <ErrorMessage message={error} className="mb-4" />}
 
       {results.length === 0 ? (
         <div className="p-8 bg-white rounded-xl border border-slate-200 text-center text-slate-500">
-          {t("student.noResultsYet")}
+          {t("admin.noExamResults")}
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
@@ -56,69 +62,65 @@ function ResultsPage() {
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
                 <th className="text-left py-3 px-4 font-semibold text-slate-700">
-                  {t("student.exam")}
+                  {t("teacher.tableStudent")}
                 </th>
                 <th className="text-left py-3 px-4 font-semibold text-slate-700">
-                  {t("student.score")}
+                  {t("teacher.tableExam")}
                 </th>
                 <th className="text-left py-3 px-4 font-semibold text-slate-700">
-                  {t("student.grade")}
+                  {t("teacher.tableScore")}
                 </th>
                 <th className="text-left py-3 px-4 font-semibold text-slate-700">
-                  {t("student.status")}
+                  {t("teacher.tableStatus")}
                 </th>
                 <th className="text-left py-3 px-4 font-semibold text-slate-700">
-                  {t("student.published")}
+                  {t("admin.tablePublished")}
                 </th>
                 <th className="text-left py-3 px-4 font-semibold text-slate-700">
-                  {t("student.action")}
+                  {t("common.actions")}
                 </th>
               </tr>
             </thead>
             <tbody>
               {results.map((r) => (
-                <tr
-                  key={r._id}
-                  className="border-b border-slate-100 hover:bg-slate-50"
-                >
+                <tr key={r._id} className="border-b border-slate-100 hover:bg-slate-50">
                   <td className="py-3 px-4 text-slate-800">
+                    <span className="font-medium">{r.studentId || "—"}</span>
+                  </td>
+                  <td className="py-3 px-4 text-slate-600">
                     {getRefName(r.exam)}
                   </td>
-                  <td className="py-3 px-4">{r.score ?? "—"}</td>
                   <td className="py-3 px-4">
-                    {r.grade != null ? `${r.grade}%` : "—"}
+                    {r.totalMark != null
+                      ? `${r.score ?? 0} / ${r.totalMark}`
+                      : r.score ?? "—"}
                   </td>
                   <td className="py-3 px-4">
                     <span
-                      className={`inline-block px-2 py-1 rounded text-sm ${
-                        r.status === "Passed"
-                          ? "bg-green-100 text-green-800"
-                          : r.status === "Pending"
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-red-100 text-red-800"
-                      }`}
+                      className={`inline-block px-2 py-1 rounded text-sm ${statusBadgeClass(r.status)}`}
                     >
                       {r.status || "—"}
                     </span>
+                    {!r.isFullyGraded && (
+                      <span className="ml-1 px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-700">
+                        {t("teacher.needsGrading")}
+                      </span>
+                    )}
                   </td>
                   <td className="py-3 px-4">
                     {r.isPublished ? (
                       <span className="text-green-600 font-medium">{t("common.yes")}</span>
                     ) : (
-                      <span className="text-amber-600">{t("student.pending")}</span>
+                      <span className="text-slate-500">{t("common.no")}</span>
                     )}
                   </td>
                   <td className="py-3 px-4">
-                    {r.isPublished ? (
-                      <Link
-                        to={`/student/results/${r._id}`}
-                        className="text-slate-700 hover:text-slate-900 font-medium"
-                      >
-                        {t("common.view")}
-                      </Link>
-                    ) : (
-                      <span className="text-slate-400">—</span>
-                    )}
+                    <Link
+                      to={`/teacher/exam-results/${r._id}`}
+                      className="text-slate-700 hover:text-slate-900 font-medium"
+                    >
+                      {t("common.view")}
+                    </Link>
                   </td>
                 </tr>
               ))}
@@ -130,4 +132,4 @@ function ResultsPage() {
   );
 }
 
-export default ResultsPage;
+export default TeacherExamResultsPage;

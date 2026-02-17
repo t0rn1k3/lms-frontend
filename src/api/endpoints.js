@@ -106,5 +106,9 @@ export const endpoints = {
     adminList: "/admins/exam-results",
     getOne: (id) => `/exam-results/${id}`,
     togglePublish: (id) => `/exam-results/${id}`,
+    teacherList: "teachers/exam-results",
+    teacherGetOne: (id) => `teachers/exam-results/${id}`,
+    teacherGrade: (id) => `teachers/exam-results/${id}/grade`,
+    teacherPublish: (id) => `teachers/exam-results/${id}/publish`,
   },
 };

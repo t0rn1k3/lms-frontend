@@ -30,7 +30,8 @@
     "teacherId": "მასწავლებლის ID",
     "actions": "მოქმედებები",
     "previous": "წინა",
-    "next": "შემდეგი"
+    "next": "შემდეგი",
+    "optional": "არასავალდებულო"
   },
   "nav": {
     "home": "მთავარი",
@@ -126,7 +127,8 @@
     "submitExam": "გამოცდის გაგზავნა",
     "submitConfirmTitle": "გავაგზავნოთ გამოცდა?",
     "submitConfirmMessage": "ყველა შეკითხვაზე უპასუხეთ. ეს მოქმედება უკან არ სცილდება. გავაგზავნოთ ახლა?",
-    "submitConfirmYes": "დიახ, გაგზავნა"
+    "submitConfirmYes": "დიახ, გაგზავნა",
+    "writeYourAnswer": "ჩაწერეთ თქვენი პასუხი აქ..."
   },
   "teacher": {
     "title": "მასწავლებელი",
@@ -148,7 +150,32 @@
     "examTime": "გამოცდის დრო",
     "examType": "გამოცდის ტიპი",
     "select": "არჩევა",
-    "loadingProfile": "იტვირთება პროფილი..."
+    "loadingProfile": "იტვირთება პროფილი...",
+    "questionType": "შეკითხვის ტიპი",
+    "questionTypeMultipleChoice": "საგამოცდო",
+    "questionTypeOpenEnded": "ღია",
+    "question": "შეკითხვა",
+    "mark": "ქულა",
+    "markLabel": "{{mark}} ქულა",
+    "option": "ვარიანტი {{letter}}",
+    "correctAnswer": "სწორი პასუხი",
+    "modelAnswer": "საცნობარო პასუხი",
+    "modelAnswerPlaceholder": "საცნობარო პასუხი შეფასებისთვის",
+    "questions": "შეკითხვები",
+    "noQuestionsYet": "ჯერ შეკითხვები არ არის. დაამატეთ შეკითხვა.",
+    "openEndedNoModel": "ღია (საცნობარო პასუხის გარეშე)",
+    "examResults": "გამოცდების შედეგები",
+    "examResultsIntro": "ნახეთ და შეაფასეთ გამოცდის ჩაბარებები. გამოაქვეყნეთ მას შემდეგ რაც ყველაფერი შეფასდება.",
+    "tableStudent": "სტუდენტი",
+    "tableExam": "გამოცდა",
+    "tableScore": "ქულა",
+    "tableStatus": "სტატუსი",
+    "needsGrading": "შეფასება საჭიროა",
+    "fullyGraded": "სრულად შეფასებული",
+    "gradeAndPublish": "შეფასება და გამოქვეყნება",
+    "gradeAnswers": "პასუხების შეფასება",
+    "pointsAwarded": "მიღებული ქულა",
+    "publishResult": "შედეგის გამოქვეყნება"
   },
   "admin": {
     "title": "ადმინისტრატორი",

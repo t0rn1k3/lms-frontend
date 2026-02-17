@@ -62,7 +62,11 @@ function ResultDetailPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 shadow-sm">
           <span className="text-sm text-slate-500">{t("student.score")}</span>
-          <p className="font-medium">{result.score ?? "—"}</p>
+          <p className="font-medium">
+            {result.totalMark != null
+              ? `${result.score ?? 0} / ${result.totalMark}`
+              : result.score ?? "—"}
+          </p>
         </div>
         <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 shadow-sm">
           <span className="text-sm text-slate-500">{t("student.grade")}</span>
@@ -75,7 +79,11 @@ function ResultDetailPage() {
           <p className="font-medium">
             <span
               className={
-                result.status === "Passed" ? "text-green-700" : "text-red-700"
+                result.status === "Passed"
+                  ? "text-green-700"
+                  : result.status === "Pending"
+                    ? "text-amber-700"
+                    : "text-red-700"
               }
             >
               {result.status || "—"}
@@ -96,9 +104,11 @@ function ResultDetailPage() {
           <div
             key={i}
             className={`p-4 rounded-xl border ${
-              aq.isCorrect
-                ? "bg-green-50 border-green-200"
-                : "bg-red-50 border-red-200"
+              aq.questionType === "open-ended"
+                ? "bg-slate-50 border-slate-200"
+                : aq.isCorrect
+                  ? "bg-green-50 border-green-200"
+                  : "bg-red-50 border-red-200"
             }`}
           >
             <p className="font-medium text-slate-800 mb-2">
@@ -106,21 +116,37 @@ function ResultDetailPage() {
             </p>
             <div className="flex flex-wrap gap-4 text-sm">
               <span className="text-slate-600">
-                {t("student.yourAnswer")}: <strong>{aq.studentAnswer}</strong>
+                {t("student.yourAnswer")}: <strong>{aq.studentAnswer || "—"}</strong>
               </span>
-              <span className="text-slate-600">
-                {t("student.correctAnswerLabel")}:{" "}
-                <strong className="text-green-700">{aq.correctAnswer}</strong>
-              </span>
-              <span
-                className={
-                  aq.isCorrect
-                    ? "text-green-700 font-medium"
-                    : "text-red-700 font-medium"
-                }
-              >
-                {aq.isCorrect ? t("student.correct") : t("student.incorrect")}
-              </span>
+              {aq.questionType === "open-ended" ? (
+                <>
+                  {aq.correctAnswer && (
+                    <span className="text-slate-600">
+                      {t("teacher.modelAnswer")}:{" "}
+                      <strong className="text-green-700">{aq.correctAnswer}</strong>
+                    </span>
+                  )}
+                  <span className="text-slate-600">
+                    {t("teacher.pointsAwarded")}: {aq.pointsAwarded ?? "—"} / {aq.mark ?? 1}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-slate-600">
+                    {t("student.correctAnswerLabel")}:{" "}
+                    <strong className="text-green-700">{aq.correctAnswer}</strong>
+                  </span>
+                  <span
+                    className={
+                      aq.isCorrect
+                        ? "text-green-700 font-medium"
+                        : "text-red-700 font-medium"
+                    }
+                  >
+                    {aq.isCorrect ? t("student.correct") : t("student.incorrect")}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         ))}

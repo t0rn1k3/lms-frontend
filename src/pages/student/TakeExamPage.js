@@ -149,30 +149,45 @@ function TakeExamPage() {
             <p className="font-medium text-slate-800 mb-4">
               {i + 1}. {q.question}
             </p>
-            <div className="space-y-2">
-              {OPTIONS.map((opt) => (
-                <label
-                  key={opt}
-                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                    answers[i] === opt
-                      ? "border-slate-800 bg-slate-50"
-                      : "border-slate-200 hover:border-slate-300"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name={`q-${i}`}
-                    value={opt}
-                    checked={answers[i] === opt}
-                    onChange={() => handleAnswer(i, opt)}
-                    className="w-4 h-4"
-                  />
-                  <span className="text-slate-700">
-                    {opt}. {q[`option${opt}`]}
-                  </span>
+            {q.questionType === "open-ended" ? (
+              <div>
+                <label className="block text-sm text-slate-600 mb-2">
+                  {t("student.yourAnswer")}
                 </label>
-              ))}
-            </div>
+                <textarea
+                  value={answers[i] || ""}
+                  onChange={(e) => handleAnswer(i, e.target.value)}
+                  rows={4}
+                  placeholder={t("student.writeYourAnswer")}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {OPTIONS.map((opt) => (
+                  <label
+                    key={opt}
+                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                      answers[i] === opt
+                        ? "border-slate-800 bg-slate-50"
+                        : "border-slate-200 hover:border-slate-300"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name={`q-${i}`}
+                      value={opt}
+                      checked={answers[i] === opt}
+                      onChange={() => handleAnswer(i, opt)}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-slate-700">
+                      {opt}. {q[`option${opt}`] || ""}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
         ))}
 

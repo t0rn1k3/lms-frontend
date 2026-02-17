@@ -7,6 +7,7 @@ function TeacherLayout() {
   const sidebarItems = [
     { to: "/teacher", label: t("teacher.overview") },
     { to: "/teacher/exams", label: t("teacher.exams") },
+    { to: "/teacher/exam-results", label: t("teacher.examResults") },
     { to: "/teacher/profile", label: t("common.profile") },
   ];
   return (

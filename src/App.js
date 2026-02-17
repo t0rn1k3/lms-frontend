@@ -26,6 +26,8 @@ import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherExamsPage from "./pages/teacher/ExamsPage";
 import TeacherExamDetailPage from "./pages/teacher/ExamDetailPage";
 import TeacherProfilePage from "./pages/teacher/ProfilePage";
+import TeacherExamResultsPage from "./pages/teacher/TeacherExamResultsPage";
+import TeacherExamResultDetailPage from "./pages/teacher/TeacherExamResultDetailPage";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentExamsPage from "./pages/student/ExamsPage";
 import TakeExamPage from "./pages/student/TakeExamPage";
@@ -103,6 +105,8 @@ function App() {
             <Route index element={<TeacherDashboard />} />
             <Route path="exams/:id" element={<TeacherExamDetailPage />} />
             <Route path="exams" element={<TeacherExamsPage />} />
+            <Route path="exam-results/:id" element={<TeacherExamResultDetailPage />} />
+            <Route path="exam-results" element={<TeacherExamResultsPage />} />
             <Route path="profile" element={<TeacherProfilePage />} />
           </Route>
 

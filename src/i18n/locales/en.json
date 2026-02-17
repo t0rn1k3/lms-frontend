@@ -30,7 +30,8 @@
     "teacherId": "Teacher ID",
     "actions": "Actions",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "optional": "Optional"
   },
   "nav": {
     "home": "Home",
@@ -126,7 +127,8 @@
     "submitExam": "Submit Exam",
     "submitConfirmTitle": "Submit exam?",
     "submitConfirmMessage": "You have answered all questions. This action cannot be undone. Submit now?",
-    "submitConfirmYes": "Yes, submit"
+    "submitConfirmYes": "Yes, submit",
+    "writeYourAnswer": "Write your answer here..."
   },
   "teacher": {
     "title": "Teacher",
@@ -148,7 +150,32 @@
     "examTime": "Exam Time",
     "examType": "Exam Type",
     "select": "Select",
-    "loadingProfile": "Loading profile..."
+    "loadingProfile": "Loading profile...",
+    "questionType": "Question Type",
+    "questionTypeMultipleChoice": "Multiple Choice",
+    "questionTypeOpenEnded": "Open-ended",
+    "question": "Question",
+    "mark": "Mark",
+    "markLabel": "{{mark}} pt(s)",
+    "option": "Option {{letter}}",
+    "correctAnswer": "Correct Answer",
+    "modelAnswer": "Model answer",
+    "modelAnswerPlaceholder": "Reference answer for grading",
+    "questions": "Questions",
+    "noQuestionsYet": "No questions yet. Click \"Add Question\" to add one.",
+    "openEndedNoModel": "Open-ended (no model answer)",
+    "examResults": "Exam Results",
+    "examResultsIntro": "View and grade exam submissions. Publish when fully graded.",
+    "tableStudent": "Student",
+    "tableExam": "Exam",
+    "tableScore": "Score",
+    "tableStatus": "Status",
+    "needsGrading": "Needs grading",
+    "fullyGraded": "Fully graded",
+    "gradeAndPublish": "Grade & Publish",
+    "gradeAnswers": "Grade Answers",
+    "pointsAwarded": "Points awarded",
+    "publishResult": "Publish Result"
   },
   "admin": {
     "title": "Admin",

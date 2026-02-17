@@ -6,6 +6,10 @@ import {
 } from "../../api";
 
 const OPTIONS = ["A", "B", "C", "D"];
+const QUESTION_TYPES = [
+  { value: "multiple-choice", label: "Multiple Choice" },
+  { value: "open-ended", label: "Open-ended" },
+];
 
 function QuestionsPage() {
   const [questions, setQuestions] = useState([]);
@@ -17,6 +21,8 @@ function QuestionsPage() {
   const [formData, setFormData] = useState({
     examId: "",
     question: "",
+    questionType: "multiple-choice",
+    mark: "",
     optionA: "",
     optionB: "",
     optionC: "",
@@ -66,6 +72,8 @@ function QuestionsPage() {
     setFormData({
       examId: exams.length === 1 ? exams[0]._id : "",
       question: "",
+      questionType: "multiple-choice",
+      mark: "",
       optionA: "",
       optionB: "",
       optionC: "",
@@ -80,6 +88,8 @@ function QuestionsPage() {
     setFormData({
       examId: "",
       question: item.question || "",
+      questionType: item.questionType || "multiple-choice",
+      mark: item.mark != null ? String(item.mark) : "",
       optionA: item.optionA || "",
       optionB: item.optionB || "",
       optionC: item.optionC || "",
@@ -96,12 +106,22 @@ function QuestionsPage() {
     try {
       const payload = {
         question: formData.question.trim(),
-        optionA: formData.optionA.trim(),
-        optionB: formData.optionB.trim(),
-        optionC: formData.optionC.trim(),
-        optionD: formData.optionD.trim(),
-        correctAnswer: formData.correctAnswer,
+        questionType: formData.questionType,
+        mark: formData.mark ? Number(formData.mark) : undefined,
       };
+      if (formData.questionType === "multiple-choice") {
+        payload.optionA = formData.optionA.trim();
+        payload.optionB = formData.optionB.trim();
+        payload.optionC = formData.optionC.trim();
+        payload.optionD = formData.optionD.trim();
+        payload.correctAnswer = formData.correctAnswer;
+      } else {
+        payload.correctAnswer = formData.correctAnswer?.trim() || undefined;
+        if (formData.optionA?.trim()) payload.optionA = formData.optionA.trim();
+        if (formData.optionB?.trim()) payload.optionB = formData.optionB.trim();
+        if (formData.optionC?.trim()) payload.optionC = formData.optionC.trim();
+        if (formData.optionD?.trim()) payload.optionD = formData.optionD.trim();
+      }
       if (editingId) {
         await questionService.update(editingId, payload);
       } else {
@@ -172,6 +192,24 @@ function QuestionsPage() {
             )}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
+                Question Type <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={formData.questionType}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, questionType: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+              >
+                {QUESTION_TYPES.map((qt) => (
+                  <option key={qt.value} value={qt.value}>
+                    {qt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Question <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -185,47 +223,83 @@ function QuestionsPage() {
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
               />
             </div>
-            {OPTIONS.map((opt) => (
-              <div key={opt}>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Mark (optional)
+              </label>
+              <input
+                type="number"
+                min={1}
+                step={0.5}
+                value={formData.mark}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, mark: e.target.value }))
+                }
+                placeholder="1"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+              />
+            </div>
+            {formData.questionType === "multiple-choice" && (
+              <>
+                {OPTIONS.map((opt) => (
+                  <div key={opt}>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      Option {opt} <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData[`option${opt}`]}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          [`option${opt}`]: e.target.value,
+                        }))
+                      }
+                      required
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                    />
+                  </div>
+                ))}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Correct Answer <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={formData.correctAnswer}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        correctAnswer: e.target.value,
+                      }))
+                    }
+                    required
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                  >
+                    {OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>
+                        Option {opt}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
+            {formData.questionType === "open-ended" && (
+              <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Option {opt} <span className="text-red-500">*</span>
+                  Model answer (optional)
                 </label>
-                <input
-                  type="text"
-                  value={formData[`option${opt}`]}
+                <textarea
+                  value={formData.correctAnswer}
                   onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      [`option${opt}`]: e.target.value,
-                    }))
+                    setFormData((prev) => ({ ...prev, correctAnswer: e.target.value }))
                   }
-                  required
+                  rows={2}
+                  placeholder="Reference answer for grading"
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg"
                 />
               </div>
-            ))}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Correct Answer <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={formData.correctAnswer}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    correctAnswer: e.target.value,
-                  }))
-                }
-                required
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
-              >
-                {OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    Option {opt}
-                  </option>
-                ))}
-              </select>
-            </div>
+            )}
             <div className="flex gap-2">
               <button
                 type="submit"
@@ -261,6 +335,9 @@ function QuestionsPage() {
                   Question
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                  Type
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
                   Exam
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
@@ -277,6 +354,11 @@ function QuestionsPage() {
                   <td className="px-4 py-3 max-w-md">
                     <span className="text-slate-800 line-clamp-2">
                       {item.question}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600">
+                    <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-200 text-slate-700">
+                      {item.questionType === "open-ended" ? "Open-ended" : "Multiple Choice"}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-slate-600">

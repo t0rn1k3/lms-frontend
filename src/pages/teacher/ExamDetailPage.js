@@ -8,6 +8,10 @@ import {
 } from "../../api";
 
 const OPTIONS = ["A", "B", "C", "D"];
+const QUESTION_TYPES = [
+  { value: "multiple-choice", labelKey: "teacher.questionTypeMultipleChoice" },
+  { value: "open-ended", labelKey: "teacher.questionTypeOpenEnded" },
+];
 
 function ExamDetailPage() {
   const { t } = useTranslation();
@@ -19,6 +23,8 @@ function ExamDetailPage() {
   const [editingQuestionId, setEditingQuestionId] = useState(null);
   const [questionForm, setQuestionForm] = useState({
     question: "",
+    questionType: "multiple-choice",
+    mark: "",
     optionA: "",
     optionB: "",
     optionC: "",
@@ -57,6 +63,8 @@ function ExamDetailPage() {
     setEditingQuestionId(null);
     setQuestionForm({
       question: "",
+      questionType: "multiple-choice",
+      mark: "",
       optionA: "",
       optionB: "",
       optionC: "",
@@ -70,6 +78,8 @@ function ExamDetailPage() {
     setEditingQuestionId(q._id);
     setQuestionForm({
       question: q.question || "",
+      questionType: q.questionType || "multiple-choice",
+      mark: q.mark != null ? String(q.mark) : "",
       optionA: q.optionA || "",
       optionB: q.optionB || "",
       optionC: q.optionC || "",
@@ -86,12 +96,22 @@ function ExamDetailPage() {
     try {
       const payload = {
         question: questionForm.question.trim(),
-        optionA: questionForm.optionA.trim(),
-        optionB: questionForm.optionB.trim(),
-        optionC: questionForm.optionC.trim(),
-        optionD: questionForm.optionD.trim(),
-        correctAnswer: questionForm.correctAnswer,
+        questionType: questionForm.questionType,
+        mark: questionForm.mark ? Number(questionForm.mark) : undefined,
       };
+      if (questionForm.questionType === "multiple-choice") {
+        payload.optionA = questionForm.optionA.trim();
+        payload.optionB = questionForm.optionB.trim();
+        payload.optionC = questionForm.optionC.trim();
+        payload.optionD = questionForm.optionD.trim();
+        payload.correctAnswer = questionForm.correctAnswer;
+      } else {
+        payload.correctAnswer = questionForm.correctAnswer?.trim() || undefined;
+        if (questionForm.optionA?.trim()) payload.optionA = questionForm.optionA.trim();
+        if (questionForm.optionB?.trim()) payload.optionB = questionForm.optionB.trim();
+        if (questionForm.optionC?.trim()) payload.optionC = questionForm.optionC.trim();
+        if (questionForm.optionD?.trim()) payload.optionD = questionForm.optionD.trim();
+      }
       if (editingQuestionId) {
         await teacherQuestionService.update(editingQuestionId, payload);
       } else {
@@ -173,7 +193,25 @@ function ExamDetailPage() {
           <form onSubmit={handleQuestionSubmit} className="space-y-4 max-w-2xl">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Question *
+                {t("teacher.questionType")} *
+              </label>
+              <select
+                value={questionForm.questionType}
+                onChange={(e) =>
+                  setQuestionForm((p) => ({ ...p, questionType: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+              >
+                {QUESTION_TYPES.map((qt) => (
+                  <option key={qt.value} value={qt.value}>
+                    {t(qt.labelKey)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                {t("teacher.question")} *
               </label>
               <textarea
                 value={questionForm.question}
@@ -185,46 +223,82 @@ function ExamDetailPage() {
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
               />
             </div>
-            {OPTIONS.map((opt) => (
-              <div key={opt}>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                {t("teacher.mark")} ({t("common.optional")})
+              </label>
+              <input
+                type="number"
+                min={1}
+                step={0.5}
+                value={questionForm.mark}
+                onChange={(e) =>
+                  setQuestionForm((p) => ({ ...p, mark: e.target.value }))
+                }
+                placeholder="1"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+              />
+            </div>
+            {questionForm.questionType === "multiple-choice" && (
+              <>
+                {OPTIONS.map((opt) => (
+                  <div key={opt}>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      {t("teacher.option", { letter: opt })} *
+                    </label>
+                    <input
+                      type="text"
+                      value={questionForm[`option${opt}`]}
+                      onChange={(e) =>
+                        setQuestionForm((p) => ({
+                          ...p,
+                          [`option${opt}`]: e.target.value,
+                        }))
+                      }
+                      required
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                    />
+                  </div>
+                ))}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t("teacher.correctAnswer")} *
+                  </label>
+                  <select
+                    value={questionForm.correctAnswer}
+                    onChange={(e) =>
+                      setQuestionForm((p) => ({
+                        ...p,
+                        correctAnswer: e.target.value,
+                      }))
+                    }
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                  >
+                    {OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {t("teacher.option", { letter: opt })}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
+            {questionForm.questionType === "open-ended" && (
+              <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Option {opt} *
+                  {t("teacher.modelAnswer")} ({t("common.optional")})
                 </label>
-                <input
-                  type="text"
-                  value={questionForm[`option${opt}`]}
+                <textarea
+                  value={questionForm.correctAnswer}
                   onChange={(e) =>
-                    setQuestionForm((p) => ({
-                      ...p,
-                      [`option${opt}`]: e.target.value,
-                    }))
+                    setQuestionForm((p) => ({ ...p, correctAnswer: e.target.value }))
                   }
-                  required
+                  rows={2}
+                  placeholder={t("teacher.modelAnswerPlaceholder")}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg"
                 />
               </div>
-            ))}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Correct Answer *
-              </label>
-              <select
-                value={questionForm.correctAnswer}
-                onChange={(e) =>
-                  setQuestionForm((p) => ({
-                    ...p,
-                    correctAnswer: e.target.value,
-                  }))
-                }
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
-              >
-                {OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    Option {opt}
-                  </option>
-                ))}
-              </select>
-            </div>
+            )}
             <div className="flex gap-2">
               <button
                 type="submit"
@@ -245,10 +319,10 @@ function ExamDetailPage() {
         </div>
       )}
 
-      <h2 className="text-lg font-semibold text-slate-800 mb-4">Questions</h2>
+      <h2 className="text-lg font-semibold text-slate-800 mb-4">{t("teacher.questions")}</h2>
       {questions.length === 0 ? (
         <div className="p-8 bg-white rounded-xl border border-slate-200 text-center text-slate-500">
-          No questions yet. Click &quot;Add Question&quot; to add one.
+          {t("teacher.noQuestionsYet")}
         </div>
       ) : (
         <div className="space-y-4">
@@ -259,24 +333,36 @@ function ExamDetailPage() {
             >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-200 text-slate-700">
+                      {q.questionType === "open-ended" ? t("teacher.questionTypeOpenEnded") : t("teacher.questionTypeMultipleChoice")}
+                    </span>
+                    {q.mark != null && (
+                      <span className="text-xs text-slate-500">{t("teacher.markLabel", { mark: q.mark })}</span>
+                    )}
+                  </div>
                   <p className="font-medium text-slate-800">
                     {i + 1}. {q.question}
                   </p>
-                  <div className="mt-2 grid grid-cols-2 gap-2 text-sm text-slate-600">
-                    <span>A. {q.optionA}</span>
-                    <span>B. {q.optionB}</span>
-                    <span>C. {q.optionC}</span>
-                    <span>D. {q.optionD}</span>
-                  </div>
+                  {q.questionType === "multiple-choice" && (
+                    <div className="mt-2 grid grid-cols-2 gap-2 text-sm text-slate-600">
+                      {q.optionA && <span>A. {q.optionA}</span>}
+                      {q.optionB && <span>B. {q.optionB}</span>}
+                      {q.optionC && <span>C. {q.optionC}</span>}
+                      {q.optionD && <span>D. {q.optionD}</span>}
+                    </div>
+                  )}
                   <p className="mt-2 text-xs text-green-700">
-                    Correct: {q.correctAnswer}
+                    {q.questionType === "open-ended"
+                      ? (q.correctAnswer ? `${t("teacher.modelAnswer")}: ${q.correctAnswer}` : t("teacher.openEndedNoModel"))
+                      : `${t("teacher.correctAnswer")}: ${q.correctAnswer}`}
                   </p>
                 </div>
                 <button
                   onClick={() => openEditQuestion(q)}
                   className="text-slate-600 hover:text-slate-800 text-sm"
                 >
-                  Edit
+                  {t("common.edit")}
                 </button>
               </div>
             </div>
