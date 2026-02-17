@@ -60,7 +60,7 @@ function TeacherProfilePage() {
 
   if (loading) {
     return (
-      <div className="p-8 text-center text-slate-500">Loading profile...</div>
+      <div className="p-8 text-center text-slate-500">{t("teacher.loadingProfile")}</div>
     );
   }
 
@@ -74,7 +74,7 @@ function TeacherProfilePage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-6">Profile</h1>
+      <h1 className="text-2xl font-bold text-slate-800 mb-6">{t("common.profile")}</h1>
 
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -84,12 +84,12 @@ function TeacherProfilePage() {
 
       <div className="bg-white rounded-xl border border-slate-200 p-6 max-w-md">
         <h2 className="text-lg font-semibold text-slate-800 mb-4">
-          Edit Profile
+          {t("student.editProfile")}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Name
+              {t("common.name")}
             </label>
             <input
               type="text"
@@ -103,7 +103,7 @@ function TeacherProfilePage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Email
+              {t("common.email")}
             </label>
             <input
               type="email"
@@ -117,7 +117,7 @@ function TeacherProfilePage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              New Password
+              {t("common.newPassword")}
             </label>
             <input
               type="password"

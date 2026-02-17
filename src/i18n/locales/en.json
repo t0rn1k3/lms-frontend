@@ -131,14 +131,24 @@
   "teacher": {
     "title": "Teacher",
     "overview": "Overview",
+    "overviewIntro": "Create exams, add questions, and manage your profile.",
     "exams": "Exams",
     "addExam": "Add Exam",
+    "editExam": "Edit Exam",
+    "newExam": "New Exam",
+    "noExams": "No exams yet. Click \"Add Exam\" to create one.",
+    "totalQuestions": "Total Questions",
     "addQuestion": "Add Question",
     "editQuestion": "Edit Question",
     "newQuestion": "New Question",
     "examTypeQuiz": "Quiz",
     "examTypeMidterm": "Midterm",
-    "examTypeFinal": "Final"
+    "examTypeFinal": "Final",
+    "examDate": "Exam Date",
+    "examTime": "Exam Time",
+    "examType": "Exam Type",
+    "select": "Select",
+    "loadingProfile": "Loading profile..."
   },
   "admin": {
     "title": "Admin",
