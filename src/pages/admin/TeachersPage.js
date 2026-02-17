@@ -130,6 +130,21 @@ function TeachersPage() {
 
   const getRefId = (val) => (typeof val === "object" ? val?._id : val);
 
+  const getTeacherStatus = (item) => {
+    if (item.isWithdrawn) return "withdrawn";
+    if (item.isSuspended) return "suspended";
+    return "active";
+  };
+
+  const handleUpdateStatus = async (id, isSuspended, isWithdrawn) => {
+    try {
+      await teacherService.update(id, { isSuspended, isWithdrawn });
+      fetchTeachers();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+  };
+
   const openCreateForm = () => {
     setEditingId(null);
     setFormData({
@@ -438,6 +453,9 @@ function TeachersPage() {
                   <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
                     {t("admin.subject")}
                   </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                    {t("common.status")}
+                  </th>
                   <th className="px-4 py-3 text-right text-sm font-medium text-slate-700">
                     {t("common.actions")}
                   </th>
@@ -467,6 +485,19 @@ function TeachersPage() {
                     <td className="px-4 py-3 text-slate-600">
                       {getSubjectName(getRefId(item.subject))}
                     </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex px-2 py-0.5 text-xs font-medium rounded ${
+                          getTeacherStatus(item) === "active"
+                            ? "bg-green-100 text-green-800"
+                            : getTeacherStatus(item) === "suspended"
+                              ? "bg-amber-100 text-amber-800"
+                              : "bg-slate-100 text-slate-700"
+                        }`}
+                      >
+                        {t(`admin.${getTeacherStatus(item)}`)}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 text-right">
                       <Link
                         to={`/admin/teachers/${item._id}`}
@@ -476,10 +507,47 @@ function TeachersPage() {
                       </Link>
                       <button
                         onClick={() => openEditForm(item)}
-                        className="text-slate-600 hover:text-slate-800"
+                        className="text-slate-600 hover:text-slate-800 mr-3"
                       >
                         {t("common.edit")}
                       </button>
+                      {getTeacherStatus(item) === "active" && (
+                        <>
+                          <button
+                            onClick={() => {
+                              if (window.confirm(t("admin.confirmSuspendTeacher"))) {
+                                handleUpdateStatus(item._id, true, false);
+                              }
+                            }}
+                            className="text-amber-600 hover:text-amber-800 mr-3"
+                          >
+                            {t("admin.suspend")}
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (window.confirm(t("admin.confirmWithdrawTeacher"))) {
+                                handleUpdateStatus(item._id, false, true);
+                              }
+                            }}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            {t("admin.withdraw")}
+                          </button>
+                        </>
+                      )}
+                      {(getTeacherStatus(item) === "suspended" ||
+                        getTeacherStatus(item) === "withdrawn") && (
+                        <button
+                          onClick={() => {
+                            if (window.confirm(t("admin.confirmReactivate"))) {
+                              handleUpdateStatus(item._id, false, false);
+                            }
+                          }}
+                          className="text-green-600 hover:text-green-800"
+                        >
+                          {t("admin.reactivate")}
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

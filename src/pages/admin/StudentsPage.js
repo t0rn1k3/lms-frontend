@@ -106,6 +106,22 @@ function StudentsPage() {
 
   const getRefId = (val) => (typeof val === "object" ? val?._id : val);
 
+  const getStudentStatus = (item) => {
+    if (item.isWithdrawn) return "withdrawn";
+    if (item.isSuspended) return "suspended";
+    if (item.isGraduated) return "graduated";
+    return "active";
+  };
+
+  const handleUpdateStatus = async (id, payload) => {
+    try {
+      await studentService.update(id, payload);
+      fetchStudents();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+  };
+
   const toggleClassLevel = (id) => {
     setFormData((prev) =>
       prev.classLevels.includes(id)
@@ -403,8 +419,11 @@ function StudentsPage() {
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
                   Academic Year
                 </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                  {t("common.status")}
+                </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-slate-700">
-                  Actions
+                  {t("common.actions")}
                 </th>
               </tr>
             </thead>
@@ -432,19 +451,71 @@ function StudentsPage() {
                   <td className="px-4 py-3 text-slate-600">
                     {getAcademicYearName(getRefId(item.academicYear))}
                   </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`inline-flex px-2 py-0.5 text-xs font-medium rounded ${
+                        getStudentStatus(item) === "active"
+                          ? "bg-green-100 text-green-800"
+                          : getStudentStatus(item) === "suspended"
+                            ? "bg-amber-100 text-amber-800"
+                            : getStudentStatus(item) === "graduated"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-slate-100 text-slate-700"
+                      }`}
+                    >
+                      {t(`admin.${getStudentStatus(item)}`)}
+                    </span>
+                  </td>
                   <td className="px-4 py-3 text-right">
                     <Link
                       to={`/admin/students/${item._id}`}
                       className="text-slate-600 hover:text-slate-800 mr-3"
                     >
-                      View
+                      {t("common.view")}
                     </Link>
                     <button
                       onClick={() => openEditForm(item)}
-                      className="text-slate-600 hover:text-slate-800"
+                      className="text-slate-600 hover:text-slate-800 mr-3"
                     >
-                      Edit
+                      {t("common.edit")}
                     </button>
+                    {getStudentStatus(item) === "active" && (
+                      <>
+                        <button
+                          onClick={() => {
+                            if (window.confirm(t("admin.confirmSuspendStudent"))) {
+                              handleUpdateStatus(item._id, { isSuspended: true, isWithdrawn: false });
+                            }
+                          }}
+                          className="text-amber-600 hover:text-amber-800 mr-3"
+                        >
+                          {t("admin.suspend")}
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (window.confirm(t("admin.confirmWithdrawStudent"))) {
+                              handleUpdateStatus(item._id, { isSuspended: false, isWithdrawn: true });
+                            }
+                          }}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          {t("admin.withdraw")}
+                        </button>
+                      </>
+                    )}
+                    {(getStudentStatus(item) === "suspended" ||
+                      getStudentStatus(item) === "withdrawn") && (
+                      <button
+                        onClick={() => {
+                          if (window.confirm(t("admin.confirmReactivate"))) {
+                            handleUpdateStatus(item._id, { isSuspended: false, isWithdrawn: false });
+                          }
+                        }}
+                        className="text-green-600 hover:text-green-800"
+                      >
+                        {t("admin.reactivate")}
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

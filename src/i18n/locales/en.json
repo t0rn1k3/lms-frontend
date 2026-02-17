@@ -19,6 +19,7 @@
     "search": "Search",
     "add": "Add",
     "edit": "Edit",
+    "status": "Status",
     "delete": "Delete",
     "none": "None",
     "fullName": "Full name",
@@ -155,6 +156,8 @@
     "subjects": "Subjects",
     "yearGroups": "Year Groups",
     "teachers": "Teachers",
+    "backToTeachers": "← Back to Teachers",
+    "backToStudents": "← Back to Students",
     "students": "Students",
     "examResults": "Exam Results",
     "questions": "Questions",
@@ -245,6 +248,15 @@
     "noYearGroups": "No year groups yet. Click \"Add Year Group\" to create one.",
     "yearGroupNamePlaceholder": "e.g. Year 1, Class of 2025",
     "selectAcademicYear": "Select academic year",
-    "academicYearLabel": "Academic Year"
+    "academicYearLabel": "Academic Year",
+    "suspend": "Suspend",
+    "withdraw": "Withdraw",
+    "reactivate": "Reactivate",
+    "confirmSuspendTeacher": "Suspend this teacher? They will not be able to log in until reactivated.",
+    "confirmWithdrawTeacher": "Withdraw this teacher? They will no longer have access to the system.",
+    "confirmSuspendStudent": "Suspend this student? They will not be able to log in until reactivated.",
+    "confirmWithdrawStudent": "Withdraw this student? They will no longer have access to the system.",
+    "confirmReactivate": "Reactivate this user? They will be able to log in again.",
+    "statusUpdated": "Status updated."
   }
 }

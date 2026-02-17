@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { teacherService, academicService, getErrorMessage } from "../../api";
 
 function TeacherDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [teacher, setTeacher] = useState(null);
@@ -12,6 +14,7 @@ function TeacherDetailPage() {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [updating, setUpdating] = useState(false);
 
   const getRefId = (val) => (typeof val === "object" ? val?._id : val);
 
@@ -67,7 +70,28 @@ function TeacherDetailPage() {
     fetch();
   }, [id]);
 
-  if (loading) return <div className="p-8 text-slate-500">Loading...</div>;
+  const isActive = !teacher?.isWithdrawn && !teacher?.isSuspended;
+  const isSuspended = teacher?.isSuspended;
+  const isWithdrawn = teacher?.isWithdrawn;
+
+  const handleUpdateStatus = async (isSuspendedVal, isWithdrawnVal) => {
+    if (!teacher?._id) return;
+    try {
+      setUpdating(true);
+      await teacherService.update(teacher._id, {
+        isSuspended: isSuspendedVal,
+        isWithdrawn: isWithdrawnVal,
+      });
+      const { data } = await teacherService.getOne(teacher._id);
+      setTeacher(data?.data ?? data);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  if (loading) return <div className="p-8 text-slate-500">{t("common.loading")}</div>;
   if (error) {
     return (
       <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
@@ -79,19 +103,58 @@ function TeacherDetailPage() {
 
   return (
     <div>
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4 mb-6 flex-wrap">
         <Link
           to="/admin/teachers"
           className="text-slate-600 hover:text-slate-800"
         >
-          ← Back to Teachers
+          {t("admin.backToTeachers")}
         </Link>
         <button
           onClick={() => navigate("/admin/teachers", { state: { editId: id } })}
           className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700"
         >
-          Edit
+          {t("common.edit")}
         </button>
+        {isActive && (
+          <>
+            <button
+              onClick={() => {
+                if (window.confirm(t("admin.confirmSuspendTeacher"))) {
+                  handleUpdateStatus(true, false);
+                }
+              }}
+              disabled={updating}
+              className="px-4 py-2 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50 disabled:opacity-50"
+            >
+              {t("admin.suspend")}
+            </button>
+            <button
+              onClick={() => {
+                if (window.confirm(t("admin.confirmWithdrawTeacher"))) {
+                  handleUpdateStatus(false, true);
+                }
+              }}
+              disabled={updating}
+              className="px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 disabled:opacity-50"
+            >
+              {t("admin.withdraw")}
+            </button>
+          </>
+        )}
+        {(isSuspended || isWithdrawn) && (
+          <button
+            onClick={() => {
+              if (window.confirm(t("admin.confirmReactivate"))) {
+                handleUpdateStatus(false, false);
+              }
+            }}
+            disabled={updating}
+            className="px-4 py-2 border border-green-300 text-green-700 rounded-lg hover:bg-green-50 disabled:opacity-50"
+          >
+            {t("admin.reactivate")}
+          </button>
+        )}
       </div>
 
       <h1 className="text-2xl font-bold text-slate-800 mb-6">{teacher.name}</h1>
@@ -131,13 +194,13 @@ function TeacherDetailPage() {
             </p>
           </div>
           <div>
-            <span className="text-sm text-slate-500">Status</span>
+            <span className="text-sm text-slate-500">{t("common.status")}</span>
             <p className="font-medium">
               {teacher.isWithdrawn
-                ? "Withdrawn"
+                ? t("admin.withdrawn")
                 : teacher.isSuspended
-                  ? "Suspended"
-                  : "Active"}
+                  ? t("admin.suspended")
+                  : t("admin.active")}
             </p>
           </div>
         </div>
