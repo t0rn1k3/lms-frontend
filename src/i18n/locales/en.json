@@ -253,7 +253,7 @@
     "withdraw": "Withdraw",
     "reactivate": "Reactivate",
     "confirmSuspendTeacher": "Suspend this teacher? They will not be able to log in until reactivated.",
-    "confirmWithdrawTeacher": "Withdraw this teacher? They will no longer have access to the system.",
+    "confirmWithdrawTeacher": "Withdraw this teacher? They will be permanently deleted from the database.",
     "confirmSuspendStudent": "Suspend this student? They will not be able to log in until reactivated.",
     "confirmWithdrawStudent": "Withdraw this student? They will no longer have access to the system.",
     "confirmReactivate": "Reactivate this user? They will be able to log in again.",

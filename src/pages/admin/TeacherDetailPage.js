@@ -91,6 +91,19 @@ function TeacherDetailPage() {
     }
   };
 
+  const handleWithdrawDelete = async () => {
+    if (!teacher?._id) return;
+    try {
+      setUpdating(true);
+      await teacherService.withdraw(teacher._id);
+      navigate("/admin/teachers");
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   if (loading) return <div className="p-8 text-slate-500">{t("common.loading")}</div>;
   if (error) {
     return (
@@ -132,7 +145,7 @@ function TeacherDetailPage() {
             <button
               onClick={() => {
                 if (window.confirm(t("admin.confirmWithdrawTeacher"))) {
-                  handleUpdateStatus(false, true);
+                  handleWithdrawDelete();
                 }
               }}
               disabled={updating}

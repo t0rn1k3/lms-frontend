@@ -145,6 +145,15 @@ function TeachersPage() {
     }
   };
 
+  const handleWithdrawDelete = async (id) => {
+    try {
+      await teacherService.withdraw(id);
+      fetchTeachers();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+  };
+
   const openCreateForm = () => {
     setEditingId(null);
     setFormData({
@@ -423,7 +432,7 @@ function TeachersPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden overflow-x-auto">
         {loading ? (
           <div className="p-8 text-center text-slate-500">{t("common.loading")}</div>
         ) : teachers.length === 0 ? (
@@ -498,7 +507,7 @@ function TeachersPage() {
                         {t(`admin.${getTeacherStatus(item)}`)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-4 py-3 text-right whitespace-nowrap min-w-[240px]">
                       <Link
                         to={`/admin/teachers/${item._id}`}
                         className="text-slate-600 hover:text-slate-800 mr-3"
@@ -526,7 +535,7 @@ function TeachersPage() {
                           <button
                             onClick={() => {
                               if (window.confirm(t("admin.confirmWithdrawTeacher"))) {
-                                handleUpdateStatus(item._id, false, true);
+                                handleWithdrawDelete(item._id);
                               }
                             }}
                             className="text-red-600 hover:text-red-800"

@@ -29,12 +29,13 @@ function Layout() {
     }`;
 
   const { t } = useTranslation();
-  const displayName = user?.name || user?.email || (role && t(`roles.${role}`)) || "User";
+  const displayName =
+    user?.name || user?.email || (role && t(`roles.${role}`)) || "User";
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col">
       <header className="bg-slate-800 shadow-lg sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-8">
               <Link
@@ -48,10 +49,7 @@ function Layout() {
                   {t("nav.home")}
                 </Link>
                 {isLoggedIn && (
-                  <Link
-                    to={`/${role}`}
-                    className={navLinkClass(`/${role}`)}
-                  >
+                  <Link to={`/${role}`} className={navLinkClass(`/${role}`)}>
                     {t("nav.dashboard")}
                   </Link>
                 )}
@@ -123,7 +121,7 @@ function Layout() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-screen-2xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Outlet />
       </main>
     </div>

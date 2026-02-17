@@ -390,7 +390,7 @@ function StudentsPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden overflow-x-auto">
         {loading ? (
           <div className="p-8 text-center text-slate-500">{t("common.loading")}</div>
         ) : students.length === 0 ? (
@@ -466,7 +466,7 @@ function StudentsPage() {
                       {t(`admin.${getStudentStatus(item)}`)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-4 py-3 text-right whitespace-nowrap min-w-[240px]">
                     <Link
                       to={`/admin/students/${item._id}`}
                       className="text-slate-600 hover:text-slate-800 mr-3"

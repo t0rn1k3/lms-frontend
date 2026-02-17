@@ -28,6 +28,7 @@ export const endpoints = {
     list: "/teachers/admin",
     getOne: (id) => `/teachers/${id}/admin`,
     update: (id) => `/teachers/${id}`,
+    withdraw: (id) => `/admins/withdraw/teacher/${id}`,
   },
   students: {
     register: "/students/admin/register",
