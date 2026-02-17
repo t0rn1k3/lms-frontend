@@ -40,8 +40,9 @@ function Layout() {
             <div className="flex items-center gap-8">
               <Link
                 to="/"
-                className="text-xl font-bold text-white hover:text-slate-200 transition-colors"
+                className="flex items-center gap-2 text-xl font-bold text-white hover:text-slate-200 transition-colors"
               >
+                <img src="/logo.svg" alt="" className="h-9 w-9 flex-shrink-0" />
                 LMS
               </Link>
               <nav className="flex gap-2 items-center">

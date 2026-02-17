@@ -57,12 +57,12 @@ function LoginPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="max-w-screen-md mx-auto">
       <div className="bg-white rounded-xl shadow-lg p-8 border border-slate-200">
-        <h1 className="text-2xl font-bold text-slate-800 mb-2">{t("auth.login")}</h1>
-        <p className="text-slate-600 mb-6">
-          {t("auth.subtitle")}
-        </p>
+        <h1 className="text-2xl font-bold text-slate-800 mb-2">
+          {t("auth.login")}
+        </h1>
+        <p className="text-slate-600 mb-6">{t("auth.subtitle")}</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -142,7 +142,10 @@ function LoginPage() {
           {role === "admin" && (
             <>
               {t("auth.noAccount")}{" "}
-              <Link to="/register" className="text-slate-700 font-medium hover:underline">
+              <Link
+                to="/register"
+                className="text-slate-700 font-medium hover:underline"
+              >
                 {t("auth.register")}
               </Link>
               <br />
