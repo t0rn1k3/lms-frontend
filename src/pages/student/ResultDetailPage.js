@@ -50,32 +50,32 @@ function ResultDetailPage() {
     <div>
       <Link
         to="/student/results"
-        className="inline-block mb-6 text-slate-600 hover:text-slate-800"
+        className="inline-block mb-6 text-lms-primary/90 hover:text-lms-primary"
       >
         ← {t("student.backToResults")}
       </Link>
 
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">
+      <h1 className="text-2xl font-bold text-lms-primary mb-2">
         {getRefName(result.exam)}
       </h1>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 shadow-sm">
-          <span className="text-sm text-slate-500">{t("student.score")}</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream shadow-sm">
+          <span className="text-sm text-lms-primary/80">{t("student.score")}</span>
           <p className="font-medium">
             {result.totalMark != null
               ? `${result.score ?? 0} / ${result.totalMark}`
               : result.score ?? "—"}
           </p>
         </div>
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 shadow-sm">
-          <span className="text-sm text-slate-500">{t("student.grade")}</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream shadow-sm">
+          <span className="text-sm text-lms-primary/80">{t("student.grade")}</span>
           <p className="font-medium">
             {result.grade != null ? `${result.grade}%` : "—"}
           </p>
         </div>
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 shadow-sm">
-          <span className="text-sm text-slate-500">{t("student.status")}</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream shadow-sm">
+          <span className="text-sm text-lms-primary/80">{t("student.status")}</span>
           <p className="font-medium">
             <span
               className={
@@ -90,13 +90,13 @@ function ResultDetailPage() {
             </span>
           </p>
         </div>
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 shadow-sm">
-          <span className="text-sm text-slate-500">{t("student.remarks")}</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream shadow-sm">
+          <span className="text-sm text-lms-primary/80">{t("student.remarks")}</span>
           <p className="font-medium">{result.remarks || "—"}</p>
         </div>
       </div>
 
-      <h2 className="text-lg font-semibold text-slate-800 mb-4">
+      <h2 className="text-lg font-semibold text-lms-primary mb-4">
         {t("student.answerBreakdown")}
       </h2>
       <div className="space-y-4">
@@ -105,34 +105,34 @@ function ResultDetailPage() {
             key={i}
             className={`p-4 rounded-xl border ${
               aq.questionType === "open-ended"
-                ? "bg-slate-50 border-slate-200"
+                ? "bg-lms-cream/30 border-lms-cream"
                 : aq.isCorrect
                   ? "bg-green-50 border-green-200"
                   : "bg-red-50 border-red-200"
             }`}
           >
-            <p className="font-medium text-slate-800 mb-2">
+            <p className="font-medium text-lms-primary mb-2">
               {i + 1}. {aq.question}
             </p>
             <div className="flex flex-wrap gap-4 text-sm">
-              <span className="text-slate-600">
+              <span className="text-lms-primary/90">
                 {t("student.yourAnswer")}: <strong>{aq.studentAnswer || "—"}</strong>
               </span>
               {aq.questionType === "open-ended" ? (
                 <>
                   {aq.correctAnswer && (
-                    <span className="text-slate-600">
+                    <span className="text-lms-primary/90">
                       {t("teacher.modelAnswer")}:{" "}
                       <strong className="text-green-700">{aq.correctAnswer}</strong>
                     </span>
                   )}
-                  <span className="text-slate-600">
+                  <span className="text-lms-primary/90">
                     {t("teacher.pointsAwarded")}: {aq.pointsAwarded ?? "—"} / {aq.mark ?? 1}
                   </span>
                 </>
               ) : (
                 <>
-                  <span className="text-slate-600">
+                  <span className="text-lms-primary/90">
                     {t("student.correctAnswerLabel")}:{" "}
                     <strong className="text-green-700">{aq.correctAnswer}</strong>
                   </span>

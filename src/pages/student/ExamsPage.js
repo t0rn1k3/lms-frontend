@@ -48,17 +48,17 @@ function ExamsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">
+      <h1 className="text-2xl font-bold text-lms-primary mb-2">
         {t("student.examsPageTitle")}
       </h1>
-      <p className="text-slate-600 mb-6">
+      <p className="text-lms-primary/90 mb-6">
         {t("student.examsPageIntro")}
       </p>
 
       {error && <ErrorMessage message={error} className="mb-4" />}
 
       {exams.length === 0 ? (
-        <div className="p-8 bg-white rounded-xl border border-slate-200 text-center text-slate-500">
+        <div className="p-8 bg-white rounded-xl border border-lms-cream text-center text-lms-primary/80">
           {t("student.noExamsAvailable")}
         </div>
       ) : (
@@ -69,15 +69,15 @@ function ExamsPage() {
             return (
               <div
                 key={exam._id}
-                className="p-5 bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all"
+                className="p-5 bg-white rounded-xl border border-lms-cream hover:border-lms-cream hover:shadow-md transition-all"
               >
-                <h2 className="font-semibold text-slate-800 mb-1">
+                <h2 className="font-semibold text-lms-primary mb-1">
                   {exam.name}
                 </h2>
-                <p className="text-sm text-slate-600 mb-4 line-clamp-2">
+                <p className="text-sm text-lms-primary/90 mb-4 line-clamp-2">
                   {exam.description}
                 </p>
-                <div className="flex flex-wrap gap-2 text-xs text-slate-500 mb-4">
+                <div className="flex flex-wrap gap-2 text-xs text-lms-primary/80 mb-4">
                   <span>{getRefName(exam.subject)}</span>
                   <span>•</span>
                   <span>{exam.duration || "—"}</span>
@@ -91,13 +91,13 @@ function ExamsPage() {
                   <span>{questions.length} {t("student.questions")}</span>
                 </div>
                 {taken ? (
-                  <span className="inline-block px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-sm">
+                  <span className="inline-block px-3 py-1.5 bg-lms-light text-lms-primary/90 rounded-lg text-sm">
                     {t("student.completed")}
                   </span>
                 ) : (
                   <Link
                     to={`/student/exams/${exam._id}/take`}
-                    className="inline-block px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 text-sm font-medium"
+                    className="inline-block px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark text-sm font-medium"
                   >
                     {t("student.takeExamButton")}
                   </Link>

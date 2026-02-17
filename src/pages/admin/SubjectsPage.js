@@ -144,10 +144,10 @@ function SubjectsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">{t("admin.subjects")}</h1>
+        <h1 className="text-2xl font-bold text-lms-primary">{t("admin.subjects")}</h1>
         <button
           onClick={openCreateForm}
-          className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700"
+          className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark"
         >
           {t("admin.addSubject")}
         </button>
@@ -160,14 +160,14 @@ function SubjectsPage() {
       )}
 
       {formOpen && (
-        <div className="mb-6 p-6 bg-white rounded-xl border border-slate-200">
-          <h2 className="text-lg font-semibold text-slate-800 mb-4">
+        <div className="mb-6 p-6 bg-white rounded-xl border border-lms-cream">
+          <h2 className="text-lg font-semibold text-lms-primary mb-4">
             {editingId ? t("admin.editSubject") : t("admin.newSubject")}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
             {!editingId && (
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-lms-primary mb-1">
                   {t("admin.program")} <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -179,7 +179,7 @@ function SubjectsPage() {
                     }))
                   }
                   required={!editingId}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                 >
                   <option value="">{t("admin.selectProgramOption")}</option>
                   {programs.map((p) => (
@@ -192,16 +192,16 @@ function SubjectsPage() {
             )}
             {editingId && formData.programId && (
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-lms-primary mb-1">
                   {t("admin.program")}
                 </label>
-                <p className="text-slate-600 py-1">
+                <p className="text-lms-primary/90 py-1">
                   {getProgramName(formData.programId)}
                 </p>
               </div>
             )}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-lms-primary mb-1">
                 {t("common.name")}
               </label>
               <input
@@ -212,11 +212,11 @@ function SubjectsPage() {
                 }
                 placeholder={t("admin.subjectNamePlaceholder")}
                 required
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-lms-primary mb-1">
                 {t("common.description")}
               </label>
               <textarea
@@ -230,11 +230,11 @@ function SubjectsPage() {
                 placeholder={t("admin.subjectDescription")}
                 required
                 rows={3}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-lms-primary mb-1">
                 {t("admin.academicTermLabel")}
               </label>
               <select
@@ -246,7 +246,7 @@ function SubjectsPage() {
                   }))
                 }
                 required
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               >
                 <option value="">{t("admin.selectTerm")}</option>
                 {academicTerms.map((term) => (
@@ -260,14 +260,14 @@ function SubjectsPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
+                className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark disabled:opacity-50"
               >
                 {submitting ? t("common.saving") : t("common.save")}
               </button>
               <button
                 type="button"
                 onClick={() => setFormOpen(false)}
-                className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
+                className="px-4 py-2 border border-lms-cream rounded-lg hover:bg-lms-cream/30"
               >
                 {t("common.cancel")}
               </button>
@@ -276,48 +276,48 @@ function SubjectsPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-lms-cream overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-slate-500">{t("common.loading")}</div>
+          <div className="p-8 text-center text-lms-primary/80">{t("common.loading")}</div>
         ) : subjects.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
+          <div className="p-8 text-center text-lms-primary/80">
             {t("admin.noSubjects")}
           </div>
         ) : (
           <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200">
+            <thead className="bg-lms-cream/30 border-b border-lms-cream">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   {t("common.name")}
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   {t("admin.program")}
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   {t("admin.academicTermLabel")}
                 </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-right text-sm font-medium text-lms-primary">
                   {t("common.actions")}
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-lms-cream">
               {subjects.map((item) => (
-                <tr key={item._id} className="hover:bg-slate-50/50">
+                <tr key={item._id} className="hover:bg-lms-cream/30/50">
                   <td className="px-4 py-3">
-                    <span className="font-medium text-slate-800">
+                    <span className="font-medium text-lms-primary">
                       {item.name}
                     </span>
                     {item.description && (
-                      <p className="text-xs text-slate-500 mt-0.5 max-w-xs truncate">
+                      <p className="text-xs text-lms-primary/80 mt-0.5 max-w-xs truncate">
                         {item.description}
                       </p>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-lms-primary/90">
                     {getProgramName(getSubjectProgramId(item)) || "—"}
                   </td>
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-lms-primary/90">
                     {getAcademicTermName(
                       typeof item.academicTerm === "object"
                         ? item.academicTerm?._id
@@ -327,7 +327,7 @@ function SubjectsPage() {
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => openEditForm(item)}
-                      className="text-slate-600 hover:text-slate-800 mr-3"
+                      className="text-lms-primary/90 hover:text-lms-primary mr-3"
                     >
                       {t("common.edit")}
                     </button>

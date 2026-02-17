@@ -24,8 +24,8 @@ function Layout() {
   const navLinkClass = (path) =>
     `px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
       location.pathname === path
-        ? "bg-slate-700 text-white"
-        : "text-slate-300 hover:bg-slate-700/50 hover:text-white"
+        ? "bg-lms-primary-dark text-white"
+        : "text-white/90 hover:bg-lms-primary/80 hover:text-white"
     }`;
 
   const { t } = useTranslation();
@@ -33,17 +33,16 @@ function Layout() {
     user?.name || user?.email || (role && t(`roles.${role}`)) || "User";
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col">
-      <header className="bg-slate-800 shadow-lg sticky top-0 z-50">
+    <div className="min-h-screen bg-lms-light flex flex-col">
+      <header className="bg-lms-primary shadow-lg sticky top-0 z-50">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-8">
               <Link
                 to="/"
-                className="flex items-center gap-2 text-xl font-bold text-white hover:text-slate-200 transition-colors"
+                className="flex items-center gap-2 text-xl font-bold text-white hover:text-white/90 transition-colors"
               >
-                <img src="/logo.svg" alt="" className="h-9 w-9 flex-shrink-0" />
-                LMS
+                <img src="/logo.png" alt="logo" className="h-16 w-16 " />
               </Link>
               <nav className="flex gap-2 items-center">
                 <Link to="/" className={navLinkClass("/")}>
@@ -63,9 +62,9 @@ function Layout() {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/90 hover:bg-lms-primary/80 hover:text-white transition-colors"
                   >
-                    <span className="w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center text-sm font-medium">
+                    <span className="w-8 h-8 rounded-full bg-lms-primary-dark flex items-center justify-center text-sm font-medium">
                       {displayName.charAt(0).toUpperCase()}
                     </span>
                     <span className="hidden sm:inline text-sm max-w-[120px] truncate">
@@ -87,12 +86,12 @@ function Layout() {
                   </button>
 
                   {dropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 py-1 bg-white rounded-lg shadow-lg border border-slate-200">
-                      <div className="px-4 py-3 border-b border-slate-100">
-                        <p className="text-sm font-medium text-slate-800 truncate">
+                    <div className="absolute right-0 mt-2 w-48 py-1 bg-white rounded-lg shadow-lg border border-lms-cream">
+                      <div className="px-4 py-3 border-b border-lms-light">
+                        <p className="text-sm font-medium text-lms-primary truncate">
                           {user?.email || "—"}
                         </p>
-                        <p className="text-xs text-slate-500 capitalize">
+                        <p className="text-xs text-lms-primary/70 capitalize">
                           {role}
                         </p>
                       </div>
@@ -102,7 +101,7 @@ function Layout() {
                           navigate("/");
                           setDropdownOpen(false);
                         }}
-                        className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                        className="w-full text-left px-4 py-2 text-sm text-lms-primary hover:bg-lms-cream/50"
                       >
                         {t("nav.logout")}
                       </button>
@@ -112,7 +111,7 @@ function Layout() {
               ) : (
                 <Link
                   to="/login"
-                  className="px-4 py-2 rounded-lg font-medium bg-slate-700 text-white hover:bg-slate-600 transition-colors"
+                  className="px-4 py-2 rounded-lg font-medium bg-lms-primary-dark text-white hover:bg-lms-primary transition-colors"
                 >
                   {t("nav.login")}
                 </Link>

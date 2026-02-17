@@ -210,10 +210,10 @@ function StudentsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">Students</h1>
+        <h1 className="text-2xl font-bold text-lms-primary">Students</h1>
         <button
           onClick={openCreateForm}
-          className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700"
+          className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark"
         >
           {t("admin.addStudent")}
         </button>
@@ -226,13 +226,13 @@ function StudentsPage() {
       )}
 
       {formOpen && (
-        <div className="mb-6 p-6 bg-white rounded-xl border border-slate-200">
-          <h2 className="text-lg font-semibold text-slate-800 mb-4">
+        <div className="mb-6 p-6 bg-white rounded-xl border border-lms-cream">
+          <h2 className="text-lg font-semibold text-lms-primary mb-4">
             {editingId ? t("admin.editStudent") : t("admin.newStudent")}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-lms-primary mb-1">
                 Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -243,11 +243,11 @@ function StudentsPage() {
                 }
                 placeholder={t("common.fullName")}
                 required
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-lms-primary mb-1">
                 Email <span className="text-red-500">*</span>
               </label>
               <input
@@ -259,17 +259,17 @@ function StudentsPage() {
                 placeholder="email@school.com"
                 required
                 disabled={!!editingId}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg disabled:bg-slate-100 disabled:text-slate-500"
+                className="w-full px-3 py-2 border border-lms-cream rounded-lg disabled:bg-lms-light disabled:text-lms-primary/80"
               />
               {editingId && (
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-lms-primary/80 mt-1">
                   {t("common.emailCannotChange")}
                 </p>
               )}
             </div>
             {!editingId && (
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-lms-primary mb-1">
                   Password <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -284,14 +284,14 @@ function StudentsPage() {
                   placeholder={t("common.minChars")}
                   required={!editingId}
                   minLength={6}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                 />
               </div>
             )}
             {editingId && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-sm font-medium text-lms-primary mb-1">
                     Program
                   </label>
                   <select
@@ -302,7 +302,7 @@ function StudentsPage() {
                         program: e.target.value,
                       }))
                     }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                   >
                     <option value="">— {t("common.none")} —</option>
                     {programs.map((p) => (
@@ -313,7 +313,7 @@ function StudentsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-sm font-medium text-lms-primary mb-1">
                     Current Class Level
                   </label>
                   <select
@@ -324,7 +324,7 @@ function StudentsPage() {
                         currentClassLevel: e.target.value,
                       }))
                     }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                   >
                     <option value="">— {t("common.none")} —</option>
                     {classLevels.map((c) => (
@@ -335,10 +335,10 @@ function StudentsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-lms-primary mb-2">
                     Class Levels (history)
                   </label>
-                  <div className="border border-slate-200 rounded-lg p-3 max-h-32 overflow-y-auto space-y-2">
+                  <div className="border border-lms-cream rounded-lg p-3 max-h-32 overflow-y-auto space-y-2">
                     {classLevels.map((c) => (
                       <label
                         key={c._id}
@@ -348,15 +348,15 @@ function StudentsPage() {
                           type="checkbox"
                           checked={formData.classLevels.includes(c._id)}
                           onChange={() => toggleClassLevel(c._id)}
-                          className="rounded border-slate-300"
+                          className="rounded border-lms-cream"
                         />
-                        <span className="text-slate-700">{c.name}</span>
+                        <span className="text-lms-primary">{c.name}</span>
                       </label>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-sm font-medium text-lms-primary mb-1">
                     Academic Year
                   </label>
                   <select
@@ -367,7 +367,7 @@ function StudentsPage() {
                         academicYear: e.target.value,
                       }))
                     }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                   >
                     <option value="">— {t("common.none")} —</option>
                     {academicYears.map((y) => (
@@ -383,14 +383,14 @@ function StudentsPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
+                className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark disabled:opacity-50"
               >
                 {submitting ? t("common.saving") : t("common.save")}
               </button>
               <button
                 type="button"
                 onClick={() => setFormOpen(false)}
-                className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
+                className="px-4 py-2 border border-lms-cream rounded-lg hover:bg-lms-cream/30"
               >
                 {t("common.cancel")}
               </button>
@@ -399,65 +399,65 @@ function StudentsPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden overflow-x-auto">
+      <div className="bg-white rounded-xl border border-lms-cream overflow-hidden overflow-x-auto">
         {loading ? (
-          <div className="p-8 text-center text-slate-500">{t("common.loading")}</div>
+          <div className="p-8 text-center text-lms-primary/80">{t("common.loading")}</div>
         ) : students.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
+          <div className="p-8 text-center text-lms-primary/80">
             {t("admin.noStudents")}
           </div>
         ) : (
           <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200">
+            <thead className="bg-lms-cream/30 border-b border-lms-cream">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   Name
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   Email
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   Student ID
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   Program
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   Current Level
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   Academic Year
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   {t("common.status")}
                 </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-right text-sm font-medium text-lms-primary">
                   {t("common.actions")}
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-lms-cream">
               {students.map((item) => (
-                <tr key={item._id} className="hover:bg-slate-50/50">
+                <tr key={item._id} className="hover:bg-lms-cream/30/50">
                   <td className="px-4 py-3">
                     <Link
                       to={`/admin/students/${item._id}`}
-                      className="font-medium text-slate-800 hover:underline"
+                      className="font-medium text-lms-primary hover:underline"
                     >
                       {item.name}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-slate-600">{item.email}</td>
-                  <td className="px-4 py-3 text-slate-500 text-sm">
+                  <td className="px-4 py-3 text-lms-primary/90">{item.email}</td>
+                  <td className="px-4 py-3 text-lms-primary/80 text-sm">
                     {item.studentId || "—"}
                   </td>
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-lms-primary/90">
                     {getProgramName(getRefId(item.program))}
                   </td>
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-lms-primary/90">
                     {getClassLevelName(getRefId(item.currentClassLevel))}
                   </td>
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-lms-primary/90">
                     {getAcademicYearName(getRefId(item.academicYear))}
                   </td>
                   <td className="px-4 py-3">
@@ -469,7 +469,7 @@ function StudentsPage() {
                             ? "bg-amber-100 text-amber-800"
                             : getStudentStatus(item) === "graduated"
                               ? "bg-blue-100 text-blue-800"
-                              : "bg-slate-100 text-slate-700"
+                              : "bg-lms-light text-lms-primary"
                       }`}
                     >
                       {t(`admin.${getStudentStatus(item)}`)}
@@ -478,13 +478,13 @@ function StudentsPage() {
                   <td className="px-4 py-3 text-right whitespace-nowrap min-w-[240px]">
                     <Link
                       to={`/admin/students/${item._id}`}
-                      className="text-slate-600 hover:text-slate-800 mr-3"
+                      className="text-lms-primary/90 hover:text-lms-primary mr-3"
                     >
                       {t("common.view")}
                     </Link>
                     <button
                       onClick={() => openEditForm(item)}
-                      className="text-slate-600 hover:text-slate-800 mr-3"
+                      className="text-lms-primary/90 hover:text-lms-primary mr-3"
                     >
                       {t("common.edit")}
                     </button>

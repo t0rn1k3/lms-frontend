@@ -9,7 +9,7 @@ function PageLoader({ message = "Loading..." }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 gap-4">
       <LoadingSpinner size="lg" />
-      <p className="text-slate-600">{message}</p>
+      <p className="text-lms-primary/90">{message}</p>
     </div>
   );
 }

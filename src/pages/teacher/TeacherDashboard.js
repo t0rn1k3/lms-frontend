@@ -32,8 +32,8 @@ function TeacherDashboard() {
   if (loading) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold text-slate-800 mb-6">{t("teacher.overview")}</h1>
-        <div className="text-slate-500">{t("common.loading")}</div>
+        <h1 className="text-2xl font-bold text-lms-primary mb-6">{t("teacher.overview")}</h1>
+        <div className="text-lms-primary/80">{t("common.loading")}</div>
       </div>
     );
   }
@@ -41,7 +41,7 @@ function TeacherDashboard() {
   if (error) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold text-slate-800 mb-6">{t("teacher.overview")}</h1>
+        <h1 className="text-2xl font-bold text-lms-primary mb-6">{t("teacher.overview")}</h1>
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
           {error}
         </div>
@@ -51,15 +51,15 @@ function TeacherDashboard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">{t("teacher.overview")}</h1>
-      <p className="text-slate-600 mb-8">
+      <h1 className="text-2xl font-bold text-lms-primary mb-2">{t("teacher.overview")}</h1>
+      <p className="text-lms-primary/90 mb-8">
         {t("teacher.overviewIntro")}
       </p>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Link
           to="/teacher/exams"
-          className="block p-5 rounded-xl border-2 bg-slate-100 border-slate-300 text-slate-800 hover:opacity-90 transition-opacity"
+          className="block p-5 rounded-xl border-2 bg-lms-light border-lms-cream text-lms-primary hover:opacity-90 transition-opacity"
         >
           <div className="text-2xl font-bold">{exams.length}</div>
           <div className="text-sm font-medium opacity-90">{t("teacher.exams")}</div>

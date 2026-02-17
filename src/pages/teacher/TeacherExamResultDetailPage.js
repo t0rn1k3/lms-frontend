@@ -118,31 +118,31 @@ function TeacherExamResultDetailPage() {
     <div>
       <Link
         to="/teacher/exam-results"
-        className="inline-block mb-6 text-slate-600 hover:text-slate-800"
+        className="inline-block mb-6 text-lms-primary/90 hover:text-lms-primary"
       >
         ← {t("teacher.examResults")}
       </Link>
 
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">
+      <h1 className="text-2xl font-bold text-lms-primary mb-2">
         {getRefName(result.exam)}
       </h1>
-      <p className="text-slate-600 mb-6">
+      <p className="text-lms-primary/90 mb-6">
         {t("teacher.tableStudent")}: <strong>{result.studentId}</strong>
       </p>
 
       {error && <ErrorMessage message={error} className="mb-4" />}
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">{t("student.score")}</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+          <span className="text-sm text-lms-primary/80">{t("student.score")}</span>
           <p className="font-medium">{result.score ?? 0} / {result.totalMark ?? "—"}</p>
         </div>
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">{t("student.grade")}</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+          <span className="text-sm text-lms-primary/80">{t("student.grade")}</span>
           <p className="font-medium">{result.grade != null ? `${result.grade}%` : "—"}</p>
         </div>
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">{t("student.status")}</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+          <span className="text-sm text-lms-primary/80">{t("student.status")}</span>
           <p className="font-medium">
             <span
               className={
@@ -157,17 +157,17 @@ function TeacherExamResultDetailPage() {
             </span>
           </p>
         </div>
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">{t("teacher.fullyGraded")}</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+          <span className="text-sm text-lms-primary/80">{t("teacher.fullyGraded")}</span>
           <p className="font-medium">{result.isFullyGraded ? t("common.yes") : t("common.no")}</p>
         </div>
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">{t("admin.tablePublished")}</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+          <span className="text-sm text-lms-primary/80">{t("admin.tablePublished")}</span>
           <p className="font-medium">{result.isPublished ? t("common.yes") : t("common.no")}</p>
         </div>
       </div>
 
-      <h2 className="text-lg font-semibold text-slate-800 mb-4">
+      <h2 className="text-lg font-semibold text-lms-primary mb-4">
         {t("student.answerBreakdown")}
       </h2>
       <div className="space-y-4 mb-8">
@@ -176,7 +176,7 @@ function TeacherExamResultDetailPage() {
             key={i}
             className={`p-4 rounded-xl border ${
               aq.questionType === "open-ended"
-                ? "bg-slate-50 border-slate-200"
+                ? "bg-lms-cream/30 border-lms-cream"
                 : aq.isCorrect
                   ? "bg-green-50 border-green-200"
                   : "bg-red-50 border-red-200"
@@ -184,10 +184,10 @@ function TeacherExamResultDetailPage() {
           >
             <div className="flex justify-between items-start gap-4">
               <div className="flex-1">
-                <p className="font-medium text-slate-800 mb-2">
+                <p className="font-medium text-lms-primary mb-2">
                   {i + 1}. {aq.question}
                 </p>
-                <div className="text-sm text-slate-600 space-y-1">
+                <div className="text-sm text-lms-primary/90 space-y-1">
                   <p>
                     <span className="font-medium">{t("student.yourAnswer")}:</span>{" "}
                     {aq.studentAnswer || "—"}
@@ -223,7 +223,7 @@ function TeacherExamResultDetailPage() {
               </div>
               {aq.needsManualGrading && aq.questionType === "open-ended" && (
                 <div className="flex-shrink-0 w-24">
-                  <label className="block text-xs text-slate-600 mb-1">
+                  <label className="block text-xs text-lms-primary/90 mb-1">
                     {t("teacher.pointsAwarded")}
                   </label>
                   <input
@@ -233,7 +233,7 @@ function TeacherExamResultDetailPage() {
                     step={0.5}
                     value={gradedAnswers[i] ?? ""}
                     onChange={(e) => handleGradeChange(i, e.target.value)}
-                    className="w-full px-2 py-1 border border-slate-300 rounded text-sm"
+                    className="w-full px-2 py-1 border border-lms-cream rounded text-sm"
                     placeholder="0"
                   />
                 </div>
@@ -245,16 +245,16 @@ function TeacherExamResultDetailPage() {
 
       {hasUngraded && (
         <form onSubmit={handleSubmitGrade} className="mb-6 p-4 bg-amber-50 rounded-xl border border-amber-200">
-          <h3 className="font-semibold text-slate-800 mb-2">
+          <h3 className="font-semibold text-lms-primary mb-2">
             {t("teacher.gradeAnswers")}
           </h3>
-          <p className="text-sm text-slate-600 mb-4">
+          <p className="text-sm text-lms-primary/90 mb-4">
             {t("teacher.needsGrading")} — Enter points for each open-ended question above, then click Save.
           </p>
           <button
             type="submit"
             disabled={submitting}
-            className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
+            className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark disabled:opacity-50"
           >
             {submitting ? t("common.saving") : t("teacher.gradeAndPublish")}
           </button>
@@ -263,10 +263,10 @@ function TeacherExamResultDetailPage() {
 
       {canPublish && (
         <div className="p-4 bg-green-50 rounded-xl border border-green-200">
-          <h3 className="font-semibold text-slate-800 mb-2">
+          <h3 className="font-semibold text-lms-primary mb-2">
             {t("teacher.publishResult")}
           </h3>
-          <p className="text-sm text-slate-600 mb-4">
+          <p className="text-sm text-lms-primary/90 mb-4">
             All questions are graded. Publish this result so the student can view it.
           </p>
           <button

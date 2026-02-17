@@ -40,11 +40,11 @@ function AcademicSetupPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-6">
+      <h1 className="text-2xl font-bold text-lms-primary mb-6">
         {t("admin.academicSetup")}
       </h1>
 
-      <div className="border-b border-slate-200 mb-6">
+      <div className="border-b border-lms-cream mb-6">
         <nav className="flex gap-1 -mb-px overflow-x-auto">
           {TABS.map((tab) => (
             <button
@@ -52,8 +52,8 @@ function AcademicSetupPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
                 activeTab === tab.id
-                  ? "border-slate-800 text-slate-800"
-                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+                  ? "border-lms-primary text-lms-primary"
+                  : "border-transparent text-lms-primary/80 hover:text-lms-primary hover:border-lms-cream"
               }`}
             >
               {t(tab.translationKey)}

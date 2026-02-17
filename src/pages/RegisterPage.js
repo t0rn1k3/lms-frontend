@@ -43,11 +43,11 @@ function RegisterPage() {
   if (success) {
     return (
       <div className="max-w-md mx-auto">
-        <div className="bg-white rounded-xl shadow-lg p-8 border border-slate-200 text-center">
+        <div className="bg-white rounded-xl shadow-lg p-8 border border-lms-cream text-center">
           <p className="text-green-600 font-medium mb-4">
             {t("auth.registerSuccess")}
           </p>
-          <p className="text-slate-600 text-sm mb-4">
+          <p className="text-lms-primary/90 text-sm mb-4">
             {t("auth.registerRedirect")}
           </p>
         </div>
@@ -57,11 +57,11 @@ function RegisterPage() {
 
   return (
     <div className="max-w-md mx-auto">
-      <div className="bg-white rounded-xl shadow-lg p-8 border border-slate-200">
-        <h1 className="text-2xl font-bold text-slate-800 mb-2">
+      <div className="bg-white rounded-xl shadow-lg p-8 border border-lms-cream">
+        <h1 className="text-2xl font-bold text-lms-primary mb-2">
           {t("auth.register")}
         </h1>
-        <p className="text-slate-600 mb-6">
+        <p className="text-lms-primary/90 mb-6">
           {t("auth.registerSubtitle")}
         </p>
 
@@ -74,7 +74,7 @@ function RegisterPage() {
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-slate-700 mb-2"
+              className="block text-sm font-medium text-lms-primary mb-2"
             >
               {t("common.name")}
             </label>
@@ -87,13 +87,13 @@ function RegisterPage() {
               }
               required
               autoComplete="name"
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 outline-none"
+              className="w-full px-4 py-2 border border-lms-cream rounded-lg focus:ring-2 focus:ring-lms-primary focus:border-lms-primary outline-none"
             />
           </div>
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-slate-700 mb-2"
+              className="block text-sm font-medium text-lms-primary mb-2"
             >
               {t("common.email")}
             </label>
@@ -106,13 +106,13 @@ function RegisterPage() {
               }
               required
               autoComplete="email"
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 outline-none"
+              className="w-full px-4 py-2 border border-lms-cream rounded-lg focus:ring-2 focus:ring-lms-primary focus:border-lms-primary outline-none"
             />
           </div>
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-slate-700 mb-2"
+              className="block text-sm font-medium text-lms-primary mb-2"
             >
               {t("common.password")}
             </label>
@@ -126,26 +126,26 @@ function RegisterPage() {
               required
               minLength={6}
               autoComplete="new-password"
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 outline-none"
+              className="w-full px-4 py-2 border border-lms-cream rounded-lg focus:ring-2 focus:ring-lms-primary focus:border-lms-primary outline-none"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 bg-lms-primary text-white font-medium rounded-lg hover:bg-lms-primary-dark disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? t("auth.registering") : t("auth.createAccount")}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-500">
+        <p className="mt-6 text-center text-sm text-lms-primary/80">
           {t("auth.alreadyHaveAccount")}{" "}
-          <Link to="/login/admin" className="text-slate-700 font-medium hover:underline">
+          <Link to="/login/admin" className="text-lms-primary font-medium hover:underline">
             {t("auth.login")}
           </Link>
         </p>
-        <p className="mt-2 text-center text-sm text-slate-500">
-          <Link to="/" className="text-slate-700 hover:underline">
+        <p className="mt-2 text-center text-sm text-lms-primary/80">
+          <Link to="/" className="text-lms-primary hover:underline">
             ← {t("auth.backToHome")}
           </Link>
         </p>

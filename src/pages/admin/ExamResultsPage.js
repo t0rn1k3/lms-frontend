@@ -62,8 +62,8 @@ function ExamResultsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-6">{t("admin.examResultsTitle")}</h1>
-      <p className="text-slate-600 mb-6">
+      <h1 className="text-2xl font-bold text-lms-primary mb-6">{t("admin.examResultsTitle")}</h1>
+      <p className="text-lms-primary/90 mb-6">
         {t("admin.examResultsIntro")}
       </p>
 
@@ -73,54 +73,54 @@ function ExamResultsPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-lms-cream overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-slate-500">{t("common.loading")}</div>
+          <div className="p-8 text-center text-lms-primary/80">{t("common.loading")}</div>
         ) : results.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
+          <div className="p-8 text-center text-lms-primary/80">
             {t("admin.noExamResults")}
           </div>
         ) : (
           <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200">
+            <thead className="bg-lms-cream/30 border-b border-lms-cream">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   {t("admin.tableStudent")}
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   {t("admin.tableExam")}
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   {t("admin.tableScore")}
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   {t("admin.tableStatus")}
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   {t("admin.tablePublished")}
                 </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-slate-700">
+                <th className="px-4 py-3 text-right text-sm font-medium text-lms-primary">
                   {t("admin.tableAction")}
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-lms-cream">
               {results.map((item) => (
-                <tr key={item._id} className="hover:bg-slate-50/50">
+                <tr key={item._id} className="hover:bg-lms-cream/30/50">
                   <td className="px-4 py-3">
-                    <span className="font-medium text-slate-800">
+                    <span className="font-medium text-lms-primary">
                       {studentMap[item.studentId] || "—"}
                     </span>
                     {item.studentId && (
-                      <span className="block text-xs text-slate-500">
+                      <span className="block text-xs text-lms-primary/80">
                         {item.studentId}
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-lms-primary/90">
                     {getRefName(item.exam)}
                   </td>
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-lms-primary/90">
                     {item.score ?? "—"} / {item.passMark ?? 50}
                   </td>
                   <td className="px-4 py-3">
@@ -141,7 +141,7 @@ function ExamResultsPage() {
                       className={`px-2 py-0.5 rounded text-xs font-medium ${
                         item.isPublished
                           ? "bg-green-100 text-green-800"
-                          : "bg-slate-100 text-slate-600"
+                          : "bg-lms-cream/50 text-lms-primary/80"
                       }`}
                     >
                       {item.isPublished ? t("admin.pub") : t("admin.unpub")}

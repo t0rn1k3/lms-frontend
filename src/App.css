@@ -7,7 +7,7 @@ html {
 
 /* Custom focus ring for accessibility (optional override) */
 .focus-ring:focus {
-  outline: 2px solid rgb(100 116 139);
+  outline: 2px solid #0E2148;
   outline-offset: 2px;
 }
 

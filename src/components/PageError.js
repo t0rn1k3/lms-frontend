@@ -15,7 +15,7 @@ function PageError({ message, backTo = "/", backLabel = "Go back" }) {
       {backTo && (
         <Link
           to={backTo}
-          className="text-slate-600 hover:text-slate-800 font-medium"
+          className="text-lms-primary/90 hover:text-lms-primary font-medium"
         >
           ← {backLabel}
         </Link>

@@ -17,8 +17,8 @@ function LanguageSwitcher() {
           onClick={() => i18n.changeLanguage(code)}
           className={`px-2 py-1 text-sm font-medium rounded transition-colors ${
             i18n.language === code || i18n.language?.startsWith(code)
-              ? "bg-slate-600 text-white"
-              : "text-slate-300 hover:bg-slate-700/50 hover:text-white"
+              ? "bg-lms-primary-dark text-white"
+              : "text-white/90 hover:bg-lms-primary/80 hover:text-white"
           }`}
           aria-label={`Switch to ${code === "en" ? "English" : "Georgian"}`}
         >

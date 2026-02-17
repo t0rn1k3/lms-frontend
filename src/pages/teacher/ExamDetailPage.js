@@ -126,7 +126,7 @@ function ExamDetailPage() {
     }
   };
 
-  if (loading) return <div className="p-8 text-slate-500">Loading...</div>;
+  if (loading) return <div className="p-8 text-lms-primary/80">Loading...</div>;
   if (error && !exam) {
     return (
       <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
@@ -143,38 +143,38 @@ function ExamDetailPage() {
       <div className="flex items-center gap-4 mb-6">
         <Link
           to="/teacher/exams"
-          className="text-slate-600 hover:text-slate-800"
+          className="text-lms-primary/90 hover:text-lms-primary"
         >
           ← Back to Exams
         </Link>
         <button
           onClick={openAddQuestion}
-          className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700"
+          className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark"
         >
           {t("teacher.addQuestion")}
         </button>
       </div>
 
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">{exam.name}</h1>
-      <p className="text-slate-600 mb-6">{exam.description}</p>
+      <h1 className="text-2xl font-bold text-lms-primary mb-2">{exam.name}</h1>
+      <p className="text-lms-primary/90 mb-6">{exam.description}</p>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">Subject</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+          <span className="text-sm text-lms-primary/80">Subject</span>
           <p className="font-medium">{getRefName(exam.subject)}</p>
         </div>
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">Date</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+          <span className="text-sm text-lms-primary/80">Date</span>
           <p className="font-medium">
             {exam.examDate ? new Date(exam.examDate).toLocaleDateString() : "—"}
           </p>
         </div>
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">Time</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+          <span className="text-sm text-lms-primary/80">Time</span>
           <p className="font-medium">{exam.examTime || "—"}</p>
         </div>
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">Questions</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+          <span className="text-sm text-lms-primary/80">Questions</span>
           <p className="font-medium">{questions.length}</p>
         </div>
       </div>
@@ -186,13 +186,13 @@ function ExamDetailPage() {
       )}
 
       {questionFormOpen && (
-        <div className="mb-8 p-6 bg-white rounded-xl border border-slate-200">
-          <h2 className="text-lg font-semibold text-slate-800 mb-4">
+        <div className="mb-8 p-6 bg-white rounded-xl border border-lms-cream">
+          <h2 className="text-lg font-semibold text-lms-primary mb-4">
             {editingQuestionId ? t("teacher.editQuestion") : t("teacher.newQuestion")}
           </h2>
           <form onSubmit={handleQuestionSubmit} className="space-y-4 max-w-2xl">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-lms-primary mb-1">
                 {t("teacher.questionType")} *
               </label>
               <select
@@ -200,7 +200,7 @@ function ExamDetailPage() {
                 onChange={(e) =>
                   setQuestionForm((p) => ({ ...p, questionType: e.target.value }))
                 }
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               >
                 {QUESTION_TYPES.map((qt) => (
                   <option key={qt.value} value={qt.value}>
@@ -210,7 +210,7 @@ function ExamDetailPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-lms-primary mb-1">
                 {t("teacher.question")} *
               </label>
               <textarea
@@ -220,11 +220,11 @@ function ExamDetailPage() {
                 }
                 required
                 rows={3}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-lms-primary mb-1">
                 {t("teacher.mark")} ({t("common.optional")})
               </label>
               <input
@@ -236,14 +236,14 @@ function ExamDetailPage() {
                   setQuestionForm((p) => ({ ...p, mark: e.target.value }))
                 }
                 placeholder="1"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               />
             </div>
             {questionForm.questionType === "multiple-choice" && (
               <>
                 {OPTIONS.map((opt) => (
                   <div key={opt}>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                    <label className="block text-sm font-medium text-lms-primary mb-1">
                       {t("teacher.option", { letter: opt })} *
                     </label>
                     <input
@@ -256,12 +256,12 @@ function ExamDetailPage() {
                         }))
                       }
                       required
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                      className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                     />
                   </div>
                 ))}
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-sm font-medium text-lms-primary mb-1">
                     {t("teacher.correctAnswer")} *
                   </label>
                   <select
@@ -272,7 +272,7 @@ function ExamDetailPage() {
                         correctAnswer: e.target.value,
                       }))
                     }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                   >
                     {OPTIONS.map((opt) => (
                       <option key={opt} value={opt}>
@@ -285,7 +285,7 @@ function ExamDetailPage() {
             )}
             {questionForm.questionType === "open-ended" && (
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-lms-primary mb-1">
                   {t("teacher.modelAnswer")} ({t("common.optional")})
                 </label>
                 <textarea
@@ -295,7 +295,7 @@ function ExamDetailPage() {
                   }
                   rows={2}
                   placeholder={t("teacher.modelAnswerPlaceholder")}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                 />
               </div>
             )}
@@ -303,14 +303,14 @@ function ExamDetailPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
+                className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark disabled:opacity-50"
               >
                 {submitting ? t("common.saving") : t("common.save")}
               </button>
               <button
                 type="button"
                 onClick={() => setQuestionFormOpen(false)}
-                className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
+                className="px-4 py-2 border border-lms-cream rounded-lg hover:bg-lms-cream/30"
               >
                 {t("common.cancel")}
               </button>
@@ -319,9 +319,9 @@ function ExamDetailPage() {
         </div>
       )}
 
-      <h2 className="text-lg font-semibold text-slate-800 mb-4">{t("teacher.questions")}</h2>
+      <h2 className="text-lg font-semibold text-lms-primary mb-4">{t("teacher.questions")}</h2>
       {questions.length === 0 ? (
-        <div className="p-8 bg-white rounded-xl border border-slate-200 text-center text-slate-500">
+        <div className="p-8 bg-white rounded-xl border border-lms-cream text-center text-lms-primary/80">
           {t("teacher.noQuestionsYet")}
         </div>
       ) : (
@@ -329,23 +329,23 @@ function ExamDetailPage() {
           {questions.map((q, i) => (
             <div
               key={q._id}
-              className="p-4 bg-white rounded-xl border border-slate-200"
+              className="p-4 bg-white rounded-xl border border-lms-cream"
             >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-200 text-slate-700">
+                    <span className="px-2 py-0.5 rounded text-xs font-medium bg-lms-cream text-lms-primary">
                       {q.questionType === "open-ended" ? t("teacher.questionTypeOpenEnded") : t("teacher.questionTypeMultipleChoice")}
                     </span>
                     {q.mark != null && (
-                      <span className="text-xs text-slate-500">{t("teacher.markLabel", { mark: q.mark })}</span>
+                      <span className="text-xs text-lms-primary/80">{t("teacher.markLabel", { mark: q.mark })}</span>
                     )}
                   </div>
-                  <p className="font-medium text-slate-800">
+                  <p className="font-medium text-lms-primary">
                     {i + 1}. {q.question}
                   </p>
                   {q.questionType === "multiple-choice" && (
-                    <div className="mt-2 grid grid-cols-2 gap-2 text-sm text-slate-600">
+                    <div className="mt-2 grid grid-cols-2 gap-2 text-sm text-lms-primary/90">
                       {q.optionA && <span>A. {q.optionA}</span>}
                       {q.optionB && <span>B. {q.optionB}</span>}
                       {q.optionC && <span>C. {q.optionC}</span>}
@@ -360,7 +360,7 @@ function ExamDetailPage() {
                 </div>
                 <button
                   onClick={() => openEditQuestion(q)}
-                  className="text-slate-600 hover:text-slate-800 text-sm"
+                  className="text-lms-primary/90 hover:text-lms-primary text-sm"
                 >
                   {t("common.edit")}
                 </button>

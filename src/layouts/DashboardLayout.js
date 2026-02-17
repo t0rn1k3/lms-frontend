@@ -20,13 +20,13 @@ function DashboardLayout({ sidebarItems, title }) {
   const linkClass = (path) =>
     `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
       location.pathname === path || location.pathname.startsWith(path + "/")
-        ? "bg-slate-700 text-white"
-        : "text-slate-300 hover:bg-slate-700/50 hover:text-white"
+        ? "bg-lms-primary text-white"
+        : "text-lms-primary hover:bg-lms-cream/70 hover:text-lms-primary"
     }`;
 
   const SidebarContent = () => (
     <>
-      <h2 className="px-4 py-2 text-sm font-semibold text-slate-500 uppercase tracking-wider">
+      <h2 className="px-4 py-2 text-sm font-semibold text-lms-primary/80 uppercase tracking-wider">
         {title}
       </h2>
       <nav className="mt-2 space-y-1">
@@ -38,7 +38,7 @@ function DashboardLayout({ sidebarItems, title }) {
             onClick={() => setSidebarOpen(false)}
           >
             {item.icon && (
-              <span className="text-slate-400">{item.icon}</span>
+              <span className="text-lms-primary/70">{item.icon}</span>
             )}
             {item.label}
           </Link>
@@ -53,7 +53,7 @@ function DashboardLayout({ sidebarItems, title }) {
       <button
         type="button"
         onClick={() => setSidebarOpen((o) => !o)}
-        className="lg:hidden fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-slate-800 text-white shadow-lg flex items-center justify-center"
+        className="lg:hidden fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-lms-primary text-white shadow-lg flex items-center justify-center"
         aria-label={sidebarOpen ? "Close menu" : "Open menu"}
       >
         {sidebarOpen ? (
@@ -83,9 +83,9 @@ function DashboardLayout({ sidebarItems, title }) {
       <aside
         className={`${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 fixed lg:static top-16 lg:top-auto bottom-0 lg:inset-y-0 left-0 z-40 lg:z-auto w-72 lg:w-64 max-w-[85vw] lg:max-w-none flex-shrink-0 bg-white lg:bg-transparent border-r border-slate-200 lg:border-r-0 shadow-xl lg:shadow-none transition-transform duration-200 ease-out`}
+        } lg:translate-x-0 fixed lg:static top-16 lg:top-auto bottom-0 lg:inset-y-0 left-0 z-40 lg:z-auto w-72 lg:w-64 max-w-[85vw] lg:max-w-none flex-shrink-0 bg-white lg:bg-transparent border-r border-lms-cream lg:border-r-0 shadow-xl lg:shadow-none transition-transform duration-200 ease-out`}
       >
-        <div className="lg:sticky lg:top-20 bg-white rounded-xl border border-slate-200 shadow-sm p-4 m-4 lg:m-0">
+        <div className="lg:sticky lg:top-20 bg-white rounded-xl border border-lms-cream shadow-sm p-4 m-4 lg:m-0">
           <SidebarContent />
         </div>
       </aside>

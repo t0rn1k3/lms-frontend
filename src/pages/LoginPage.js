@@ -58,15 +58,15 @@ function LoginPage() {
 
   return (
     <div className="max-w-screen-md mx-auto">
-      <div className="bg-white rounded-xl shadow-lg p-8 border border-slate-200">
-        <h1 className="text-2xl font-bold text-slate-800 mb-2">
+      <div className="bg-white rounded-xl shadow-lg p-8 border border-lms-cream">
+        <h1 className="text-2xl font-bold text-lms-primary mb-2">
           {t("auth.login")}
         </h1>
-        <p className="text-slate-600 mb-6">{t("auth.subtitle")}</p>
+        <p className="text-lms-primary/90 mb-6">{t("auth.subtitle")}</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-lms-primary mb-2">
               {t("auth.loginAs")}
             </label>
             <div className="flex gap-3">
@@ -80,8 +80,8 @@ function LoginPage() {
                   }}
                   className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
                     role === r.value
-                      ? "bg-slate-800 text-white"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      ? "bg-lms-primary text-white"
+                      : "bg-lms-light text-lms-primary hover:bg-lms-cream/70"
                   }`}
                 >
                   {t(r.labelKey)}
@@ -97,7 +97,7 @@ function LoginPage() {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-slate-700 mb-2"
+              className="block text-sm font-medium text-lms-primary mb-2"
             >
               {t("common.email")}
             </label>
@@ -108,13 +108,13 @@ function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder={`${role}@school.com`}
               autoComplete="email"
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 outline-none transition-shadow invalid:border-red-400"
+              className="w-full px-4 py-2 border border-lms-cream rounded-lg focus:ring-2 focus:ring-lms-primary focus:border-lms-primary outline-none transition-shadow invalid:border-red-400"
             />
           </div>
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-slate-700 mb-2"
+              className="block text-sm font-medium text-lms-primary mb-2"
             >
               {t("common.password")}
             </label>
@@ -126,32 +126,32 @@ function LoginPage() {
               placeholder="••••••••"
               autoComplete="current-password"
               minLength={6}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 outline-none transition-shadow"
+              className="w-full px-4 py-2 border border-lms-cream rounded-lg focus:ring-2 focus:ring-lms-primary focus:border-lms-primary outline-none transition-shadow"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 bg-lms-primary text-white font-medium rounded-lg hover:bg-lms-primary-dark transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? t("auth.signingIn") : t("auth.signIn")}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-500">
+        <p className="mt-6 text-center text-sm text-lms-primary/80">
           {role === "admin" && (
             <>
               {t("auth.noAccount")}{" "}
               <Link
                 to="/register"
-                className="text-slate-700 font-medium hover:underline"
+                className="text-lms-primary font-medium hover:underline"
               >
                 {t("auth.register")}
               </Link>
               <br />
             </>
           )}
-          <Link to="/" className="text-slate-700 hover:underline">
+          <Link to="/" className="text-lms-primary hover:underline">
             {t("auth.backToHome")}
           </Link>
         </p>

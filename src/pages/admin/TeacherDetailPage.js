@@ -104,7 +104,7 @@ function TeacherDetailPage() {
     }
   };
 
-  if (loading) return <div className="p-8 text-slate-500">{t("common.loading")}</div>;
+  if (loading) return <div className="p-8 text-lms-primary/80">{t("common.loading")}</div>;
   if (error) {
     return (
       <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
@@ -119,13 +119,13 @@ function TeacherDetailPage() {
       <div className="flex items-center gap-4 mb-6 flex-wrap">
         <Link
           to="/admin/teachers"
-          className="text-slate-600 hover:text-slate-800"
+          className="text-lms-primary/90 hover:text-lms-primary"
         >
           {t("admin.backToTeachers")}
         </Link>
         <button
           onClick={() => navigate("/admin/teachers", { state: { editId: id } })}
-          className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700"
+          className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark"
         >
           {t("common.edit")}
         </button>
@@ -170,44 +170,44 @@ function TeacherDetailPage() {
         )}
       </div>
 
-      <h1 className="text-2xl font-bold text-slate-800 mb-6">{teacher.name}</h1>
+      <h1 className="text-2xl font-bold text-lms-primary mb-6">{teacher.name}</h1>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4 max-w-2xl">
+      <div className="bg-white rounded-xl border border-lms-cream p-6 space-y-4 max-w-2xl">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <span className="text-sm text-slate-500">Email</span>
+            <span className="text-sm text-lms-primary/80">Email</span>
             <p className="font-medium">{teacher.email}</p>
           </div>
           <div>
-            <span className="text-sm text-slate-500">Teacher ID</span>
+            <span className="text-sm text-lms-primary/80">Teacher ID</span>
             <p className="font-medium">{teacher.teacherId || "—"}</p>
           </div>
           <div>
-            <span className="text-sm text-slate-500">Program</span>
+            <span className="text-sm text-lms-primary/80">Program</span>
             <p className="font-medium">
               {getProgramName(getRefId(teacher.program))}
             </p>
           </div>
           <div>
-            <span className="text-sm text-slate-500">Class Level</span>
+            <span className="text-sm text-lms-primary/80">Class Level</span>
             <p className="font-medium">
               {getClassLevelName(getRefId(teacher.classLevel))}
             </p>
           </div>
           <div>
-            <span className="text-sm text-slate-500">Academic Year</span>
+            <span className="text-sm text-lms-primary/80">Academic Year</span>
             <p className="font-medium">
               {getAcademicYearName(getRefId(teacher.academicYear))}
             </p>
           </div>
           <div>
-            <span className="text-sm text-slate-500">Subject</span>
+            <span className="text-sm text-lms-primary/80">Subject</span>
             <p className="font-medium">
               {getSubjectName(getRefId(teacher.subject))}
             </p>
           </div>
           <div>
-            <span className="text-sm text-slate-500">{t("common.status")}</span>
+            <span className="text-sm text-lms-primary/80">{t("common.status")}</span>
             <p className="font-medium">
               {teacher.isWithdrawn
                 ? t("admin.withdrawn")

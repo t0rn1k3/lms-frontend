@@ -50,13 +50,13 @@ function getStatCards(t) {
     key: "teachers",
     label: t("admin.teachers"),
     to: "/admin/teachers",
-    color: "bg-slate-100 border-slate-300 text-slate-800",
+    color: "bg-lms-light border-lms-cream text-lms-primary",
   },
   {
     key: "students",
     label: t("admin.students"),
     to: "/admin/students",
-    color: "bg-slate-100 border-slate-300 text-slate-800",
+    color: "bg-lms-light border-lms-cream text-lms-primary",
   },
 ];
 }
@@ -113,8 +113,8 @@ function AdminDashboard() {
   if (loading) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold text-slate-800 mb-6">{t("admin.overview")}</h1>
-        <div className="text-slate-500">{t("admin.loadingStats")}</div>
+        <h1 className="text-2xl font-bold text-lms-primary mb-6">{t("admin.overview")}</h1>
+        <div className="text-lms-primary/80">{t("admin.loadingStats")}</div>
       </div>
     );
   }
@@ -122,7 +122,7 @@ function AdminDashboard() {
   if (error) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold text-slate-800 mb-6">{t("admin.overview")}</h1>
+        <h1 className="text-2xl font-bold text-lms-primary mb-6">{t("admin.overview")}</h1>
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
           {error}
         </div>
@@ -132,8 +132,8 @@ function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">{t("admin.overview")}</h1>
-      <p className="text-slate-600 mb-8">
+      <h1 className="text-2xl font-bold text-lms-primary mb-2">{t("admin.overview")}</h1>
+      <p className="text-lms-primary/90 mb-8">
         {t("admin.overviewIntro")}
       </p>
 

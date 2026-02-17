@@ -10,7 +10,7 @@ function LoadingSpinner({ size = "md", className = "" }) {
 
   return (
     <div
-      className={`inline-block animate-spin rounded-full border-2 border-slate-200 border-t-slate-700 ${sizeClass} ${className}`}
+      className={`inline-block animate-spin rounded-full border-2 border-lms-cream border-t-lms-primary ${sizeClass} ${className}`}
       role="status"
       aria-label="Loading"
     />

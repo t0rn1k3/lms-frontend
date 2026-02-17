@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
-  <rect width="48" height="48" rx="10" fill="#1e293b"/>
+  <rect width="48" height="48" rx="10" fill="#0E2148"/>
   <!-- Closed book - front cover (main rectangle) -->
   <rect x="16" y="10" width="18" height="28" rx="2" fill="white"/>
   <!-- Spine (left edge of book) -->
-  <rect x="12" y="10" width="6" height="28" rx="2" fill="#94a3b8"/>
+  <rect x="12" y="10" width="6" height="28" rx="2" fill="#A2D5C6"/>
 </svg>

@@ -43,51 +43,51 @@ function TeacherExamResultsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">
+      <h1 className="text-2xl font-bold text-lms-primary mb-2">
         {t("teacher.examResults")}
       </h1>
-      <p className="text-slate-600 mb-6">
+      <p className="text-lms-primary/90 mb-6">
         {t("teacher.examResultsIntro")}
       </p>
 
       {error && <ErrorMessage message={error} className="mb-4" />}
 
       {results.length === 0 ? (
-        <div className="p-8 bg-white rounded-xl border border-slate-200 text-center text-slate-500">
+        <div className="p-8 bg-white rounded-xl border border-lms-cream text-center text-lms-primary/80">
           {t("admin.noExamResults")}
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-lms-cream bg-white">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="text-left py-3 px-4 font-semibold text-slate-700">
+              <tr className="border-b border-lms-cream bg-lms-cream/30">
+                <th className="text-left py-3 px-4 font-semibold text-lms-primary">
                   {t("teacher.tableStudent")}
                 </th>
-                <th className="text-left py-3 px-4 font-semibold text-slate-700">
+                <th className="text-left py-3 px-4 font-semibold text-lms-primary">
                   {t("teacher.tableExam")}
                 </th>
-                <th className="text-left py-3 px-4 font-semibold text-slate-700">
+                <th className="text-left py-3 px-4 font-semibold text-lms-primary">
                   {t("teacher.tableScore")}
                 </th>
-                <th className="text-left py-3 px-4 font-semibold text-slate-700">
+                <th className="text-left py-3 px-4 font-semibold text-lms-primary">
                   {t("teacher.tableStatus")}
                 </th>
-                <th className="text-left py-3 px-4 font-semibold text-slate-700">
+                <th className="text-left py-3 px-4 font-semibold text-lms-primary">
                   {t("admin.tablePublished")}
                 </th>
-                <th className="text-left py-3 px-4 font-semibold text-slate-700">
+                <th className="text-left py-3 px-4 font-semibold text-lms-primary">
                   {t("common.actions")}
                 </th>
               </tr>
             </thead>
             <tbody>
               {results.map((r) => (
-                <tr key={r._id} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="py-3 px-4 text-slate-800">
+                <tr key={r._id} className="border-b border-lms-cream hover:bg-lms-cream/30">
+                  <td className="py-3 px-4 text-lms-primary">
                     <span className="font-medium">{r.studentId || "—"}</span>
                   </td>
-                  <td className="py-3 px-4 text-slate-600">
+                  <td className="py-3 px-4 text-lms-primary/90">
                     {getRefName(r.exam)}
                   </td>
                   <td className="py-3 px-4">
@@ -111,13 +111,13 @@ function TeacherExamResultsPage() {
                     {r.isPublished ? (
                       <span className="text-green-600 font-medium">{t("common.yes")}</span>
                     ) : (
-                      <span className="text-slate-500">{t("common.no")}</span>
+                      <span className="text-lms-primary/80">{t("common.no")}</span>
                     )}
                   </td>
                   <td className="py-3 px-4">
                     <Link
                       to={`/teacher/exam-results/${r._id}`}
-                      className="text-slate-700 hover:text-slate-900 font-medium"
+                      className="text-lms-primary hover:text-lms-primary font-medium"
                     >
                       {t("common.view")}
                     </Link>

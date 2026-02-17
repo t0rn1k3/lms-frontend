@@ -50,10 +50,10 @@ function StudentDashboard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">
+      <h1 className="text-2xl font-bold text-lms-primary mb-2">
         {t("student.welcome")}, {studentProfile.name || t("roles.student")}
       </h1>
-      <p className="text-slate-600 mb-8">
+      <p className="text-lms-primary/90 mb-8">
         {t("student.intro")}
       </p>
 
@@ -62,41 +62,41 @@ function StudentDashboard() {
       )}
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-sm">
-          <h2 className="text-sm font-medium text-slate-500 mb-1">
+        <div className="p-6 bg-white rounded-xl border border-lms-cream shadow-sm">
+          <h2 className="text-sm font-medium text-lms-primary/80 mb-1">
             {t("student.availableExams")}
           </h2>
-          <p className="text-2xl font-bold text-slate-800">{availableCount}</p>
+          <p className="text-2xl font-bold text-lms-primary">{availableCount}</p>
           <Link
             to="/student/exams"
-            className="mt-2 text-sm text-slate-600 hover:text-slate-800"
+            className="mt-2 text-sm text-lms-primary/90 hover:text-lms-primary"
           >
             {t("student.takeExam")}
           </Link>
         </div>
-        <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-sm">
-          <h2 className="text-sm font-medium text-slate-500 mb-1">
+        <div className="p-6 bg-white rounded-xl border border-lms-cream shadow-sm">
+          <h2 className="text-sm font-medium text-lms-primary/80 mb-1">
             {t("student.examsTaken")}
           </h2>
-          <p className="text-2xl font-bold text-slate-800">{results.length}</p>
+          <p className="text-2xl font-bold text-lms-primary">{results.length}</p>
           <Link
             to="/student/results"
-            className="mt-2 text-sm text-slate-600 hover:text-slate-800"
+            className="mt-2 text-sm text-lms-primary/90 hover:text-lms-primary"
           >
             {t("student.viewResults")}
           </Link>
         </div>
-        <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-sm">
-          <h2 className="text-sm font-medium text-slate-500 mb-1">{t("student.passed")}</h2>
+        <div className="p-6 bg-white rounded-xl border border-lms-cream shadow-sm">
+          <h2 className="text-sm font-medium text-lms-primary/80 mb-1">{t("student.passed")}</h2>
           <p className="text-2xl font-bold text-green-700">{passed}</p>
         </div>
-        <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-sm">
-          <h2 className="text-sm font-medium text-slate-500 mb-1">
+        <div className="p-6 bg-white rounded-xl border border-lms-cream shadow-sm">
+          <h2 className="text-sm font-medium text-lms-primary/80 mb-1">
             {t("student.latestResult")}
           </h2>
           {latestResult ? (
             <>
-              <p className="text-lg font-semibold text-slate-800">
+              <p className="text-lg font-semibold text-lms-primary">
                 {typeof latestResult.exam === "object"
                   ? latestResult.exam?.name
                   : "—"}
@@ -113,14 +113,14 @@ function StudentDashboard() {
               {latestResult.isPublished && (
                 <Link
                   to={`/student/results/${latestResult._id}`}
-                  className="mt-2 text-sm text-slate-600 hover:text-slate-800 inline-block"
+                  className="mt-2 text-sm text-lms-primary/90 hover:text-lms-primary inline-block"
                 >
                   {t("student.viewDetails")}
                 </Link>
               )}
             </>
           ) : (
-            <p className="text-slate-500">{t("student.noExamsYet")}</p>
+            <p className="text-lms-primary/80">{t("student.noExamsYet")}</p>
           )}
         </div>
       </div>
@@ -128,13 +128,13 @@ function StudentDashboard() {
       <div className="flex gap-4">
         <Link
           to="/student/exams"
-          className="px-5 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-medium"
+          className="px-5 py-3 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark font-medium"
         >
           {t("student.myExams")}
         </Link>
         <Link
           to="/student/profile"
-          className="px-5 py-3 border border-slate-300 rounded-lg hover:bg-slate-50 font-medium"
+          className="px-5 py-3 border border-lms-cream rounded-lg hover:bg-lms-cream/30 font-medium"
         >
           {t("common.profile")}
         </Link>

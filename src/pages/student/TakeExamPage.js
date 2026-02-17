@@ -95,44 +95,44 @@ function TakeExamPage() {
     <div>
       <Link
         to="/student/exams"
-        className="inline-block mb-6 text-slate-600 hover:text-slate-800"
+        className="inline-block mb-6 text-lms-primary/90 hover:text-lms-primary"
       >
         ← {t("student.backToExams")}
       </Link>
 
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">{exam.name}</h1>
-      <p className="text-slate-600 mb-6">{exam.description}</p>
+      <h1 className="text-2xl font-bold text-lms-primary mb-2">{exam.name}</h1>
+      <p className="text-lms-primary/90 mb-6">{exam.description}</p>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">{t("student.duration")}</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+          <span className="text-sm text-lms-primary/80">{t("student.duration")}</span>
           <p className="font-medium">{exam.duration || "—"}</p>
         </div>
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">{t("student.date")}</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+          <span className="text-sm text-lms-primary/80">{t("student.date")}</span>
           <p className="font-medium">
             {exam.examDate ? new Date(exam.examDate).toLocaleDateString() : "—"}
           </p>
         </div>
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">{t("student.time")}</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+          <span className="text-sm text-lms-primary/80">{t("student.time")}</span>
           <p className="font-medium">{exam.examTime || "—"}</p>
         </div>
-        <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <span className="text-sm text-slate-500">{t("student.questions")}</span>
+        <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+          <span className="text-sm text-lms-primary/80">{t("student.questions")}</span>
           <p className="font-medium">{questions.length}</p>
         </div>
       </div>
 
       {error && <ErrorMessage message={error} className="mb-4" />}
 
-      <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
-        <p className="text-sm text-slate-600">
+      <div className="mb-6 p-4 bg-lms-cream/30 rounded-lg border border-lms-cream">
+        <p className="text-sm text-lms-primary/90">
           {t("student.progress")}: {t("student.progressOf", { answered: answeredCount, total: questions.length })}
         </p>
-        <div className="mt-2 h-2 bg-slate-200 rounded-full overflow-hidden">
+        <div className="mt-2 h-2 bg-lms-cream rounded-full overflow-hidden">
           <div
-            className="h-full bg-slate-700 transition-all"
+            className="h-full bg-lms-primary-dark transition-all"
             style={{
               width: `${questions.length ? (answeredCount / questions.length) * 100 : 0}%`,
             }}
@@ -144,14 +144,14 @@ function TakeExamPage() {
         {questions.map((q, i) => (
           <div
             key={q._id}
-            className="p-6 bg-white rounded-xl border border-slate-200"
+            className="p-6 bg-white rounded-xl border border-lms-cream"
           >
-            <p className="font-medium text-slate-800 mb-4">
+            <p className="font-medium text-lms-primary mb-4">
               {i + 1}. {q.question}
             </p>
             {q.questionType === "open-ended" ? (
               <div>
-                <label className="block text-sm text-slate-600 mb-2">
+                <label className="block text-sm text-lms-primary/90 mb-2">
                   {t("student.yourAnswer")}
                 </label>
                 <textarea
@@ -159,7 +159,7 @@ function TakeExamPage() {
                   onChange={(e) => handleAnswer(i, e.target.value)}
                   rows={4}
                   placeholder={t("student.writeYourAnswer")}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                 />
               </div>
             ) : (
@@ -169,8 +169,8 @@ function TakeExamPage() {
                     key={opt}
                     className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
                       answers[i] === opt
-                        ? "border-slate-800 bg-slate-50"
-                        : "border-slate-200 hover:border-slate-300"
+                        ? "border-lms-primary bg-lms-cream/30"
+                        : "border-lms-cream hover:border-lms-cream"
                     }`}
                   >
                     <input
@@ -181,7 +181,7 @@ function TakeExamPage() {
                       onChange={() => handleAnswer(i, opt)}
                       className="w-4 h-4"
                     />
-                    <span className="text-slate-700">
+                    <span className="text-lms-primary">
                       {opt}. {q[`option${opt}`] || ""}
                     </span>
                   </label>
@@ -195,7 +195,7 @@ function TakeExamPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="px-6 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50 font-medium"
+            className="px-6 py-3 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark disabled:opacity-50 font-medium"
           >
             {t("student.submitExam")}
           </button>
@@ -205,10 +205,10 @@ function TakeExamPage() {
       {showConfirm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
           <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
-            <h3 className="text-lg font-semibold text-slate-800 mb-2">
+            <h3 className="text-lg font-semibold text-lms-primary mb-2">
               {t("student.submitConfirmTitle")}
             </h3>
-            <p className="text-slate-600 mb-6">
+            <p className="text-lms-primary/90 mb-6">
               {t("student.submitConfirmMessage")}
             </p>
             <div className="flex gap-3 justify-end">
@@ -216,7 +216,7 @@ function TakeExamPage() {
                 type="button"
                 onClick={() => setShowConfirm(false)}
                 disabled={submitting}
-                className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
+                className="px-4 py-2 border border-lms-cream rounded-lg hover:bg-lms-cream/30"
               >
                 {t("common.cancel")}
               </button>
@@ -224,7 +224,7 @@ function TakeExamPage() {
                 type="button"
                 onClick={handleSubmitConfirm}
                 disabled={submitting}
-                className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
+                className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark disabled:opacity-50"
               >
                 {submitting ? t("common.saving") : t("student.submitConfirmYes")}
               </button>
