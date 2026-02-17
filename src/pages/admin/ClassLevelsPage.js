@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { academicService, getErrorMessage } from "../../api";
 
 function ClassLevelsPage() {
+  const { t } = useTranslation();
   const [levels, setLevels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -71,7 +73,7 @@ function ClassLevelsPage() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this class level?")) return;
+    if (!window.confirm(t("admin.confirmDeleteClassLevel"))) return;
     try {
       await academicService.deleteClassLevel(id);
       fetchLevels();
@@ -83,12 +85,12 @@ function ClassLevelsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">Class Levels</h1>
+        <h1 className="text-2xl font-bold text-slate-800">{t("admin.classLevels")}</h1>
         <button
           onClick={openCreateForm}
           className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700"
         >
-          Add Class Level
+          {t("admin.addClassLevel")}
         </button>
       </div>
 
@@ -101,12 +103,12 @@ function ClassLevelsPage() {
       {formOpen && (
         <div className="mb-6 p-6 bg-white rounded-xl border border-slate-200">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">
-            {editingId ? "Edit Class Level" : "New Class Level"}
+            {editingId ? t("admin.editClassLevel") : t("admin.newClassLevel")}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Name
+                {t("common.name")}
               </label>
               <input
                 type="text"
@@ -114,14 +116,14 @@ function ClassLevelsPage() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
-                placeholder="e.g. Grade 1 or Level 100"
+                placeholder={t("admin.classLevelNamePlaceholder")}
                 required
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Description
+                {t("common.description")}
               </label>
               <textarea
                 value={formData.description}
@@ -131,7 +133,7 @@ function ClassLevelsPage() {
                     description: e.target.value,
                   }))
                 }
-                placeholder="Class level description"
+                placeholder={t("admin.classLevelDescription")}
                 required
                 rows={3}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
@@ -139,7 +141,7 @@ function ClassLevelsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Duration
+                {t("common.duration")}
               </label>
               <input
                 type="text"
@@ -147,7 +149,7 @@ function ClassLevelsPage() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, duration: e.target.value }))
                 }
-                placeholder="e.g. 3 months"
+                placeholder={t("admin.durationPlaceholder")}
                 required
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
               />
@@ -158,14 +160,14 @@ function ClassLevelsPage() {
                 disabled={submitting}
                 className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
               >
-                {submitting ? "Saving..." : "Save"}
+                {submitting ? t("common.saving") : t("common.save")}
               </button>
               <button
                 type="button"
                 onClick={() => setFormOpen(false)}
                 className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
             </div>
           </form>
@@ -174,27 +176,26 @@ function ClassLevelsPage() {
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-slate-500">Loading...</div>
+          <div className="p-8 text-center text-slate-500">{t("common.loading")}</div>
         ) : levels.length === 0 ? (
           <div className="p-8 text-center text-slate-500">
-            No class levels yet. Click &quot;Add Class Level&quot; to create
-            one.
+            {t("admin.noClassLevels")}
           </div>
         ) : (
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                  Name
+                  {t("common.name")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                  Description
+                  {t("common.description")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                  Duration
+                  {t("common.duration")}
                 </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-slate-700">
-                  Actions
+                  {t("common.actions")}
                 </th>
               </tr>
             </thead>
@@ -211,13 +212,13 @@ function ClassLevelsPage() {
                       onClick={() => openEditForm(item)}
                       className="text-slate-600 hover:text-slate-800 mr-3"
                     >
-                      Edit
+                      {t("common.edit")}
                     </button>
                     <button
                       onClick={() => handleDelete(item._id)}
                       className="text-red-600 hover:text-red-800"
                     >
-                      Delete
+                      {t("common.delete")}
                     </button>
                   </td>
                 </tr>

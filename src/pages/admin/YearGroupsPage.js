@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { academicService, getErrorMessage } from "../../api";
 
 function YearGroupsPage() {
+  const { t } = useTranslation();
   const [yearGroups, setYearGroups] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -94,7 +96,7 @@ function YearGroupsPage() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this year group?")) return;
+    if (!window.confirm(t("admin.confirmDeleteYearGroup"))) return;
     try {
       await academicService.deleteYearGroup(id);
       fetchYearGroups();
@@ -106,12 +108,12 @@ function YearGroupsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">Year Groups</h1>
+        <h1 className="text-2xl font-bold text-slate-800">{t("admin.yearGroups")}</h1>
         <button
           onClick={openCreateForm}
           className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700"
         >
-          Add Year Group
+          {t("admin.addYearGroup")}
         </button>
       </div>
 
@@ -124,12 +126,12 @@ function YearGroupsPage() {
       {formOpen && (
         <div className="mb-6 p-6 bg-white rounded-xl border border-slate-200">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">
-            {editingId ? "Edit Year Group" : "New Year Group"}
+            {editingId ? t("admin.editYearGroup") : t("admin.newYearGroup")}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Name
+                {t("common.name")}
               </label>
               <input
                 type="text"
@@ -137,14 +139,14 @@ function YearGroupsPage() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
-                placeholder="e.g. Year 1, Class of 2025"
+                placeholder={t("admin.yearGroupNamePlaceholder")}
                 required
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Academic Year
+                {t("admin.academicYearLabel")}
               </label>
               <select
                 value={formData.academicYear}
@@ -157,7 +159,7 @@ function YearGroupsPage() {
                 required
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
               >
-                <option value="">Select academic year</option>
+                <option value="">{t("admin.selectAcademicYear")}</option>
                 {academicYears.map((y) => (
                   <option key={y._id} value={y._id}>
                     {getAcademicYearName(y._id)}
@@ -171,14 +173,14 @@ function YearGroupsPage() {
                 disabled={submitting}
                 className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
               >
-                {submitting ? "Saving..." : "Save"}
+                {submitting ? t("common.saving") : t("common.save")}
               </button>
               <button
                 type="button"
                 onClick={() => setFormOpen(false)}
                 className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
             </div>
           </form>
@@ -187,23 +189,23 @@ function YearGroupsPage() {
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-slate-500">Loading...</div>
+          <div className="p-8 text-center text-slate-500">{t("common.loading")}</div>
         ) : yearGroups.length === 0 ? (
           <div className="p-8 text-center text-slate-500">
-            No year groups yet. Click &quot;Add Year Group&quot; to create one.
+            {t("admin.noYearGroups")}
           </div>
         ) : (
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                  Name
+                  {t("common.name")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                  Academic Year
+                  {t("admin.academicYearLabel")}
                 </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-slate-700">
-                  Actions
+                  {t("common.actions")}
                 </th>
               </tr>
             </thead>
@@ -225,13 +227,13 @@ function YearGroupsPage() {
                       onClick={() => openEditForm(item)}
                       className="text-slate-600 hover:text-slate-800 mr-3"
                     >
-                      Edit
+                      {t("common.edit")}
                     </button>
                     <button
                       onClick={() => handleDelete(item._id)}
                       className="text-red-600 hover:text-red-800"
                     >
-                      Delete
+                      {t("common.delete")}
                     </button>
                   </td>
                 </tr>

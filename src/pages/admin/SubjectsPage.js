@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { academicService, getErrorMessage } from "../../api";
 
 function SubjectsPage() {
+  const { t } = useTranslation();
   const [subjects, setSubjects] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [academicTerms, setAcademicTerms] = useState([]);
@@ -112,7 +114,7 @@ function SubjectsPage() {
         await academicService.updateSubject(editingId, payload);
       } else {
         if (!formData.programId) {
-          setError("Please select a program.");
+          setError(t("admin.selectProgram"));
           setSubmitting(false);
           return;
         }
@@ -129,7 +131,7 @@ function SubjectsPage() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this subject?")) return;
+    if (!window.confirm(t("admin.confirmDeleteSubject"))) return;
     try {
       await academicService.deleteSubject(id);
       fetchSubjects();
@@ -142,12 +144,12 @@ function SubjectsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">Subjects</h1>
+        <h1 className="text-2xl font-bold text-slate-800">{t("admin.subjects")}</h1>
         <button
           onClick={openCreateForm}
           className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700"
         >
-          Add Subject
+          {t("admin.addSubject")}
         </button>
       </div>
 
@@ -160,13 +162,13 @@ function SubjectsPage() {
       {formOpen && (
         <div className="mb-6 p-6 bg-white rounded-xl border border-slate-200">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">
-            {editingId ? "Edit Subject" : "New Subject"}
+            {editingId ? t("admin.editSubject") : t("admin.newSubject")}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
             {!editingId && (
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Program <span className="text-red-500">*</span>
+                  {t("admin.program")} <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.programId}
@@ -179,7 +181,7 @@ function SubjectsPage() {
                   required={!editingId}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg"
                 >
-                  <option value="">Select program</option>
+                  <option value="">{t("admin.selectProgramOption")}</option>
                   {programs.map((p) => (
                     <option key={p._id} value={p._id}>
                       {p.name}
@@ -191,7 +193,7 @@ function SubjectsPage() {
             {editingId && formData.programId && (
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Program
+                  {t("admin.program")}
                 </label>
                 <p className="text-slate-600 py-1">
                   {getProgramName(formData.programId)}
@@ -200,7 +202,7 @@ function SubjectsPage() {
             )}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Name
+                {t("common.name")}
               </label>
               <input
                 type="text"
@@ -208,14 +210,14 @@ function SubjectsPage() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
-                placeholder="e.g. Mathematics"
+                placeholder={t("admin.subjectNamePlaceholder")}
                 required
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Description
+                {t("common.description")}
               </label>
               <textarea
                 value={formData.description}
@@ -225,7 +227,7 @@ function SubjectsPage() {
                     description: e.target.value,
                   }))
                 }
-                placeholder="Subject description"
+                placeholder={t("admin.subjectDescription")}
                 required
                 rows={3}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
@@ -233,7 +235,7 @@ function SubjectsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Academic Term
+                {t("admin.academicTermLabel")}
               </label>
               <select
                 value={formData.academicTerm}
@@ -246,10 +248,10 @@ function SubjectsPage() {
                 required
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
               >
-                <option value="">Select term</option>
-                {academicTerms.map((t) => (
-                  <option key={t._id} value={t._id}>
-                    {t.name}
+                <option value="">{t("admin.selectTerm")}</option>
+                {academicTerms.map((term) => (
+                  <option key={term._id} value={term._id}>
+                    {term.name}
                   </option>
                 ))}
               </select>
@@ -260,14 +262,14 @@ function SubjectsPage() {
                 disabled={submitting}
                 className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
               >
-                {submitting ? "Saving..." : "Save"}
+                {submitting ? t("common.saving") : t("common.save")}
               </button>
               <button
                 type="button"
                 onClick={() => setFormOpen(false)}
                 className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
             </div>
           </form>
@@ -276,26 +278,26 @@ function SubjectsPage() {
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-slate-500">Loading...</div>
+          <div className="p-8 text-center text-slate-500">{t("common.loading")}</div>
         ) : subjects.length === 0 ? (
           <div className="p-8 text-center text-slate-500">
-            No subjects yet. Click &quot;Add Subject&quot; to create one.
+            {t("admin.noSubjects")}
           </div>
         ) : (
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                  Name
+                  {t("common.name")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                  Program
+                  {t("admin.program")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-700">
-                  Academic Term
+                  {t("admin.academicTermLabel")}
                 </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-slate-700">
-                  Actions
+                  {t("common.actions")}
                 </th>
               </tr>
             </thead>
@@ -327,13 +329,13 @@ function SubjectsPage() {
                       onClick={() => openEditForm(item)}
                       className="text-slate-600 hover:text-slate-800 mr-3"
                     >
-                      Edit
+                      {t("common.edit")}
                     </button>
                     <button
                       onClick={() => handleDelete(item._id)}
                       className="text-red-600 hover:text-red-800"
                     >
-                      Delete
+                      {t("common.delete")}
                     </button>
                   </td>
                 </tr>
