@@ -28,7 +28,7 @@ export const endpoints = {
     list: "/teachers/admin",
     getOne: (id) => `/teachers/${id}/admin`,
     update: (id) => `/teachers/${id}`,
-    withdraw: (id) => `/admins/withdraw/teacher/${id}`,
+    withdraw: (id) => `admins/withdraw/teacher/${id}`,
   },
   students: {
     register: "/students/admin/register",
@@ -40,6 +40,7 @@ export const endpoints = {
     list: "/students/admin",
     getOne: (id) => `/students/${id}/admin`,
     update: (id) => `/students/${id}/admin`,
+    withdraw: (id) => `admins/withdraw/students/${id}`,
     writeExam: (examId) => `/students/exams/${examId}`,
   },
 

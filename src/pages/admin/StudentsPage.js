@@ -122,6 +122,15 @@ function StudentsPage() {
     }
   };
 
+  const handleWithdrawDelete = async (id) => {
+    try {
+      await studentService.withdraw(id);
+      fetchStudents();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+  };
+
   const toggleClassLevel = (id) => {
     setFormData((prev) =>
       prev.classLevels.includes(id)
@@ -494,7 +503,7 @@ function StudentsPage() {
                         <button
                           onClick={() => {
                             if (window.confirm(t("admin.confirmWithdrawStudent"))) {
-                              handleUpdateStatus(item._id, { isSuspended: false, isWithdrawn: true });
+                              handleWithdrawDelete(item._id);
                             }
                           }}
                           className="text-red-600 hover:text-red-800"

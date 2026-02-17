@@ -6,6 +6,7 @@ export const studentService = {
   list: () => apiClient.get(endpoints.students.list),
   getOne: (id) => apiClient.get(endpoints.students.getOne(id)),
   update: (id, data) => apiClient.put(endpoints.students.update(id), data),
+  withdraw: (id) => apiClient.put(endpoints.students.withdraw(id)),
 
   // Student: own profile
   getProfile: () => apiClient.get(endpoints.students.profile),

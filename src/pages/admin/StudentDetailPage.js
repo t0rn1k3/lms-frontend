@@ -79,6 +79,19 @@ function StudentDetailPage() {
     }
   };
 
+  const handleWithdrawDelete = async () => {
+    if (!student?._id) return;
+    try {
+      setUpdating(true);
+      await studentService.withdraw(student._id);
+      navigate("/admin/students");
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   if (loading) return <div className="p-8 text-slate-500">{t("common.loading")}</div>;
   if (error) {
     return (
@@ -122,7 +135,7 @@ function StudentDetailPage() {
             <button
               onClick={() => {
                 if (window.confirm(t("admin.confirmWithdrawStudent"))) {
-                  handleUpdateStatus({ isSuspended: false, isWithdrawn: true });
+                  handleWithdrawDelete();
                 }
               }}
               disabled={updating}
