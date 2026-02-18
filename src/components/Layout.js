@@ -24,7 +24,7 @@ function Layout() {
   const navLinkClass = (path) =>
     `px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
       location.pathname === path
-        ? "bg-lms-primary-dark text-white"
+        ? "bg-lms-bg text-lms-primary"
         : "text-white/90 hover:bg-lms-primary/80 hover:text-white"
     }`;
 
@@ -43,19 +43,26 @@ function Layout() {
                 className="flex items-center gap-2 text-xl font-bold text-white hover:text-white/90 transition-colors"
               >
                 <img src="/logo.svg" alt="EduManage" className="h-10 w-10" />
-                <span>EduManage</span>
+                <div className="flex flex-col ml-2">
+                  <span className="text-xl font-bold text-white ">
+                    EduManage
+                  </span>
+                  <span className="text-xs text-white/90 font-light">
+                    Learning Management System
+                  </span>
+                </div>
               </Link>
-              <nav className="flex gap-2 items-center">
-                <Link to="/" className={navLinkClass("/")}>
-                  {t("nav.home")}
-                </Link>
-                {isLoggedIn && (
-                  <Link to={`/${role}`} className={navLinkClass(`/${role}`)}>
-                    {t("nav.dashboard")}
-                  </Link>
-                )}
-              </nav>
             </div>
+            <nav className="flex gap-2 items-center">
+              <Link to="/" className={navLinkClass("/")}>
+                {t("nav.home")}
+              </Link>
+              {isLoggedIn && (
+                <Link to={`/${role}`} className={navLinkClass(`/${role}`)}>
+                  {t("nav.dashboard")}
+                </Link>
+              )}
+            </nav>
 
             <div className="flex items-center gap-4">
               <LanguageSwitcher />

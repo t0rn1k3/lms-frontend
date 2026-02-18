@@ -108,14 +108,14 @@ function ExamResultsPage() {
               {results.map((item) => (
                 <tr key={item._id} className="hover:bg-lms-cream/30/50">
                   <td className="px-4 py-3">
-                    <span className="font-medium text-lms-primary">
-                      {studentMap[item.studentId] || "—"}
-                    </span>
-                    {item.studentId && (
-                      <span className="block text-xs text-lms-primary/80">
-                        {item.studentId}
-                      </span>
-                    )}
+                    <div className="inline-flex flex-col rounded-lg overflow-hidden border border-lms-cream min-w-[100px]">
+                      <div className="bg-teal-50 px-3 py-1.5 text-center text-xs font-medium text-lms-primary">
+                        {t("admin.tableStudent")}
+                      </div>
+                      <div className="bg-white px-3 py-2 text-center text-sm font-medium text-lms-primary">
+                        {studentMap[item.studentId] || item.studentId || "—"}
+                      </div>
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90">
                     {getRefName(item.exam)}

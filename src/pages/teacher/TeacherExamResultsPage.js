@@ -84,8 +84,15 @@ function TeacherExamResultsPage() {
             <tbody>
               {results.map((r) => (
                 <tr key={r._id} className="border-b border-lms-cream hover:bg-lms-cream/30">
-                  <td className="py-3 px-4 text-lms-primary">
-                    <span className="font-medium">{r.studentId || "—"}</span>
+                  <td className="py-3 px-4">
+                    <div className="inline-flex flex-col rounded-lg overflow-hidden border border-lms-cream min-w-[100px]">
+                      <div className="bg-teal-50 px-3 py-1.5 text-center text-xs font-medium text-lms-primary">
+                        {t("teacher.tableStudent")}
+                      </div>
+                      <div className="bg-white px-3 py-2 text-center text-sm font-medium text-lms-primary">
+                        {r.studentId || "—"}
+                      </div>
+                    </div>
                   </td>
                   <td className="py-3 px-4 text-lms-primary/90">
                     {getRefName(r.exam)}
