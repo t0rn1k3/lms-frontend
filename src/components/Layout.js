@@ -33,7 +33,7 @@ function Layout() {
     user?.name || user?.email || (role && t(`roles.${role}`)) || "User";
 
   return (
-    <div className="min-h-screen bg-lms-light flex flex-col">
+    <div className="min-h-screen bg-lms-bg flex flex-col">
       <header className="bg-lms-primary shadow-lg sticky top-0 z-50">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -42,7 +42,8 @@ function Layout() {
                 to="/"
                 className="flex items-center gap-2 text-xl font-bold text-white hover:text-white/90 transition-colors"
               >
-                <img src="/logo.svg" alt="logo" className="h-10 w-10 " />
+                <img src="/logo.svg" alt="EduManage" className="h-10 w-10" />
+                <span>EduManage</span>
               </Link>
               <nav className="flex gap-2 items-center">
                 <Link to="/" className={navLinkClass("/")}>

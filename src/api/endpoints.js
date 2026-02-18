@@ -1,5 +1,5 @@
 /**
- * API endpoints for the LMS backend.
+ * API endpoints for the EduManage backend.
  * Base URL is configured in apiClient.js
  */
 

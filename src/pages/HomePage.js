@@ -4,8 +4,11 @@ import { useTranslation } from "react-i18next";
 function HomePage() {
   const { t } = useTranslation();
   return (
-    <div className="text-center py-12 ">
-      <h1 className="text-4xl font-bold text-lms-primary mb-4 tracking-tight">
+    <div className="text-center py-12 flex flex-col items-center justify-between">
+      <div className="flex items-center justify-center bg-white p-4 rounded-lg">
+        <img src="/logo.svg" alt="EduManage" className="h-20 w-20" />
+      </div>
+      <h1 className="text-4xl font-bold text-lms-primary mb-4 tracking-tight mt-4">
         {t("home.title")}
       </h1>
       <p className="text-lg text-lms-primary/90 max-w-xl mx-auto">

@@ -11,6 +11,7 @@ module.exports = {
           sage: "#A2D5C6",
           cream: "#A2D5C6",
           light: "#F6F6F6",
+          bg: "#f1f5f9",
         },
       },
     },

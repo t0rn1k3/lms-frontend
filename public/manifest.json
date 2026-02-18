@@ -1,7 +1,7 @@
 {
-  "short_name": "LMS",
-  "name": "Learning Management System",
-  "description": "Learning Management System for schools. სასწავლო მართვის სისტემა. Manage students, teachers, exams. მართეთ სტუდენტები, გამოცდები.",
+  "short_name": "EduManage",
+  "name": "EduManage",
+  "description": "EduManage - Education Management System for schools. სასწავლო მართვის სისტემა. Manage students, teachers, exams. მართეთ სტუდენტები, გამოცდები.",
   "icons": [
     {
       "src": "logo.svg",

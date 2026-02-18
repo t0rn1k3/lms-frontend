@@ -46,8 +46,8 @@
     "student": "Student"
   },
   "home": {
-    "title": "Learning Management System",
-    "subtitle": "Welcome to the Learning Management System. Manage students, teachers, exams, and academic records in one place.",
+    "title": "Welcome to EduManage",
+    "subtitle": "EduManage - A comprehensive education management system for schools and educational institutions. Manage students, teachers, exams, and academic operations all in one place.",
     "getStarted": "Get Started"
   },
   "auth": {
@@ -55,7 +55,7 @@
     "loginAs": "Login as",
     "signIn": "Sign In",
     "signingIn": "Signing in...",
-    "subtitle": "Sign in to access the Learning Management System",
+    "subtitle": "Sign in to access EduManage",
     "backToHome": "← Back to Home",
     "register": "Create Admin Account",
     "registerButton": "Register as Admin",
