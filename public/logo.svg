@@ -1,7 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
-  <rect width="48" height="48" rx="10" fill="#0E2148"/>
-  <!-- Closed book - front cover (main rectangle) -->
-  <rect x="16" y="10" width="18" height="28" rx="2" fill="white"/>
-  <!-- Spine (left edge of book) -->
-  <rect x="12" y="10" width="6" height="28" rx="2" fill="#A2D5C6"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1014.13 977.36">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #394558;
+      }
+
+      .cls-1, .cls-2 {
+        stroke-width: 0px;
+      }
+
+      .cls-2 {
+        fill: #fff;
+      }
+    </style>
+  </defs>
+  <rect class="cls-1" width="1014.13" height="977.36" rx="142.47" ry="142.47"/>
+  <path class="cls-2" d="M283.66,226.66h140.17c55.38,0,100.34,44.96,100.34,100.34v375.54h-244.61c-41.7,0-75.56-33.86-75.56-75.56v-320.67c0-43.97,35.69-79.66,79.66-79.66Z"/>
+  <path class="cls-2" d="M400.25,670.22h204.42c-20.48,18.61-42.32,40.9-64.19,67.43-10.76,13.06-20.55,25.96-29.45,38.49-8.88-12.32-19.13-25.18-30.92-38.11-27.75-30.44-55.82-52.26-79.87-67.82Z"/>
+  <ellipse class="cls-2" cx="511.91" cy="740.83" rx="35.8" ry="38.28"/>
+  <path class="cls-2" d="M578.02,226.66h244.61v375.54c0,55.38-44.96,100.34-100.34,100.34h-140.17c-43.97,0-79.66-35.69-79.66-79.66v-320.67c0-41.7,33.86-75.56,75.56-75.56Z" transform="translate(1325.1 929.21) rotate(-180)"/>
+  <path class="cls-1" d="M623.8,297.12h137.36v334.98h-213.45v-258.89c0-41.99,34.09-76.09,76.09-76.09Z"/>
+  <path class="cls-1" d="M262.67,297.12h213.45v334.98h-137.36c-41.99,0-76.09-34.09-76.09-76.09v-258.89h0Z" transform="translate(738.79 929.21) rotate(-180)"/>
 </svg>

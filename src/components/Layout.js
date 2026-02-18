@@ -42,7 +42,7 @@ function Layout() {
                 to="/"
                 className="flex items-center gap-2 text-xl font-bold text-white hover:text-white/90 transition-colors"
               >
-                <img src="/logo.png" alt="logo" className="h-16 w-16 " />
+                <img src="/logo.svg" alt="logo" className="h-10 w-10 " />
               </Link>
               <nav className="flex gap-2 items-center">
                 <Link to="/" className={navLinkClass("/")}>
