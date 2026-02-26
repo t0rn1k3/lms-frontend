@@ -62,10 +62,10 @@ function ExamResultsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-lms-primary mb-6">{t("admin.examResultsTitle")}</h1>
-      <p className="text-lms-primary/90 mb-6">
-        {t("admin.examResultsIntro")}
-      </p>
+      <h1 className="text-2xl font-bold text-lms-primary mb-6">
+        {t("admin.examResultsTitle")}
+      </h1>
+      <p className="text-lms-primary/90 mb-6">{t("admin.examResultsIntro")}</p>
 
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -75,7 +75,9 @@ function ExamResultsPage() {
 
       <div className="bg-white rounded-xl border border-lms-cream overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-lms-primary/80">{t("common.loading")}</div>
+          <div className="p-8 text-center text-lms-primary/80">
+            {t("common.loading")}
+          </div>
         ) : results.length === 0 ? (
           <div className="p-8 text-center text-lms-primary/80">
             {t("admin.noExamResults")}
@@ -104,7 +106,7 @@ function ExamResultsPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-lms-cream">
+            <tbody className="divide-y divide-lms-cream text-sm">
               {results.map((item) => (
                 <tr key={item._id} className="hover:bg-lms-cream/30/50">
                   <td className="px-4 py-3">

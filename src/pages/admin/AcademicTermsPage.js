@@ -85,7 +85,9 @@ function AcademicTermsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-lms-primary">{t("admin.academicTerms")}</h1>
+        <h1 className="text-xl font-bold text-lms-primary">
+          {t("admin.academicTerms")}
+        </h1>
         <button
           onClick={openCreateForm}
           className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark"
@@ -103,7 +105,9 @@ function AcademicTermsPage() {
       {formOpen && (
         <div className="mb-6 p-6 bg-white rounded-xl border border-lms-cream">
           <h2 className="text-lg font-semibold text-lms-primary mb-4">
-            {editingId ? t("admin.editAcademicTerm") : t("admin.newAcademicTerm")}
+            {editingId
+              ? t("admin.editAcademicTerm")
+              : t("admin.newAcademicTerm")}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
             <div>
@@ -176,7 +180,9 @@ function AcademicTermsPage() {
 
       <div className="bg-white rounded-xl border border-lms-cream overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-lms-primary/80">{t("common.loading")}</div>
+          <div className="p-8 text-center text-lms-primary/80">
+            {t("common.loading")}
+          </div>
         ) : terms.length === 0 ? (
           <div className="p-8 text-center text-lms-primary/80">
             {t("admin.noAcademicTerms")}
@@ -206,7 +212,9 @@ function AcademicTermsPage() {
                   <td className="px-4 py-3 text-lms-primary/90 max-w-xs truncate">
                     {item.description}
                   </td>
-                  <td className="px-4 py-3 text-lms-primary/90">{item.duration}</td>
+                  <td className="px-4 py-3 text-lms-primary/90">
+                    {item.duration}
+                  </td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => openEditForm(item)}

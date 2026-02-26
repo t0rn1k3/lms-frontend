@@ -213,7 +213,7 @@ function StudentsPage() {
         <h1 className="text-2xl font-bold text-lms-primary">Students</h1>
         <button
           onClick={openCreateForm}
-          className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark"
+          className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark text-sm"
         >
           {t("admin.addStudent")}
         </button>
@@ -401,7 +401,9 @@ function StudentsPage() {
 
       <div className="bg-white rounded-xl border border-lms-cream overflow-hidden overflow-x-auto">
         {loading ? (
-          <div className="p-8 text-center text-lms-primary/80">{t("common.loading")}</div>
+          <div className="p-8 text-center text-lms-primary/80">
+            {t("common.loading")}
+          </div>
         ) : students.length === 0 ? (
           <div className="p-8 text-center text-lms-primary/80">
             {t("admin.noStudents")}
@@ -442,25 +444,27 @@ function StudentsPage() {
                   <td className="px-4 py-3">
                     <Link
                       to={`/admin/students/${item._id}`}
-                      className="font-medium text-lms-primary hover:underline"
+                      className="font-medium text-lms-primary hover:underline text-sm"
                     >
                       {item.name}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-lms-primary/90">{item.email}</td>
-                  <td className="px-4 py-3 text-lms-primary/80 text-sm">
+                  <td className="px-4 py-3 text-lms-primary/90 text-xs">
+                    {item.email}
+                  </td>
+                  <td className="px-4 py-3 text-lms-primary/80 text-xs">
                     {item.studentId || "—"}
                   </td>
-                  <td className="px-4 py-3 text-lms-primary/90">
+                  <td className="px-4 py-3 text-lms-primary/90 text-xs">
                     {getProgramName(getRefId(item.program))}
                   </td>
-                  <td className="px-4 py-3 text-lms-primary/90">
+                  <td className="px-4 py-3 text-lms-primary/90 text-xs">
                     {getClassLevelName(getRefId(item.currentClassLevel))}
                   </td>
-                  <td className="px-4 py-3 text-lms-primary/90">
+                  <td className="px-4 py-3 text-lms-primary/90 text-xs">
                     {getAcademicYearName(getRefId(item.academicYear))}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-xs">
                     <span
                       className={`inline-flex px-2 py-0.5 text-xs font-medium rounded ${
                         getStudentStatus(item) === "active"
@@ -478,13 +482,13 @@ function StudentsPage() {
                   <td className="px-4 py-3 text-right whitespace-nowrap min-w-[240px]">
                     <Link
                       to={`/admin/students/${item._id}`}
-                      className="text-lms-primary/90 hover:text-lms-primary mr-3"
+                      className="text-lms-primary/90 hover:text-lms-primary mr-3 text-xs"
                     >
                       {t("common.view")}
                     </Link>
                     <button
                       onClick={() => openEditForm(item)}
-                      className="text-lms-primary/90 hover:text-lms-primary mr-3"
+                      className="text-lms-primary/90 hover:text-lms-primary mr-3 text-xs"
                     >
                       {t("common.edit")}
                     </button>
@@ -492,21 +496,28 @@ function StudentsPage() {
                       <>
                         <button
                           onClick={() => {
-                            if (window.confirm(t("admin.confirmSuspendStudent"))) {
-                              handleUpdateStatus(item._id, { isSuspended: true, isWithdrawn: false });
+                            if (
+                              window.confirm(t("admin.confirmSuspendStudent"))
+                            ) {
+                              handleUpdateStatus(item._id, {
+                                isSuspended: true,
+                                isWithdrawn: false,
+                              });
                             }
                           }}
-                          className="text-amber-600 hover:text-amber-800 mr-3"
+                          className="text-amber-600 hover:text-amber-800 mr-3 text-xs"
                         >
                           {t("admin.suspend")}
                         </button>
                         <button
                           onClick={() => {
-                            if (window.confirm(t("admin.confirmWithdrawStudent"))) {
+                            if (
+                              window.confirm(t("admin.confirmWithdrawStudent"))
+                            ) {
                               handleWithdrawDelete(item._id);
                             }
                           }}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-red-600 hover:text-red-800 text-xs"
                         >
                           {t("admin.withdraw")}
                         </button>
@@ -517,7 +528,10 @@ function StudentsPage() {
                       <button
                         onClick={() => {
                           if (window.confirm(t("admin.confirmReactivate"))) {
-                            handleUpdateStatus(item._id, { isSuspended: false, isWithdrawn: false });
+                            handleUpdateStatus(item._id, {
+                              isSuspended: false,
+                              isWithdrawn: false,
+                            });
                           }
                         }}
                         className="text-green-600 hover:text-green-800"

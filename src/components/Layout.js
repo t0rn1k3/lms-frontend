@@ -43,11 +43,11 @@ function Layout() {
                 className="flex items-center gap-2 text-xl font-bold text-white hover:text-white/90 transition-colors"
               >
                 <img src="/logo.svg" alt="EduManage" className="h-10 w-10" />
-                <div className="flex flex-col ml-2">
-                  <span className="text-xl font-bold text-white ">
+                <div className="flex flex-col ml-2 max-md:hidden">
+                  <span className="text-xl font-bold text-white max-md:text-sm">
                     EduManage
                   </span>
-                  <span className="text-xs text-white/90 font-light">
+                  <span className="text-xs text-white/90 font-light max-md:text-xs">
                     Learning Management System
                   </span>
                 </div>

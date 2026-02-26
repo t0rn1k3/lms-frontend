@@ -108,7 +108,9 @@ function YearGroupsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-lms-primary">{t("admin.yearGroups")}</h1>
+        <h1 className="text-xl font-bold text-lms-primary">
+          {t("admin.yearGroups")}
+        </h1>
         <button
           onClick={openCreateForm}
           className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark"
@@ -189,7 +191,9 @@ function YearGroupsPage() {
 
       <div className="bg-white rounded-xl border border-lms-cream overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-lms-primary/80">{t("common.loading")}</div>
+          <div className="p-8 text-center text-lms-primary/80">
+            {t("common.loading")}
+          </div>
         ) : yearGroups.length === 0 ? (
           <div className="p-8 text-center text-lms-primary/80">
             {t("admin.noYearGroups")}

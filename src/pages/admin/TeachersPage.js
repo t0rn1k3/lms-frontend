@@ -224,7 +224,7 @@ function TeachersPage() {
         <h1 className="text-2xl font-bold text-lms-primary">Teachers</h1>
         <button
           onClick={openCreateForm}
-          className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark"
+          className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark text-sm"
         >
           {t("admin.addTeacher")}
         </button>
@@ -244,14 +244,14 @@ function TeachersPage() {
           value={searchName}
           onChange={(e) => setSearchName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && fetchTeachers()}
-          className="px-3 py-2 border border-lms-cream rounded-lg w-64"
+          className="px-3 py-2 border border-lms-cream rounded-lg w-64 text-sm"
         />
         <button
           onClick={() => {
             setPage(1);
             fetchTeachers({ page: 1 });
           }}
-          className="px-4 py-2 border border-lms-cream rounded-lg hover:bg-lms-cream/30"
+          className="px-4 py-2 border border-lms-cream rounded-lg hover:bg-lms-cream/30 text-sm"
         >
           {t("common.search")}
         </button>
@@ -432,9 +432,11 @@ function TeachersPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-lms-cream overflow-hidden overflow-x-auto">
+      <div className="bg-white rounded-xl border border-lms-cream overflow-hidden overflow-x-auto ">
         {loading ? (
-          <div className="p-8 text-center text-lms-primary/80">{t("common.loading")}</div>
+          <div className="p-8 text-center text-lms-primary/80">
+            {t("common.loading")}
+          </div>
         ) : teachers.length === 0 ? (
           <div className="p-8 text-center text-lms-primary/80">
             {t("admin.noTeachers")}
@@ -444,7 +446,7 @@ function TeachersPage() {
             <table className="w-full">
               <thead className="bg-lms-cream/30 border-b border-lms-cream">
                 <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
+                  <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary ">
                     {t("common.name")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
@@ -470,19 +472,21 @@ function TeachersPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-lms-cream">
+              <tbody className="divide-y divide-lms-cream text-xs">
                 {teachers.map((item) => (
                   <tr key={item._id} className="hover:bg-lms-cream/30/50">
                     <td className="px-4 py-3">
                       <Link
                         to={`/admin/teachers/${item._id}`}
-                        className="font-medium text-lms-primary hover:underline"
+                        className="font-medium text-lms-primary hover:underline text-sm"
                       >
                         {item.name}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-lms-primary/90">{item.email}</td>
-                    <td className="px-4 py-3 text-lms-primary/80 text-sm">
+                    <td className="px-4 py-3 text-lms-primary/90">
+                      {item.email}
+                    </td>
+                    <td className="px-4 py-3 text-lms-primary/80 ">
                       {item.teacherId || "—"}
                     </td>
                     <td className="px-4 py-3 text-lms-primary/90">
@@ -524,7 +528,9 @@ function TeachersPage() {
                         <>
                           <button
                             onClick={() => {
-                              if (window.confirm(t("admin.confirmSuspendTeacher"))) {
+                              if (
+                                window.confirm(t("admin.confirmSuspendTeacher"))
+                              ) {
                                 handleUpdateStatus(item._id, true, false);
                               }
                             }}
@@ -534,7 +540,11 @@ function TeachersPage() {
                           </button>
                           <button
                             onClick={() => {
-                              if (window.confirm(t("admin.confirmWithdrawTeacher"))) {
+                              if (
+                                window.confirm(
+                                  t("admin.confirmWithdrawTeacher"),
+                                )
+                              ) {
                                 handleWithdrawDelete(item._id);
                               }
                             }}

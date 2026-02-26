@@ -1,9 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  questionService,
-  adminService,
-  getErrorMessage,
-} from "../../api";
+import { questionService, adminService, getErrorMessage } from "../../api";
 
 const OPTIONS = ["A", "B", "C", "D"];
 const QUESTION_TYPES = [
@@ -60,7 +56,7 @@ function QuestionsPage() {
   const getExamName = (questionId) => {
     for (const exam of exams) {
       const ids = (exam.questions || []).map((q) =>
-        typeof q === "object" ? q._id : q
+        typeof q === "object" ? q._id : q,
       );
       if (ids.includes(questionId)) return exam.name || "—";
     }
@@ -180,7 +176,9 @@ function QuestionsPage() {
                   className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                 >
                   <option value="">
-                    {exams.length === 0 ? "No exams—create an exam first" : "Select exam"}
+                    {exams.length === 0
+                      ? "No exams—create an exam first"
+                      : "Select exam"}
                   </option>
                   {exams.map((e) => (
                     <option key={e._id} value={e._id}>
@@ -197,7 +195,10 @@ function QuestionsPage() {
               <select
                 value={formData.questionType}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, questionType: e.target.value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    questionType: e.target.value,
+                  }))
                 }
                 className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               >
@@ -292,7 +293,10 @@ function QuestionsPage() {
                 <textarea
                   value={formData.correctAnswer}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, correctAnswer: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      correctAnswer: e.target.value,
+                    }))
                   }
                   rows={2}
                   placeholder="Reference answer for grading"
@@ -348,7 +352,7 @@ function QuestionsPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-lms-cream">
+            <tbody className="divide-y divide-lms-cream text-xs">
               {questions.map((item) => (
                 <tr key={item._id} className="hover:bg-lms-cream/30/50">
                   <td className="px-4 py-3 max-w-md">
@@ -357,8 +361,10 @@ function QuestionsPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90">
-                    <span className="px-2 py-0.5 rounded text-xs font-medium bg-lms-cream text-lms-primary">
-                      {item.questionType === "open-ended" ? "Open-ended" : "Multiple Choice"}
+                    <span className="px-2 py-0.5 rounded text-xs font-medium bg-lms-cream text-lms-primary ">
+                      {item.questionType === "open-ended"
+                        ? "Open-ended"
+                        : "Multiple Choice"}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90">

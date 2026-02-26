@@ -85,7 +85,9 @@ function ClassLevelsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-lms-primary">{t("admin.classLevels")}</h1>
+        <h1 className="text-xl font-bold text-lms-primary">
+          {t("admin.classLevels")}
+        </h1>
         <button
           onClick={openCreateForm}
           className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark"
@@ -176,7 +178,9 @@ function ClassLevelsPage() {
 
       <div className="bg-white rounded-xl border border-lms-cream overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-lms-primary/80">{t("common.loading")}</div>
+          <div className="p-8 text-center text-lms-primary/80">
+            {t("common.loading")}
+          </div>
         ) : levels.length === 0 ? (
           <div className="p-8 text-center text-lms-primary/80">
             {t("admin.noClassLevels")}
@@ -206,7 +210,9 @@ function ClassLevelsPage() {
                   <td className="px-4 py-3 text-lms-primary/90 max-w-xs truncate">
                     {item.description}
                   </td>
-                  <td className="px-4 py-3 text-lms-primary/90">{item.duration}</td>
+                  <td className="px-4 py-3 text-lms-primary/90">
+                    {item.duration}
+                  </td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => openEditForm(item)}
