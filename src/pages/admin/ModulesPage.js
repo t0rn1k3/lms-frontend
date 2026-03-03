@@ -1,16 +1,38 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { moduleService, academicService, getErrorMessage } from "../../api";
+import {
+  moduleService,
+  academicService,
+  teacherService,
+  getErrorMessage,
+} from "../../api";
 
 function getRefName(val, key = "name") {
   if (!val) return "—";
   return typeof val === "object" ? val?.[key] || val?._id : val;
 }
 
+function TeacherChips({ teachers }) {
+  if (!teachers?.length) return null;
+  return (
+    <div className="flex flex-wrap gap-1">
+      {teachers.map((t) => (
+        <span
+          key={t._id || t.teacherId}
+          className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-lms-cream text-lms-primary"
+        >
+          {t.name || t.email || t._id}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function ModulesPage() {
   const { t } = useTranslation();
   const [modules, setModules] = useState([]);
   const [programs, setPrograms] = useState([]);
+  const [teachers, setTeachers] = useState([]);
   const [programFilter, setProgramFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -22,13 +44,16 @@ function ModulesPage() {
     program: "",
     order: 1,
     criteria: [],
+    teachers: [],
   });
   const [submitting, setSubmitting] = useState(false);
 
   const fetchModules = async () => {
     try {
       setLoading(true);
-      const { data } = await moduleService.list(programFilter || undefined);
+      const { data } = await moduleService.list(
+        programFilter ? { program: programFilter } : {}
+      );
       setModules(data?.data ?? data ?? []);
     } catch (err) {
       setError(getErrorMessage(err));
@@ -46,8 +71,18 @@ function ModulesPage() {
     }
   };
 
+  const fetchTeachers = async () => {
+    try {
+      const { data } = await teacherService.list();
+      setTeachers(data?.data ?? data ?? []);
+    } catch (err) {
+      console.error("Failed to fetch teachers:", err);
+    }
+  };
+
   useEffect(() => {
     fetchPrograms();
+    fetchTeachers();
   }, []);
 
   useEffect(() => {
@@ -62,6 +97,7 @@ function ModulesPage() {
       program: programFilter || (programs[0]?._id ?? ""),
       order: (modules.length + 1) || 1,
       criteria: [],
+      teachers: [],
     });
     setFormOpen(true);
   };
@@ -73,14 +109,26 @@ function ModulesPage() {
       name: c.name || "",
       description: c.description || "",
     }));
+    const teacherIds = (item.teachers || []).map((t) =>
+      typeof t === "object" ? t._id || t.teacherId : t
+    );
     setFormData({
       name: item.name || "",
       description: item.description || "",
       program: typeof item.program === "object" ? item.program?._id : item.program || "",
       order: item.order ?? 1,
       criteria,
+      teachers: teacherIds,
     });
     setFormOpen(true);
+  };
+
+  const toggleTeacher = (teacherId) => {
+    setFormData((prev) =>
+      prev.teachers.includes(teacherId)
+        ? { ...prev, teachers: prev.teachers.filter((id) => id !== teacherId) }
+        : { ...prev, teachers: [...prev.teachers, teacherId] }
+    );
   };
 
   const addCriterion = () => {
@@ -122,6 +170,7 @@ function ModulesPage() {
         description: formData.description.trim(),
         program: formData.program,
         order: Number(formData.order) || 0,
+        teachers: formData.teachers || [],
         criteria: formData.criteria
           .filter((c) => c.name?.trim())
           .map((c) => ({
@@ -269,6 +318,71 @@ function ModulesPage() {
             </div>
 
             <div>
+              <label className="block text-sm font-medium text-lms-primary mb-2">
+                {t("admin.teachers")}
+              </label>
+              <div className="border border-lms-cream rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                {formData.teachers.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {formData.teachers.map((id) => {
+                      const teacher = teachers.find((t) => t._id === id);
+                      return (
+                        <span
+                          key={id}
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded text-sm bg-lms-primary/10 text-lms-primary"
+                        >
+                          {teacher?.name || teacher?.email || id}
+                          <button
+                            type="button"
+                            onClick={() => toggleTeacher(id)}
+                            className="text-red-600 hover:text-red-800 text-xs ml-1"
+                            aria-label={t("common.delete")}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+                {teachers.length === 0 ? (
+                  <p className="text-sm text-lms-primary/70">
+                    {t("admin.noTeachersYet")}
+                  </p>
+                ) : (
+                  <div className="space-y-1">
+                    {teachers
+                      .filter((t) => !formData.teachers.includes(t._id))
+                      .map((teacher) => (
+                        <label
+                          key={teacher._id}
+                          className="flex items-center gap-2 cursor-pointer hover:bg-lms-cream/30 rounded px-2 py-1"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={false}
+                            onChange={() => toggleTeacher(teacher._id)}
+                            className="rounded border-lms-cream"
+                          />
+                          <span className="text-lms-primary text-sm">
+                            {teacher.name} {teacher.email && `(${teacher.email})`}
+                          </span>
+                        </label>
+                      ))}
+                    {formData.teachers.length === teachers.length && (
+                      <p className="text-sm text-lms-primary/70">
+                        {t("admin.allTeachersSelected")}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-lms-primary/70 mt-1">
+                {t("admin.teachersOptionalHint")}
+              </p>
+            </div>
+
+            <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm font-medium text-lms-primary">
                   {t("admin.criteria")}
@@ -367,6 +481,9 @@ function ModulesPage() {
                   {t("admin.moduleOrder")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
+                  {t("admin.teachers")}
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   {t("admin.criteria")}
                 </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-lms-primary">
@@ -392,6 +509,15 @@ function ModulesPage() {
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90">
                     {item.order ?? "—"}
+                  </td>
+                  <td className="px-4 py-3 text-lms-primary/90 max-w-[200px]">
+                    {item.teachers?.length ? (
+                      <TeacherChips teachers={item.teachers} />
+                    ) : (
+                      <span className="text-lms-primary/60 text-sm">
+                        {t("admin.noTeachersAssigned")}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90">
                     {(item.criteria?.length ?? 0)}

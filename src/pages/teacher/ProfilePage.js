@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { teacherService, getErrorMessage } from "../../api";
+import { teacherService, moduleService, getErrorMessage } from "../../api";
 
 function TeacherProfilePage() {
   const { t } = useTranslation();
   const [profile, setProfile] = useState(null);
+  const [myModules, setMyModules] = useState([]);
+  const [modulesLoading, setModulesLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
@@ -32,9 +34,29 @@ function TeacherProfilePage() {
     }
   };
 
+  const fetchMyModules = async (teacherId) => {
+    if (!teacherId) return;
+    setModulesLoading(true);
+    try {
+      const { data } = await moduleService.list({ teacher: teacherId });
+      setMyModules(data?.data ?? data ?? []);
+    } catch (err) {
+      console.error("Failed to fetch my modules:", err);
+      setMyModules([]);
+    } finally {
+      setModulesLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  useEffect(() => {
+    const teacherId = profile?._id;
+    if (teacherId) fetchMyModules(teacherId);
+    else setMyModules([]);
+  }, [profile?._id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -140,6 +162,35 @@ function TeacherProfilePage() {
             </button>
           </div>
         </form>
+      </div>
+
+      <div className="mt-8 bg-white rounded-xl border border-lms-cream p-6 max-w-2xl">
+        <h2 className="text-lg font-semibold text-lms-primary mb-4">
+          {t("teacher.myModules")}
+        </h2>
+        {modulesLoading ? (
+          <p className="text-sm text-lms-primary/70">{t("common.loading")}</p>
+        ) : myModules.length === 0 ? (
+          <p className="text-sm text-lms-primary/70">
+            {t("teacher.noModulesAssigned")}
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {myModules.map((mod) => (
+              <li
+                key={mod._id}
+                className="flex justify-between items-center py-2 border-b border-lms-cream last:border-0"
+              >
+                <span className="font-medium text-lms-primary">{mod.name}</span>
+                <span className="text-sm text-lms-primary/80">
+                  {typeof mod.program === "object"
+                    ? mod.program?.name
+                    : mod.program}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

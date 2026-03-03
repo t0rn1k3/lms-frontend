@@ -11,7 +11,6 @@ function AdminLayout() {
     { to: "/admin/students", label: t("admin.students") },
     { to: "/admin/exam-results", label: t("admin.examResults") },
     { to: "/admin/questions", label: t("admin.questions") },
-    { to: "/admin/modules", label: t("admin.modules") },
     { to: "/admin/profile", label: t("common.profile") },
   ];
   return (

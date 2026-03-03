@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import AcademicYearsPage from "./AcademicYearsPage";
 // import AcademicTermsPage from "./AcademicTermsPage"; // hidden - academic terms optional
-import ClassLevelsPage from "./ClassLevelsPage";
+// import ClassLevelsPage from "./ClassLevelsPage"; // hidden - Georgian vocational schools don't use classes
 import ProgramsPage from "./ProgramsPage";
-import SubjectsPage from "./SubjectsPage";
+import ModulesPage from "./ModulesPage";
 import YearGroupsPage from "./YearGroupsPage";
 
 const TABS = [
@@ -13,13 +13,14 @@ const TABS = [
     translationKey: "admin.academicYears",
     Component: AcademicYearsPage,
   },
-  {
-    id: "levels",
-    translationKey: "admin.classLevels",
-    Component: ClassLevelsPage,
-  },
+  // Class levels - hidden (Georgian vocational schools don't use classes)
+  // {
+  //   id: "levels",
+  //   translationKey: "admin.classLevels",
+  //   Component: ClassLevelsPage,
+  // },
   { id: "programs", translationKey: "admin.programs", Component: ProgramsPage },
-  { id: "subjects", translationKey: "admin.subjects", Component: SubjectsPage },
+  { id: "modules", translationKey: "admin.modules", Component: ModulesPage },
   {
     id: "yearGroups",
     translationKey: "admin.yearGroups",

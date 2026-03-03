@@ -91,6 +91,7 @@ export const endpoints = {
   modules: {
     list: "/modules",
     listByProgram: (programId) => `/modules?program=${programId}`,
+    listByTeacher: (teacherId) => `/modules?teacher=${teacherId}`,
     create: "/modules",
     getOne: (id) => `/modules/${id}`,
     update: (id) => `/modules/${id}`,

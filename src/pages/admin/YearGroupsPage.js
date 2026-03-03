@@ -75,11 +75,21 @@ function YearGroupsPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    const name = formData.name.trim();
+    const academicYearId = formData.academicYear?.trim?.() || formData.academicYear;
+    if (!academicYearId) {
+      setError(t("admin.selectAcademicYear") || "Please select an academic year.");
+      return;
+    }
+    if (!name) {
+      setError(t("common.name") || "Name is required.");
+      return;
+    }
     setSubmitting(true);
     try {
       const payload = {
-        name: formData.name.trim(),
-        academicYear: formData.academicYear,
+        name,
+        academicYear: academicYearId,
       };
       if (editingId) {
         await academicService.updateYearGroup(editingId, payload);
@@ -89,6 +99,14 @@ function YearGroupsPage() {
       setFormOpen(false);
       fetchYearGroups();
     } catch (err) {
+      if (err?.response?.status === 500) {
+        console.error("[YearGroups] 500 on create/update:", {
+          url: err?.config?.url,
+          payload: { name, academicYear: academicYearId },
+          response: err?.response?.data,
+          fullError: err,
+        });
+      }
       setError(getErrorMessage(err));
     } finally {
       setSubmitting(false);
@@ -111,12 +129,20 @@ function YearGroupsPage() {
         <h1 className="text-xl font-bold text-lms-primary">
           {t("admin.yearGroups")}
         </h1>
-        <button
-          onClick={openCreateForm}
-          className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark"
-        >
-          {t("admin.addYearGroup")}
-        </button>
+        <div className="flex items-center gap-2">
+          {academicYears.length === 0 && (
+            <span className="text-sm text-amber-600">
+              {t("admin.createAcademicYearFirst")}
+            </span>
+          )}
+          <button
+            onClick={openCreateForm}
+            disabled={academicYears.length === 0}
+            className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {t("admin.addYearGroup")}
+          </button>
+        </div>
       </div>
 
       {error && (

@@ -1,11 +1,34 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { useTranslation } from "react-i18next";
-import { academicService, getErrorMessage } from "../../api";
+import {
+  academicService,
+  moduleService,
+  getErrorMessage,
+} from "../../api";
+
+function TeacherChips({ teachers }) {
+  if (!teachers?.length) return null;
+  return (
+    <div className="flex flex-wrap gap-1">
+      {teachers.map((t) => (
+        <span
+          key={t._id || t.teacherId}
+          className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-lms-cream text-lms-primary"
+        >
+          {t.name || t.email || t._id}
+        </span>
+      ))}
+    </div>
+  );
+}
 
 function ProgramsPage() {
   const { t } = useTranslation();
   const [programs, setPrograms] = useState([]);
   const [classLevels, setClassLevels] = useState([]);
+  const [expandedProgramId, setExpandedProgramId] = useState(null);
+  const [programModules, setProgramModules] = useState([]);
+  const [modulesLoading, setModulesLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [formOpen, setFormOpen] = useState(false);
@@ -123,6 +146,25 @@ function ProgramsPage() {
     );
     if (levelIds.length === 0) return "—";
     return levelIds.map(getClassLevelName).join(", ");
+  };
+
+  const toggleProgramModules = async (programId) => {
+    if (expandedProgramId === programId) {
+      setExpandedProgramId(null);
+      setProgramModules([]);
+      return;
+    }
+    setExpandedProgramId(programId);
+    setModulesLoading(true);
+    try {
+      const { data } = await moduleService.list({ program: programId });
+      setProgramModules(data?.data ?? data ?? []);
+    } catch (err) {
+      console.error("Failed to fetch program modules:", err);
+      setProgramModules([]);
+    } finally {
+      setModulesLoading(false);
+    }
   };
 
   return (
@@ -275,7 +317,8 @@ function ProgramsPage() {
             </thead>
             <tbody className="divide-y divide-lms-cream">
               {programs.map((item) => (
-                <tr key={item._id} className="hover:bg-lms-cream/30/50">
+                <Fragment key={item._id}>
+                <tr className="hover:bg-lms-cream/30/50">
                   <td className="px-4 py-3">
                     <span className="font-medium text-lms-primary">
                       {item.name}
@@ -294,6 +337,15 @@ function ProgramsPage() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button
+                      type="button"
+                      onClick={() => toggleProgramModules(item._id)}
+                      className="text-lms-primary/90 hover:text-lms-primary mr-3"
+                    >
+                      {expandedProgramId === item._id
+                        ? t("admin.hideModules")
+                        : t("admin.viewModules")}
+                    </button>
+                    <button
                       onClick={() => openEditForm(item)}
                       className="text-lms-primary/90 hover:text-lms-primary mr-3"
                     >
@@ -307,6 +359,48 @@ function ProgramsPage() {
                     </button>
                   </td>
                 </tr>
+                {expandedProgramId === item._id && (
+                  <tr>
+                    <td colSpan={4} className="p-4 bg-lms-cream/20">
+                      <div className="pl-4 border-l-2 border-lms-primary/30">
+                        <h4 className="text-sm font-medium text-lms-primary mb-3">
+                          {t("admin.modules")}
+                        </h4>
+                        {modulesLoading ? (
+                          <p className="text-sm text-lms-primary/70">
+                            {t("common.loading")}
+                          </p>
+                        ) : programModules.length === 0 ? (
+                          <p className="text-sm text-lms-primary/70">
+                            {t("admin.noModulesInProgram")}
+                          </p>
+                        ) : (
+                          <ul className="space-y-2">
+                            {programModules.map((mod) => (
+                              <li
+                                key={mod._id}
+                                className="flex flex-wrap items-center gap-2 text-sm"
+                              >
+                                <span className="font-medium text-lms-primary">
+                                  {mod.name}
+                                </span>
+                                <span className="text-lms-primary/70">—</span>
+                                {mod.teachers?.length ? (
+                                  <TeacherChips teachers={mod.teachers} />
+                                ) : (
+                                  <span className="text-lms-primary/60">
+                                    {t("admin.noTeachersAssigned")}
+                                  </span>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+                </Fragment>
               ))}
             </tbody>
           </table>
