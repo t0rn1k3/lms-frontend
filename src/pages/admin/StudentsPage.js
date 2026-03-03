@@ -16,6 +16,7 @@ function StudentsPage() {
   const [students, setStudents] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [modules, setModules] = useState([]);
+  const [yearGroups, setYearGroups] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -27,6 +28,7 @@ function StudentsPage() {
     password: "",
     program: "",
     academicYear: "",
+    yearGroup: "",
     modules: [],
   });
   const [submitting, setSubmitting] = useState(false);
@@ -45,13 +47,15 @@ function StudentsPage() {
 
   const fetchLookups = useCallback(async () => {
     try {
-      const [pRes, aRes, mRes] = await Promise.all([
+      const [pRes, aRes, gRes, mRes] = await Promise.all([
         academicService.getPrograms(),
         academicService.getAcademicYears(),
+        academicService.getYearGroups(),
         moduleService.list(),
       ]);
       setPrograms(pRes.data?.data || []);
       setAcademicYears(aRes.data?.data || []);
+      setYearGroups(gRes.data?.data || []);
       setModules(mRes.data?.data ?? mRes.data ?? []);
     } catch (err) {
       console.error("Failed to fetch lookups:", err);
@@ -104,7 +108,18 @@ function StudentsPage() {
     return y.name || (from && to ? `${from}-${to}` : id);
   };
 
+  const getYearGroupName = (id) => {
+    if (!id) return "—";
+    const g = yearGroups.find((x) => x._id === id);
+    return g?.name || id;
+  };
+
   const getRefId = (val) => (typeof val === "object" ? val?._id : val);
+
+  const groupsForAcademicYear = (academicYearId) =>
+    academicYearId
+      ? yearGroups.filter((g) => getRefId(g.academicYear) === academicYearId)
+      : yearGroups;
 
   const getStudentStatus = (item) => {
     if (item.isWithdrawn) return "withdrawn";
@@ -147,6 +162,7 @@ function StudentsPage() {
       password: "",
       program: "",
       academicYear: "",
+      yearGroup: "",
       modules: [],
     });
     setFormOpen(true);
@@ -161,6 +177,7 @@ function StudentsPage() {
       password: "",
       program: getRefId(item.program) || "",
       academicYear: getRefId(item.academicYear) || "",
+      yearGroup: getRefId(item.yearGroup) || "",
       modules: moduleIds,
     });
     setFormOpen(true);
@@ -177,6 +194,7 @@ function StudentsPage() {
           email: formData.email.trim().toLowerCase(),
           program: formData.program || undefined,
           academicYear: formData.academicYear || undefined,
+          yearGroup: formData.yearGroup || undefined,
           modules: formData.modules || [],
         };
         await studentService.update(editingId, payload);
@@ -290,12 +308,18 @@ function StudentsPage() {
                   </label>
                   <select
                     value={formData.program}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        program: e.target.value,
-                      }))
-                    }
+                    onChange={(e) => {
+                      const newProgram = e.target.value;
+                      setFormData((prev) => {
+                        const validModuleIds = newProgram
+                          ? prev.modules.filter((id) => {
+                              const m = modules.find((x) => x._id === id);
+                              return m && getRefId(m.program) === newProgram;
+                            })
+                          : [];
+                        return { ...prev, program: newProgram, modules: validModuleIds };
+                      });
+                    }}
                     className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                   >
                     <option value="">— {t("common.none")} —</option>
@@ -311,12 +335,20 @@ function StudentsPage() {
                     {t("admin.modules")}
                   </label>
                   <div className="border border-lms-cream rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
-                    {modules.length === 0 ? (
+                    {!formData.program ? (
                       <p className="text-sm text-lms-primary/70">
-                        {t("admin.noModules")}
+                        {t("admin.selectProgramFirstForModules")}
                       </p>
-                    ) : (
-                      modules.map((m) => (
+                    ) : (() => {
+                      const programModules = modules.filter(
+                        (m) => getRefId(m.program) === formData.program
+                      );
+                      return programModules.length === 0 ? (
+                        <p className="text-sm text-lms-primary/70">
+                          {t("admin.noModulesInProgram")}
+                        </p>
+                      ) : (
+                        programModules.map((m) => (
                         <label
                           key={m._id}
                           className="flex items-center gap-2 cursor-pointer"
@@ -330,10 +362,11 @@ function StudentsPage() {
                           <span className="text-lms-primary">{m.name}</span>
                         </label>
                       ))
-                    )}
+                      );
+                    })()}
                   </div>
                   <p className="text-xs text-lms-primary/70 mt-1">
-                    {t("admin.modulesAssignedToStudentHint")}
+                    {t("admin.modulesFromProgramOnly")}
                   </p>
                 </div>
                 <div>
@@ -342,12 +375,24 @@ function StudentsPage() {
                   </label>
                   <select
                     value={formData.academicYear}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        academicYear: e.target.value,
-                      }))
-                    }
+                    onChange={(e) => {
+                      const newYear = e.target.value;
+                      setFormData((prev) => {
+                        const validGroup =
+                          newYear && prev.yearGroup
+                            ? yearGroups.find(
+                                (g) =>
+                                  getRefId(g.academicYear) === newYear &&
+                                  g._id === prev.yearGroup
+                              )
+                            : null;
+                        return {
+                          ...prev,
+                          academicYear: newYear,
+                          yearGroup: validGroup ? prev.yearGroup : "",
+                        };
+                      });
+                    }}
                     className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                   >
                     <option value="">— {t("common.none")} —</option>
@@ -357,6 +402,31 @@ function StudentsPage() {
                       </option>
                     ))}
                   </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-lms-primary mb-1">
+                    {t("admin.yearGroups")}
+                  </label>
+                  <select
+                    value={formData.yearGroup}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        yearGroup: e.target.value,
+                      }))
+                    }
+                    className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                  >
+                    <option value="">— {t("common.none")} —</option>
+                    {groupsForAcademicYear(formData.academicYear).map((g) => (
+                      <option key={g._id} value={g._id}>
+                        {g.name}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-lms-primary/70 mt-1">
+                    {t("admin.studentGroupHint")}
+                  </p>
                 </div>
               </>
             )}
@@ -406,6 +476,9 @@ function StudentsPage() {
                   Program
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
+                  {t("admin.yearGroups")}
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   {t("admin.modules")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
@@ -438,6 +511,9 @@ function StudentsPage() {
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90 text-xs">
                     {getProgramName(getRefId(item.program))}
+                  </td>
+                  <td className="px-4 py-3 text-lms-primary/90 text-xs">
+                    {getYearGroupName(getRefId(item.yearGroup))}
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90 text-xs max-w-[180px]">
                     {((item.modules || []).map((m) => getModuleName(getRefId(m))).filter(Boolean).join(", ") || "—")}

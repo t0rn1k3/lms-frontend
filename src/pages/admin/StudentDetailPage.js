@@ -10,6 +10,7 @@ function StudentDetailPage() {
   const [student, setStudent] = useState(null);
   const [programs, setPrograms] = useState([]);
   const [modules, setModules] = useState([]);
+  const [yearGroups, setYearGroups] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -27,6 +28,12 @@ function StudentDetailPage() {
     if (!id) return "—";
     const m = modules.find((x) => x._id === id);
     return m?.name || id;
+  };
+
+  const getYearGroupName = (id) => {
+    if (!id) return "—";
+    const g = yearGroups.find((x) => x._id === id);
+    return g?.name || id;
   };
 
   const getAcademicYearName = (id) => {
@@ -186,6 +193,12 @@ function StudentDetailPage() {
             <span className="text-sm text-lms-primary/80">{t("admin.academicYearLabel")}</span>
             <p className="font-medium">
               {getAcademicYearName(getRefId(student.academicYear))}
+            </p>
+          </div>
+          <div>
+            <span className="text-sm text-lms-primary/80">{t("admin.yearGroups")}</span>
+            <p className="font-medium">
+              {getYearGroupName(getRefId(student.yearGroup))}
             </p>
           </div>
           <div>
