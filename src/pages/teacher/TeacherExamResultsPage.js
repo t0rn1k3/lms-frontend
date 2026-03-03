@@ -90,7 +90,7 @@ function TeacherExamResultsPage() {
                         {t("teacher.tableStudent")}
                       </div>
                       <div className="bg-white px-3 py-2 text-center text-sm font-medium text-lms-primary">
-                        {r.studentId || "—"}
+                        {getRefName(r.student) || r.studentId || "—"}
                       </div>
                     </div>
                   </td>

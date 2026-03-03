@@ -150,7 +150,6 @@ function ExamsPage() {
         description: formData.description.trim(),
         subject: formData.subject,
         program: formData.program,
-        academicTerm: formData.academicTerm,
         academicYear: formData.academicYear,
         classLevel: formData.classLevel,
         duration: formData.duration,
@@ -160,6 +159,7 @@ function ExamsPage() {
         passMark: Number(formData.passMark),
         totalMark: Number(formData.totalMark),
       };
+      if (formData.academicTerm) payload.academicTerm = formData.academicTerm;
       if (editingId) {
         await examService.update(editingId, payload);
       } else {
@@ -280,9 +280,10 @@ function ExamsPage() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
+              {/* Academic term - hidden (optional in backend)
               <div>
                 <label className="block text-sm font-medium text-lms-primary mb-1">
-                  {t("admin.academicTermLabel")} *
+                  {t("admin.academicTermLabel")} ({t("common.optional")})
                 </label>
                 <select
                   value={formData.academicTerm}
@@ -292,7 +293,6 @@ function ExamsPage() {
                       academicTerm: e.target.value,
                     }))
                   }
-                  required
                   className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                 >
                   <option value="">{t("teacher.select")}</option>
@@ -303,6 +303,7 @@ function ExamsPage() {
                   ))}
                 </select>
               </div>
+              */}
               <div>
                 <label className="block text-sm font-medium text-lms-primary mb-1">
                   {t("admin.academicYearLabel")} *

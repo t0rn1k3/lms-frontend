@@ -14,11 +14,6 @@ const TABS = [
     Component: AcademicYearsPage,
   },
   {
-    id: "terms",
-    translationKey: "admin.academicTerms",
-    Component: AcademicTermsPage,
-  },
-  {
     id: "levels",
     translationKey: "admin.classLevels",
     Component: ClassLevelsPage,
@@ -29,6 +24,11 @@ const TABS = [
     id: "yearGroups",
     translationKey: "admin.yearGroups",
     Component: YearGroupsPage,
+  },
+  {
+    id: "terms",
+    translationKey: "admin.academicTerms",
+    Component: AcademicTermsPage,
   },
 ];
 

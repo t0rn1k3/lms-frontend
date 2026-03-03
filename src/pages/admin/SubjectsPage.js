@@ -108,8 +108,8 @@ function SubjectsPage() {
       const payload = {
         name: formData.name.trim(),
         description: formData.description.trim(),
-        academicTerm: formData.academicTerm || undefined,
       };
+      if (formData.academicTerm) payload.academicTerm = formData.academicTerm;
       if (editingId) {
         await academicService.updateSubject(editingId, payload);
       } else {
@@ -235,9 +235,10 @@ function SubjectsPage() {
                 className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               />
             </div>
+            {/* Academic term - hidden (optional in backend)
             <div>
               <label className="block text-sm font-medium text-lms-primary mb-1">
-                {t("admin.academicTermLabel")}
+                {t("admin.academicTermLabel")} ({t("common.optional")})
               </label>
               <select
                 value={formData.academicTerm}
@@ -247,7 +248,6 @@ function SubjectsPage() {
                     academicTerm: e.target.value,
                   }))
                 }
-                required
                 className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               >
                 <option value="">{t("admin.selectTerm")}</option>
@@ -258,6 +258,7 @@ function SubjectsPage() {
                 ))}
               </select>
             </div>
+            */}
             <div className="flex gap-2">
               <button
                 type="submit"

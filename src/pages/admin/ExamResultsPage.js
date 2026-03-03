@@ -28,6 +28,7 @@ function ExamResultsPage() {
         const students = studentsRes.data?.data || [];
         const map = {};
         students.forEach((s) => {
+          if (s._id) map[s._id] = s.name;
           if (s.studentId) map[s.studentId] = s.name;
         });
         setStudentMap(map);
@@ -39,6 +40,9 @@ function ExamResultsPage() {
     };
     fetch();
   }, []);
+
+  const getStudentName = (item) =>
+    getRefName(item.student) || studentMap[item.studentId] || item.studentId || "—";
 
   const handleDownload = async (item) => {
     if (!item.submittedFile) return;
@@ -160,7 +164,7 @@ function ExamResultsPage() {
                         {t("admin.tableStudent")}
                       </div>
                       <div className="bg-white px-3 py-2 text-center text-sm font-medium text-lms-primary">
-                        {studentMap[item.studentId] || item.studentId || "—"}
+                        {getStudentName(item)}
                       </div>
                     </div>
                   </td>

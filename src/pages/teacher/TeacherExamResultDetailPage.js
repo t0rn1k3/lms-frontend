@@ -28,7 +28,10 @@ function TeacherExamResultDetailPage() {
 
   const isProjectResult =
     result?.submittedFile ||
-    (typeof result?.exam === "object" && result?.exam?.examType === "project-submission");
+    (typeof result?.exam === "object" &&
+      result?.exam?.examType === "project-submission");
+
+  const getStudentName = (r) => getRefName(r?.student) || r?.studentId || "—";
 
   useEffect(() => {
     const fetch = async () => {
@@ -38,7 +41,11 @@ function TeacherExamResultDetailPage() {
         const { data } = await examResultService.teacherGetOne(id);
         const r = data?.data ?? data;
         setResult(r);
-        if (r?.submittedFile || (typeof r?.exam === "object" && r?.exam?.examType === "project-submission")) {
+        if (
+          r?.submittedFile ||
+          (typeof r?.exam === "object" &&
+            r?.exam?.examType === "project-submission")
+        ) {
           setProjectGrade({
             score: r.score != null ? String(r.score) : "",
             totalMark: r.totalMark != null ? String(r.totalMark) : "",
@@ -166,12 +173,19 @@ function TeacherExamResultDetailPage() {
     setSubmitting(true);
     try {
       const payload = { score: scoreNum };
-      if (projectGrade.totalMark) payload.totalMark = Number(projectGrade.totalMark);
+      if (projectGrade.totalMark)
+        payload.totalMark = Number(projectGrade.totalMark);
       if (projectGrade.status) payload.status = projectGrade.status;
-      if (projectGrade.remarks?.trim()) payload.remarks = projectGrade.remarks.trim();
+      if (projectGrade.remarks?.trim())
+        payload.remarks = projectGrade.remarks.trim();
       await examResultService.teacherGradeProject(id, payload);
       await refreshResult();
-      setProjectGrade((prev) => ({ ...prev, score: "", totalMark: "", remarks: "" }));
+      setProjectGrade((prev) => ({
+        ...prev,
+        score: "",
+        totalMark: "",
+        remarks: "",
+      }));
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -197,7 +211,7 @@ function TeacherExamResultDetailPage() {
 
   const answeredQuestions = result.answeredQuestions || [];
   const openEndedToGrade = answeredQuestions.filter(
-    (aq, idx) => aq.needsManualGrading && aq.questionType === "open-ended"
+    (aq, idx) => aq.needsManualGrading && aq.questionType === "open-ended",
   );
   const hasUngraded = openEndedToGrade.length > 0;
   const canPublish = result.isFullyGraded && !result.isPublished;
@@ -215,16 +229,20 @@ function TeacherExamResultDetailPage() {
         {getRefName(result.exam)}
       </h1>
       <p className="text-lms-primary/90 mb-6">
-        {t("teacher.tableStudent")}: <strong>{result.studentId}</strong>
+        {t("teacher.tableStudent")}: <strong>{getStudentName(result)}</strong>
       </p>
 
       {error && <ErrorMessage message={error} className="mb-4" />}
 
       {isProjectResult && result.submittedFile && (
         <div className="mb-6 p-4 bg-lms-cream/30 rounded-xl border border-lms-cream">
-          <h3 className="font-semibold text-lms-primary mb-2">{t("teacher.submittedFile")}</h3>
+          <h3 className="font-semibold text-lms-primary mb-2">
+            {t("teacher.submittedFile")}
+          </h3>
           <p className="text-sm text-lms-primary/90">
-            {result.submittedFile.originalName || result.submittedFile.filename || "—"}
+            {result.submittedFile.originalName ||
+              result.submittedFile.filename ||
+              "—"}
             {result.submittedFile.size != null && (
               <span className="ml-2">
                 ({(result.submittedFile.size / 1024).toFixed(1)} KB)
@@ -237,18 +255,29 @@ function TeacherExamResultDetailPage() {
             disabled={downloading}
             className="mt-3 px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark disabled:opacity-50"
           >
-            {downloading ? t("common.loading") : t("teacher.downloadSubmission")}
+            {downloading
+              ? t("common.loading")
+              : t("teacher.downloadSubmission")}
           </button>
         </div>
       )}
 
-      {isProjectResult && !result.submittedFile && result.status === "Pending" && (
-        <p className="mb-6 text-amber-700">{t("teacher.projectNotYetSubmitted")}</p>
-      )}
+      {isProjectResult &&
+        !result.submittedFile &&
+        result.status === "Pending" && (
+          <p className="mb-6 text-amber-700">
+            {t("teacher.projectNotYetSubmitted")}
+          </p>
+        )}
 
       {isProjectResult && (
-        <form onSubmit={handleProjectGradeSubmit} className="mb-8 p-6 bg-lms-cream/30 rounded-xl border border-lms-cream max-w-md">
-          <h3 className="font-semibold text-lms-primary mb-4">{t("teacher.gradeProject")}</h3>
+        <form
+          onSubmit={handleProjectGradeSubmit}
+          className="mb-8 p-6 bg-lms-cream/30 rounded-xl border border-lms-cream max-w-md"
+        >
+          <h3 className="font-semibold text-lms-primary mb-4">
+            {t("teacher.gradeProject")}
+          </h3>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-lms-primary mb-1">
@@ -326,15 +355,25 @@ function TeacherExamResultDetailPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
-          <span className="text-sm text-lms-primary/80">{t("student.score")}</span>
-          <p className="font-medium">{result.score ?? 0} / {result.totalMark ?? "—"}</p>
+          <span className="text-sm text-lms-primary/80">
+            {t("student.score")}
+          </span>
+          <p className="font-medium">
+            {result.score ?? 0} / {result.totalMark ?? "—"}
+          </p>
         </div>
         <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
-          <span className="text-sm text-lms-primary/80">{t("student.grade")}</span>
-          <p className="font-medium">{result.grade != null ? `${result.grade}%` : "—"}</p>
+          <span className="text-sm text-lms-primary/80">
+            {t("student.grade")}
+          </span>
+          <p className="font-medium">
+            {result.grade != null ? `${result.grade}%` : "—"}
+          </p>
         </div>
         <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
-          <span className="text-sm text-lms-primary/80">{t("student.status")}</span>
+          <span className="text-sm text-lms-primary/80">
+            {t("student.status")}
+          </span>
           <p className="font-medium">
             <span
               className={
@@ -350,132 +389,157 @@ function TeacherExamResultDetailPage() {
           </p>
         </div>
         <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
-          <span className="text-sm text-lms-primary/80">{t("teacher.fullyGraded")}</span>
-          <p className="font-medium">{result.isFullyGraded ? t("common.yes") : t("common.no")}</p>
+          <span className="text-sm text-lms-primary/80">
+            {t("teacher.fullyGraded")}
+          </span>
+          <p className="font-medium">
+            {result.isFullyGraded ? t("common.yes") : t("common.no")}
+          </p>
         </div>
         <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
-          <span className="text-sm text-lms-primary/80">{t("admin.tablePublished")}</span>
-          <p className="font-medium">{result.isPublished ? t("common.yes") : t("common.no")}</p>
+          <span className="text-sm text-lms-primary/80">
+            {t("admin.tablePublished")}
+          </span>
+          <p className="font-medium">
+            {result.isPublished ? t("common.yes") : t("common.no")}
+          </p>
         </div>
       </div>
 
       {!isProjectResult && (
         <>
-      <h2 className="text-lg font-semibold text-lms-primary mb-4">
-        {t("student.answerBreakdown")}
-      </h2>
-      <div className="space-y-4 mb-8">
-        {answeredQuestions.map((aq, i) => (
-          <div
-            key={i}
-            className={`p-4 rounded-xl border ${
-              aq.questionType === "open-ended"
-                ? "bg-lms-cream/30 border-lms-cream"
-                : aq.isCorrect
-                  ? "bg-green-50 border-green-200"
-                  : "bg-red-50 border-red-200"
-            }`}
-          >
-            <div className="flex justify-between items-start gap-4">
-              <div className="flex-1">
-                <p className="font-medium text-lms-primary mb-2">
-                  {i + 1}. {aq.question}
-                </p>
-                <div className="text-sm text-lms-primary/90 space-y-1">
-                  <p>
-                    <span className="font-medium">{t("student.yourAnswer")}:</span>{" "}
-                    {aq.studentAnswer || "—"}
-                  </p>
-                  {aq.questionType === "multiple-choice" && (
-                    <p>
-                      <span className="font-medium text-green-700">{t("student.correctAnswerLabel")}:</span>{" "}
-                      {aq.correctAnswer || "—"}
+          <h2 className="text-lg font-semibold text-lms-primary mb-4">
+            {t("student.answerBreakdown")}
+          </h2>
+          <div className="space-y-4 mb-8">
+            {answeredQuestions.map((aq, i) => (
+              <div
+                key={i}
+                className={`p-4 rounded-xl border ${
+                  aq.questionType === "open-ended"
+                    ? "bg-lms-cream/30 border-lms-cream"
+                    : aq.isCorrect
+                      ? "bg-green-50 border-green-200"
+                      : "bg-red-50 border-red-200"
+                }`}
+              >
+                <div className="flex justify-between items-start gap-4">
+                  <div className="flex-1">
+                    <p className="font-medium text-lms-primary mb-2">
+                      {i + 1}. {aq.question}
                     </p>
-                  )}
-                  {aq.questionType === "open-ended" && aq.correctAnswer && (
-                    <p>
-                      <span className="font-medium">{t("teacher.modelAnswer")}:</span>{" "}
-                      {aq.correctAnswer}
-                    </p>
-                  )}
-                  <p>
-                    {aq.questionType === "open-ended" ? (
-                      <span>
-                        {t("teacher.pointsAwarded")}: {aq.pointsAwarded ?? "—"} / {aq.mark ?? 1}
-                      </span>
-                    ) : (
-                      <span
-                        className={
-                          aq.isCorrect ? "text-green-700 font-medium" : "text-red-700 font-medium"
-                        }
-                      >
-                        {aq.isCorrect ? t("student.correct") : t("student.incorrect")}
-                      </span>
+                    <div className="text-sm text-lms-primary/90 space-y-1">
+                      <p>
+                        <span className="font-medium">
+                          {t("student.yourAnswer")}:
+                        </span>{" "}
+                        {aq.studentAnswer || "—"}
+                      </p>
+                      {aq.questionType === "multiple-choice" && (
+                        <p>
+                          <span className="font-medium text-green-700">
+                            {t("student.correctAnswerLabel")}:
+                          </span>{" "}
+                          {aq.correctAnswer || "—"}
+                        </p>
+                      )}
+                      {aq.questionType === "open-ended" && aq.correctAnswer && (
+                        <p>
+                          <span className="font-medium">
+                            {t("teacher.modelAnswer")}:
+                          </span>{" "}
+                          {aq.correctAnswer}
+                        </p>
+                      )}
+                      <p>
+                        {aq.questionType === "open-ended" ? (
+                          <span>
+                            {t("teacher.pointsAwarded")}:{" "}
+                            {aq.pointsAwarded ?? "—"} / {aq.mark ?? 1}
+                          </span>
+                        ) : (
+                          <span
+                            className={
+                              aq.isCorrect
+                                ? "text-green-700 font-medium"
+                                : "text-red-700 font-medium"
+                            }
+                          >
+                            {aq.isCorrect
+                              ? t("student.correct")
+                              : t("student.incorrect")}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  {aq.needsManualGrading &&
+                    aq.questionType === "open-ended" && (
+                      <div className="flex-shrink-0 w-24">
+                        <label className="block text-xs text-lms-primary/90 mb-1">
+                          {t("teacher.pointsAwarded")}
+                        </label>
+                        <input
+                          type="number"
+                          min={0}
+                          max={aq.mark ?? 10}
+                          step={0.5}
+                          value={gradedAnswers[i] ?? ""}
+                          onChange={(e) => handleGradeChange(i, e.target.value)}
+                          className="w-full px-2 py-1 border border-lms-cream rounded text-sm"
+                          placeholder="0"
+                        />
+                      </div>
                     )}
-                  </p>
                 </div>
               </div>
-              {aq.needsManualGrading && aq.questionType === "open-ended" && (
-                <div className="flex-shrink-0 w-24">
-                  <label className="block text-xs text-lms-primary/90 mb-1">
-                    {t("teacher.pointsAwarded")}
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={aq.mark ?? 10}
-                    step={0.5}
-                    value={gradedAnswers[i] ?? ""}
-                    onChange={(e) => handleGradeChange(i, e.target.value)}
-                    className="w-full px-2 py-1 border border-lms-cream rounded text-sm"
-                    placeholder="0"
-                  />
-                </div>
-              )}
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {hasUngraded && (
-        <form onSubmit={handleSubmitGrade} className="mb-6 p-4 bg-amber-50 rounded-xl border border-amber-200">
-          <h3 className="font-semibold text-lms-primary mb-2">
-            {t("teacher.gradeAnswers")}
-          </h3>
-          <p className="text-sm text-lms-primary/90 mb-4">
-            {t("teacher.needsGrading")} — Enter points for each open-ended question above, then click Save.
-          </p>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark disabled:opacity-50"
-          >
-            {submitting ? t("common.saving") : t("teacher.gradeAndPublish")}
-          </button>
-        </form>
-      )}
+          {hasUngraded && (
+            <form
+              onSubmit={handleSubmitGrade}
+              className="mb-6 p-4 bg-amber-50 rounded-xl border border-amber-200"
+            >
+              <h3 className="font-semibold text-lms-primary mb-2">
+                {t("teacher.gradeAnswers")}
+              </h3>
+              <p className="text-sm text-lms-primary/90 mb-4">
+                {t("teacher.needsGrading")} — Enter points for each open-ended
+                question above, then click Save.
+              </p>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark disabled:opacity-50"
+              >
+                {submitting ? t("common.saving") : t("teacher.gradeAndPublish")}
+              </button>
+            </form>
+          )}
 
-      {canPublish && (
-        <div className="p-4 bg-green-50 rounded-xl border border-green-200">
-          <h3 className="font-semibold text-lms-primary mb-2">
-            {t("teacher.publishResult")}
-          </h3>
-          <p className="text-sm text-lms-primary/90 mb-4">
-            All questions are graded. Publish this result so the student can view it.
-          </p>
-          <button
-            onClick={handlePublish}
-            disabled={publishing}
-            className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-600 disabled:opacity-50"
-          >
-            {publishing ? t("common.loading") : t("admin.publish")}
-          </button>
-        </div>
-      )}
+          {canPublish && (
+            <div className="p-4 bg-green-50 rounded-xl border border-green-200">
+              <h3 className="font-semibold text-lms-primary mb-2">
+                {t("teacher.publishResult")}
+              </h3>
+              <p className="text-sm text-lms-primary/90 mb-4">
+                All questions are graded. Publish this result so the student can
+                view it.
+              </p>
+              <button
+                onClick={handlePublish}
+                disabled={publishing}
+                className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-600 disabled:opacity-50"
+              >
+                {publishing ? t("common.loading") : t("admin.publish")}
+              </button>
+            </div>
+          )}
 
-      {result.isPublished && (
-        <p className="text-green-700 font-medium">{t("admin.pub")}</p>
-      )}
+          {result.isPublished && (
+            <p className="text-green-700 font-medium">{t("admin.pub")}</p>
+          )}
         </>
       )}
 
