@@ -18,6 +18,17 @@ function TeacherExamResultDetailPage() {
   const [gradedAnswers, setGradedAnswers] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [projectGrade, setProjectGrade] = useState({
+    score: "",
+    totalMark: "",
+    status: "Pending",
+    remarks: "",
+  });
+
+  const isProjectResult =
+    result?.submittedFile ||
+    (typeof result?.exam === "object" && result?.exam?.examType === "project-submission");
 
   useEffect(() => {
     const fetch = async () => {
@@ -27,13 +38,22 @@ function TeacherExamResultDetailPage() {
         const { data } = await examResultService.teacherGetOne(id);
         const r = data?.data ?? data;
         setResult(r);
-        const initial = {};
-        (r.answeredQuestions || []).forEach((aq, idx) => {
-          if (aq.needsManualGrading && aq.questionType === "open-ended") {
-            initial[idx] = aq.pointsAwarded ?? 0;
-          }
-        });
-        setGradedAnswers(initial);
+        if (r?.submittedFile || (typeof r?.exam === "object" && r?.exam?.examType === "project-submission")) {
+          setProjectGrade({
+            score: r.score != null ? String(r.score) : "",
+            totalMark: r.totalMark != null ? String(r.totalMark) : "",
+            status: r.status || "Pending",
+            remarks: r.remarks || "",
+          });
+        } else {
+          const initial = {};
+          (r.answeredQuestions || []).forEach((aq, idx) => {
+            if (aq.needsManualGrading && aq.questionType === "open-ended") {
+              initial[idx] = aq.pointsAwarded ?? 0;
+            }
+          });
+          setGradedAnswers(initial);
+        }
       } catch (err) {
         setError(getErrorMessage(err));
       } finally {
@@ -91,6 +111,56 @@ function TeacherExamResultDetailPage() {
     }
   };
 
+  const handleDownload = async () => {
+    setError("");
+    setDownloading(true);
+    try {
+      const { data, headers } = await examResultService.teacherDownload(id);
+      const contentDisp = headers?.["content-disposition"];
+      const match = contentDisp?.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      const filename =
+        match?.[1]?.replace(/"/g, "").trim() ||
+        result?.submittedFile?.originalName ||
+        "submission.zip";
+      const url = window.URL.createObjectURL(data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handleProjectGradeSubmit = async (e) => {
+    e.preventDefault();
+    const scoreNum = Number(projectGrade.score);
+    if (Number.isNaN(scoreNum) || scoreNum < 0) {
+      setError(t("teacher.projectGradeScoreRequired"));
+      return;
+    }
+    setError("");
+    setSubmitting(true);
+    try {
+      const payload = { score: scoreNum };
+      if (projectGrade.totalMark) payload.totalMark = Number(projectGrade.totalMark);
+      if (projectGrade.status) payload.status = projectGrade.status;
+      if (projectGrade.remarks?.trim()) payload.remarks = projectGrade.remarks.trim();
+      await examResultService.teacherGradeProject(id, payload);
+      await refreshResult();
+      setProjectGrade((prev) => ({ ...prev, score: "", totalMark: "", remarks: "" }));
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (loading) {
     return <PageLoader message={t("common.loading")} />;
   }
@@ -132,6 +202,110 @@ function TeacherExamResultDetailPage() {
 
       {error && <ErrorMessage message={error} className="mb-4" />}
 
+      {isProjectResult && result.submittedFile && (
+        <div className="mb-6 p-4 bg-lms-cream/30 rounded-xl border border-lms-cream">
+          <h3 className="font-semibold text-lms-primary mb-2">{t("teacher.submittedFile")}</h3>
+          <p className="text-sm text-lms-primary/90">
+            {result.submittedFile.originalName || result.submittedFile.filename || "—"}
+            {result.submittedFile.size != null && (
+              <span className="ml-2">
+                ({(result.submittedFile.size / 1024).toFixed(1)} KB)
+              </span>
+            )}
+          </p>
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={downloading}
+            className="mt-3 px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark disabled:opacity-50"
+          >
+            {downloading ? t("common.loading") : t("teacher.downloadSubmission")}
+          </button>
+        </div>
+      )}
+
+      {isProjectResult && !result.submittedFile && result.status === "Pending" && (
+        <p className="mb-6 text-amber-700">{t("teacher.projectNotYetSubmitted")}</p>
+      )}
+
+      {isProjectResult && (
+        <form onSubmit={handleProjectGradeSubmit} className="mb-8 p-6 bg-lms-cream/30 rounded-xl border border-lms-cream max-w-md">
+          <h3 className="font-semibold text-lms-primary mb-4">{t("teacher.gradeProject")}</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-lms-primary mb-1">
+                {t("student.score")} *
+              </label>
+              <input
+                type="number"
+                min={0}
+                step={0.5}
+                value={projectGrade.score}
+                onChange={(e) =>
+                  setProjectGrade((p) => ({ ...p, score: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                placeholder="0"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-lms-primary mb-1">
+                {t("teacher.totalMark")} ({t("common.optional")})
+              </label>
+              <input
+                type="number"
+                min={1}
+                step={1}
+                value={projectGrade.totalMark}
+                onChange={(e) =>
+                  setProjectGrade((p) => ({ ...p, totalMark: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                placeholder="100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-lms-primary mb-1">
+                {t("student.status")}
+              </label>
+              <select
+                value={projectGrade.status}
+                onChange={(e) =>
+                  setProjectGrade((p) => ({ ...p, status: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+              >
+                <option value="Pending">{t("student.pending")}</option>
+                <option value="Passed">{t("student.passed")}</option>
+                <option value="Failed">{t("student.failed")}</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-lms-primary mb-1">
+                {t("student.remarks")} ({t("common.optional")})
+              </label>
+              <textarea
+                rows={2}
+                value={projectGrade.remarks}
+                onChange={(e) =>
+                  setProjectGrade((p) => ({ ...p, remarks: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                placeholder={t("teacher.remarksPlaceholder")}
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark disabled:opacity-50"
+            >
+              {submitting ? t("common.saving") : t("teacher.saveGrade")}
+            </button>
+          </div>
+        </form>
+      )}
+
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
           <span className="text-sm text-lms-primary/80">{t("student.score")}</span>
@@ -167,6 +341,8 @@ function TeacherExamResultDetailPage() {
         </div>
       </div>
 
+      {!isProjectResult && (
+        <>
       <h2 className="text-lg font-semibold text-lms-primary mb-4">
         {t("student.answerBreakdown")}
       </h2>
@@ -281,6 +457,26 @@ function TeacherExamResultDetailPage() {
 
       {result.isPublished && (
         <p className="text-green-700 font-medium">{t("admin.pub")}</p>
+      )}
+        </>
+      )}
+
+      {isProjectResult && canPublish && (
+        <div className="p-4 bg-green-50 rounded-xl border border-green-200 mt-6">
+          <h3 className="font-semibold text-lms-primary mb-2">
+            {t("teacher.publishResult")}
+          </h3>
+          <p className="text-sm text-lms-primary/90 mb-4">
+            Project is graded. Publish this result so the student can view it.
+          </p>
+          <button
+            onClick={handlePublish}
+            disabled={publishing}
+            className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-600 disabled:opacity-50"
+          >
+            {publishing ? t("common.loading") : t("admin.publish")}
+          </button>
+        </div>
       )}
     </div>
   );

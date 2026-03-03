@@ -111,7 +111,9 @@ function ExamsPage() {
                     to={`/student/exams/${exam._id}/take`}
                     className="inline-block px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark text-sm font-medium"
                   >
-                    {t("student.takeExamButton")}
+                    {exam.examType === "project-submission"
+                      ? t("student.submitProject")
+                      : t("student.takeExamButton")}
                   </Link>
                 )}
               </div>

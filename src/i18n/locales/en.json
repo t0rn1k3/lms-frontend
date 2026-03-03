@@ -135,7 +135,16 @@
     "featureTakeExams": "Take Exams",
     "featureTakeExamsDesc": "Browse available exams and take them. Each exam can be taken only once.",
     "featureMyResultsDesc": "View your exam results, scores, and feedback once published.",
-    "featureProfileDesc": "Update your profile, password, and preferences."
+    "featureProfileDesc": "Update your profile, password, and preferences.",
+    "projectSubmissionTitle": "Submit your project",
+    "projectSubmissionDesc": "Upload your project as a ZIP file (max {{mb}} MB).",
+    "projectFileSelected": "Selected",
+    "submitProject": "Submit project",
+    "projectSubmitConfirmTitle": "Submit project?",
+    "projectSubmitConfirmMessage": "This will submit your ZIP file. You cannot change it after submission. Continue?",
+    "projectFileMustBeZip": "Please select a ZIP file.",
+    "projectFileMaxSize": "File must be {{mb}} MB or smaller.",
+    "projectSelectFile": "Please select a file to upload."
   },
   "teacher": {
     "title": "Teacher",
@@ -151,6 +160,7 @@
     "editQuestion": "Edit Question",
     "newQuestion": "New Question",
     "examTypeQuiz": "Quiz",
+    "examTypeProjectSubmission": "Project submission",
     "examTypeMidterm": "Midterm",
     "examTypeFinal": "Final",
     "examDate": "Exam Date",
@@ -195,7 +205,14 @@
     "featureManageExams": "Manage Exams",
     "featureManageExamsDesc": "Create exams, add questions, and configure exam settings.",
     "featureGradeResultsDesc": "View and grade student submissions. Publish when fully graded.",
-    "featureProfileDesc": "Update your profile, password, and preferences."
+    "featureProfileDesc": "Update your profile, password, and preferences.",
+    "submittedFile": "Submitted file",
+    "downloadSubmission": "Download submission",
+    "projectNotYetSubmitted": "Project not yet submitted.",
+    "gradeProject": "Grade project",
+    "saveGrade": "Save grade",
+    "projectGradeScoreRequired": "Please enter a valid score (0 or higher).",
+    "remarksPlaceholder": "Optional feedback for the student"
   },
   "admin": {
     "title": "Admin",

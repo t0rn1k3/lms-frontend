@@ -18,4 +18,6 @@ export const studentService = {
   getExam: (examId) => apiClient.get(endpoints.students.getExam(examId)),
   writeExam: (examId, data) =>
     apiClient.post(endpoints.students.writeExam(examId), data),
+  submitProject: (examId, formData) =>
+    apiClient.post(endpoints.students.submitProject(examId), formData),
 };

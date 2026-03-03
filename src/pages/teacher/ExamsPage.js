@@ -416,6 +416,7 @@ function ExamsPage() {
                 className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               >
                 <option value="Quiz">{t("teacher.examTypeQuiz")}</option>
+                <option value="project-submission">{t("teacher.examTypeProjectSubmission")}</option>
                 <option value="Midterm">{t("teacher.examTypeMidterm")}</option>
                 <option value="Final">{t("teacher.examTypeFinal")}</option>
               </select>

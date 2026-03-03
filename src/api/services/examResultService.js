@@ -15,6 +15,18 @@ export const examResultService = {
   teacherGetOne: (id) => apiClient.get(endpoints.examResults.teacherGetOne(id)),
   teacherGrade: (id, gradedAnswers) =>
     apiClient.put(endpoints.examResults.teacherGrade(id), { gradedAnswers }),
+  teacherGradeProject: (id, data) =>
+    apiClient.put(endpoints.examResults.teacherGradeProject(id), data),
+  teacherDownload: (id) =>
+    apiClient.get(endpoints.examResults.teacherDownload(id), {
+      responseType: "blob",
+    }),
   teacherPublish: (id) =>
     apiClient.put(endpoints.examResults.teacherPublish(id)),
+
+  // Admin: download project submission
+  adminDownload: (id) =>
+    apiClient.get(endpoints.examResults.adminDownload(id), {
+      responseType: "blob",
+    }),
 };

@@ -5,6 +5,8 @@ import { studentService, getErrorMessage } from "../../api";
 import { PageLoader, ErrorMessage, PageError } from "../../components";
 
 const OPTIONS = ["A", "B", "C", "D"];
+const MAX_FILE_SIZE_MB = 50;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 function TakeExamPage() {
   const { t } = useTranslation();
@@ -12,10 +14,13 @@ function TakeExamPage() {
   const navigate = useNavigate();
   const [exam, setExam] = useState(null);
   const [answers, setAnswers] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const isProjectSubmission = exam?.examType === "project-submission";
 
   useEffect(() => {
     const fetch = async () => {
@@ -25,7 +30,9 @@ function TakeExamPage() {
         const { data } = await studentService.getExam(examId);
         const examData = data?.data ?? data;
         setExam(examData);
-        setAnswers(new Array(examData?.questions?.length || 0).fill(""));
+        if (examData?.examType !== "project-submission") {
+          setAnswers(new Array(examData?.questions?.length || 0).fill(""));
+        }
       } catch (err) {
         setError(getErrorMessage(err));
       } finally {
@@ -41,6 +48,51 @@ function TakeExamPage() {
       next[index] = value;
       return next;
     });
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    setError("");
+    if (!file) {
+      setSelectedFile(null);
+      return;
+    }
+    if (!file.name.toLowerCase().endsWith(".zip")) {
+      setError(t("student.projectFileMustBeZip"));
+      setSelectedFile(null);
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      setError(t("student.projectFileMaxSize", { mb: MAX_FILE_SIZE_MB }));
+      setSelectedFile(null);
+      return;
+    }
+    setSelectedFile(file);
+  };
+
+  const handleProjectSubmitClick = (e) => {
+    e.preventDefault();
+    if (!selectedFile) {
+      setError(t("student.projectSelectFile"));
+      return;
+    }
+    setError("");
+    setShowConfirm(true);
+  };
+
+  const handleProjectSubmitConfirm = async () => {
+    setSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      await studentService.submitProject(examId, formData);
+      navigate("/student/results", { replace: true });
+    } catch (err) {
+      setError(getErrorMessage(err));
+      setShowConfirm(false);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleSubmitClick = (e) => {
@@ -90,6 +142,103 @@ function TakeExamPage() {
 
   const questions = exam.questions || [];
   const answeredCount = answers.filter((a) => a).length;
+
+  if (isProjectSubmission) {
+    return (
+      <div>
+        <Link
+          to="/student/exams"
+          className="inline-block mb-6 text-lms-primary/90 hover:text-lms-primary"
+        >
+          ← {t("student.backToExams")}
+        </Link>
+
+        <h1 className="text-2xl font-bold text-lms-primary mb-2">{exam.name}</h1>
+        <p className="text-lms-primary/90 mb-6">{exam.description}</p>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+            <span className="text-sm text-lms-primary/80">{t("student.date")}</span>
+            <p className="font-medium">
+              {exam.examDate ? new Date(exam.examDate).toLocaleDateString() : "—"}
+            </p>
+          </div>
+          <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+            <span className="text-sm text-lms-primary/80">{t("student.time")}</span>
+            <p className="font-medium">{exam.examTime || "—"}</p>
+          </div>
+          {exam.passMark != null && (
+            <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+              <span className="text-sm text-lms-primary/80">{t("teacher.passMark")}</span>
+              <p className="font-medium">{t("teacher.passMarkLabel", { value: exam.passMark })}</p>
+            </div>
+          )}
+        </div>
+
+        {error && <ErrorMessage message={error} className="mb-4" />}
+
+        <div className="p-6 bg-white rounded-xl border border-lms-cream max-w-xl">
+          <h2 className="text-lg font-semibold text-lms-primary mb-4">
+            {t("student.projectSubmissionTitle")}
+          </h2>
+          <p className="text-sm text-lms-primary/90 mb-4">
+            {t("student.projectSubmissionDesc", { mb: MAX_FILE_SIZE_MB })}
+          </p>
+          <form onSubmit={handleProjectSubmitClick}>
+            <input
+              type="file"
+              accept=".zip"
+              onChange={handleFileChange}
+              className="block w-full text-sm text-lms-primary/90 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-lms-cream file:text-lms-primary hover:file:bg-lms-cream/80"
+            />
+            {selectedFile && (
+              <p className="mt-2 text-sm text-lms-primary/80">
+                {t("student.projectFileSelected")}: {selectedFile.name}
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={submitting || !selectedFile}
+              className="mt-4 px-6 py-3 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark disabled:opacity-50 font-medium"
+            >
+              {t("student.submitProject")}
+            </button>
+          </form>
+        </div>
+
+        {showConfirm && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+              <h3 className="text-lg font-semibold text-lms-primary mb-2">
+                {t("student.projectSubmitConfirmTitle")}
+              </h3>
+              <p className="text-lms-primary/90 mb-6">
+                {t("student.projectSubmitConfirmMessage")}
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(false)}
+                  disabled={submitting}
+                  className="px-4 py-2 border border-lms-cream rounded-lg hover:bg-lms-cream/30"
+                >
+                  {t("common.cancel")}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleProjectSubmitConfirm}
+                  disabled={submitting}
+                  className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark disabled:opacity-50"
+                >
+                  {submitting ? t("common.saving") : t("student.submitConfirmYes")}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div>

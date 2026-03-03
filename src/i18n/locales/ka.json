@@ -135,7 +135,16 @@
     "featureTakeExams": "გამოცდების გავლა",
     "featureTakeExamsDesc": "აირჩიეთ და გაიარეთ ხელმისაწვდომი გამოცდები. თითოეულ გამოცდას მხოლოდ ერთხელ შეგიძლიათ გავლა.",
     "featureMyResultsDesc": "ნახეთ თქვენი გამოცდების შედეგები, ქულები და გამოხმაურება გამოქვეყნების შემდეგ.",
-    "featureProfileDesc": "განაახლეთ პროფილი, პაროლი და პარამეტრები."
+    "featureProfileDesc": "განაახლეთ პროფილი, პაროლი და პარამეტრები.",
+    "projectSubmissionTitle": "წარუდგინეთ პროექტი",
+    "projectSubmissionDesc": "ატვირთეთ პროექტი ZIP ფაილის სახით (მაქს. {{mb}} MB).",
+    "projectFileSelected": "არჩეული",
+    "submitProject": "პროექტის წარდგენა",
+    "projectSubmitConfirmTitle": "წავუდგინოთ პროექტი?",
+    "projectSubmitConfirmMessage": "ეს გაგზავნის თქვენს ZIP ფაილს. წარდგენის შემდეგ ვერ შეცვლით. გავაგრძელოთ?",
+    "projectFileMustBeZip": "გთხოვთ აირჩიოთ ZIP ფაილი.",
+    "projectFileMaxSize": "ფაილი უნდა იყოს {{mb}} MB ან ნაკლები.",
+    "projectSelectFile": "გთხოვთ აირჩიოთ ფაილი ასატვირთად."
   },
   "teacher": {
     "title": "მასწავლებელი",
@@ -151,6 +160,7 @@
     "editQuestion": "შეკითხვის რედაქტირება",
     "newQuestion": "ახალი შეკითხვა",
     "examTypeQuiz": "ტესტი",
+    "examTypeProjectSubmission": "პროექტის წარდგენა",
     "examTypeMidterm": "შუალედური",
     "examTypeFinal": "ფინალური",
     "examDate": "გამოცდის თარიღი",
@@ -195,7 +205,14 @@
     "featureManageExams": "გამოცდების მართვა",
     "featureManageExamsDesc": "შექმენით გამოცდები, დაამატეთ შეკითხვები და კონფიგურაცია.",
     "featureGradeResultsDesc": "ნახეთ და შეაფასეთ სტუდენტების ჩაბარებები. გამოაქვეყნეთ მას შემდეგ რაც ყველაფერი შეფასდება.",
-    "featureProfileDesc": "განაახლეთ პროფილი, პაროლი და პარამეტრები."
+    "featureProfileDesc": "განაახლეთ პროფილი, პაროლი და პარამეტრები.",
+    "submittedFile": "წარდგენილი ფაილი",
+    "downloadSubmission": "წარდგენის ჩამოტვირთვა",
+    "projectNotYetSubmitted": "პროექტი ჯერ არ არის წარმოდგენილი.",
+    "gradeProject": "პროექტის შეფასება",
+    "saveGrade": "ქულის შენახვა",
+    "projectGradeScoreRequired": "გთხოვთ შეიყვანოთ სწორი ქულა (0 ან მეტი).",
+    "remarksPlaceholder": "სურვილისამებრ გამოხმაურება სტუდენტისთვის"
   },
   "admin": {
     "title": "ადმინისტრატორი",

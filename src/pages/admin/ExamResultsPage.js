@@ -14,6 +14,7 @@ function ExamResultsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [togglingId, setTogglingId] = useState(null);
+  const [downloadingId, setDownloadingId] = useState(null);
 
   useEffect(() => {
     const fetch = async () => {
@@ -38,6 +39,32 @@ function ExamResultsPage() {
     };
     fetch();
   }, []);
+
+  const handleDownload = async (item) => {
+    if (!item.submittedFile) return;
+    setDownloadingId(item._id);
+    try {
+      const { data, headers } = await examResultService.adminDownload(item._id);
+      const contentDisp = headers?.["content-disposition"];
+      const match = contentDisp?.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      const filename =
+        match?.[1]?.replace(/"/g, "").trim() ||
+        item.submittedFile?.originalName ||
+        "submission.zip";
+      const url = window.URL.createObjectURL(data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   const handleTogglePublish = async (id, currentStatus) => {
     try {
@@ -150,6 +177,15 @@ function ExamResultsPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
+                    {item.submittedFile && (
+                      <button
+                        onClick={() => handleDownload(item)}
+                        disabled={downloadingId === item._id}
+                        className="px-3 py-1 text-sm rounded-lg bg-lms-cream text-lms-primary hover:bg-lms-cream/80 disabled:opacity-50 mr-2"
+                      >
+                        {downloadingId === item._id ? "..." : t("teacher.downloadSubmission")}
+                      </button>
+                    )}
                     <button
                       onClick={() =>
                         handleTogglePublish(item._id, item.isPublished)

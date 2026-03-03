@@ -42,6 +42,7 @@ export const endpoints = {
     update: (id) => `/students/${id}/admin`,
     withdraw: (id) => `admins/withdraw/students/${id}`,
     writeExam: (examId) => `/students/exams/${examId}`,
+    submitProject: (examId) => `/students/exams/${examId}/submit-project`,
   },
 
   // Academic
@@ -109,6 +110,9 @@ export const endpoints = {
     teacherList: "teachers/exam-results",
     teacherGetOne: (id) => `teachers/exam-results/${id}`,
     teacherGrade: (id) => `teachers/exam-results/${id}/grade`,
+    teacherGradeProject: (id) => `teachers/exam-results/${id}/grade-project`,
+    teacherDownload: (id) => `teachers/exam-results/${id}/download`,
     teacherPublish: (id) => `teachers/exam-results/${id}/publish`,
+    adminDownload: (id) => `admins/exam-results/${id}/download`,
   },
 };
