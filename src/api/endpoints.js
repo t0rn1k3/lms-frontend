@@ -41,6 +41,7 @@ export const endpoints = {
     getExam: (examId) => `/students/exams/${examId}`,
     list: "/students",
     getOne: (id) => `/students/${id}/admin`,
+    graduationStatus: (id) => `/students/${id}/graduation-status`,
     update: (id) => `/students/${id}`,
     withdraw: (id) => `/admins/withdraw/students/${id}`,
     writeExam: (examId) => `/students/exams/${examId}`,

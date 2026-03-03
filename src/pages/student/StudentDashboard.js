@@ -140,6 +140,8 @@ function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [graduation, setGraduation] = useState(null);
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -181,6 +183,17 @@ function StudentDashboard() {
           passRate,
           publishedResults,
         });
+
+        const studentId = profile._id;
+        if (studentId) {
+          studentService
+            .getGraduationStatus(studentId)
+            .then((gRes) => {
+              const g = gRes.data?.data ?? gRes.data ?? null;
+              setGraduation(g);
+            })
+            .catch(() => setGraduation(null));
+        }
       } catch (err) {
         setError(getErrorMessage(err));
       } finally {
@@ -284,6 +297,71 @@ function StudentDashboard() {
         {t("student.overview")}
       </h1>
       <p className="text-lms-primary/90 mb-8">{t("student.intro")}</p>
+
+      {/* Graduation status section */}
+      {graduation && (
+        <div className="mb-8 p-6 bg-white rounded-xl border border-lms-cream shadow-sm">
+          <h2 className="text-lg font-bold text-lms-primary mb-4">
+            {t("student.graduationProgress")}
+          </h2>
+          {graduation.isGraduated ? (
+            <div className="flex items-center gap-2 text-green-700 font-medium">
+              <IconCheck className="w-6 h-6" />
+              {t("student.graduated")}
+              {graduation.yearGraduated && (
+                <span className="text-lms-primary/80 font-normal">
+                  ({graduation.yearGraduated})
+                </span>
+              )}
+            </div>
+          ) : graduation.eligible ? (
+            <div className="flex items-center gap-2 text-green-700 font-medium mb-4">
+              <IconCheck className="w-6 h-6" />
+              {t("student.eligibleForGraduation")}
+            </div>
+          ) : null}
+          <div className="grid md:grid-cols-2 gap-6 mt-4">
+            <div>
+              <h3 className="text-sm font-medium text-lms-primary/80 mb-2">
+                {t("student.modulesPassed")} ({graduation.modulesPassed?.length ?? 0})
+              </h3>
+              {graduation.modulesPassed?.length > 0 ? (
+                <ul className="space-y-1 text-sm text-green-700">
+                  {graduation.modulesPassed.map((m) => (
+                    <li key={m._id} className="flex items-center gap-2">
+                      <IconCheck className="w-4 h-4 flex-shrink-0" />
+                      {m.name || m._id}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-lms-primary/70">
+                  {t("student.noModulesPassedYet")}
+                </p>
+              )}
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-lms-primary/80 mb-2">
+                {t("student.modulesPending")} ({graduation.modulesPending?.length ?? 0})
+              </h3>
+              {graduation.modulesPending?.length > 0 ? (
+                <ul className="space-y-1 text-sm text-amber-700">
+                  {graduation.modulesPending.map((m) => (
+                    <li key={m._id} className="flex items-center gap-2">
+                      <IconX className="w-4 h-4 flex-shrink-0" />
+                      {m.name || m._id}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-lms-primary/70">
+                  {t("student.noModulesPending")}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Top section: KPI cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">

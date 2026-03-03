@@ -13,6 +13,7 @@ function StudentDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [student, setStudent] = useState(null);
+  const [graduation, setGraduation] = useState(null);
   const [programs, setPrograms] = useState([]);
   const [modules, setModules] = useState([]);
   const [yearGroups, setYearGroups] = useState([]);
@@ -61,8 +62,17 @@ function StudentDetailPage() {
           academicService.getYearGroups(),
           moduleService.list(),
         ]);
-        setStudent(sRes.data?.data ?? sRes.data);
+        const s = sRes.data?.data ?? sRes.data;
+        setStudent(s);
         setPrograms(pRes.data?.data || []);
+        if (s?._id) {
+          studentService
+            .getGraduationStatus(s._id)
+            .then((gRes) => {
+              setGraduation(gRes.data?.data ?? gRes.data ?? null);
+            })
+            .catch(() => setGraduation(null));
+        }
         setAcademicYears(aRes.data?.data || []);
         setYearGroups(gRes.data?.data || []);
         setModules(mRes.data?.data ?? mRes.data ?? []);
@@ -238,6 +248,64 @@ function StudentDetailPage() {
           </div>
         </div>
       </div>
+
+      {graduation && (
+        <div className="mt-6 p-6 bg-white rounded-xl border border-lms-cream">
+          <h2 className="text-lg font-bold text-lms-primary mb-4">
+            {t("student.graduationProgress")}
+          </h2>
+          {graduation.isGraduated ? (
+            <p className="text-green-700 font-medium">
+              {t("student.graduated")}
+              {graduation.yearGraduated && (
+                <span className="text-lms-primary/80 font-normal ml-1">
+                  ({graduation.yearGraduated})
+                </span>
+              )}
+            </p>
+          ) : graduation.eligible ? (
+            <p className="text-green-700 font-medium mb-4">
+              {t("student.eligibleForGraduation")}
+            </p>
+          ) : null}
+          <div className="grid md:grid-cols-2 gap-6 mt-4">
+            <div>
+              <h3 className="text-sm font-medium text-lms-primary/80 mb-2">
+                {t("student.modulesPassed")} (
+                {graduation.modulesPassed?.length ?? 0})
+              </h3>
+              {graduation.modulesPassed?.length > 0 ? (
+                <ul className="space-y-1 text-sm text-lms-primary/90">
+                  {graduation.modulesPassed.map((m) => (
+                    <li key={m._id}>• {m.name || m._id}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-lms-primary/70">
+                  {t("student.noModulesPassedYet")}
+                </p>
+              )}
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-lms-primary/80 mb-2">
+                {t("student.modulesPending")} (
+                {graduation.modulesPending?.length ?? 0})
+              </h3>
+              {graduation.modulesPending?.length > 0 ? (
+                <ul className="space-y-1 text-sm text-lms-primary/90">
+                  {graduation.modulesPending.map((m) => (
+                    <li key={m._id}>• {m.name || m._id}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-lms-primary/70">
+                  {t("student.noModulesPending")}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

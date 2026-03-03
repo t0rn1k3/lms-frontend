@@ -5,6 +5,8 @@ export const studentService = {
   // Admin: list/create/update students
   list: () => apiClient.get(endpoints.students.list),
   getOne: (id) => apiClient.get(endpoints.students.getOne(id)),
+  getGraduationStatus: (id) =>
+    apiClient.get(endpoints.students.graduationStatus(id)),
   register: (data) => apiClient.post(endpoints.students.register, data),
   update: (id, data) => apiClient.put(endpoints.students.update(id), data),
   withdraw: (id) => apiClient.put(endpoints.students.withdraw(id)),
