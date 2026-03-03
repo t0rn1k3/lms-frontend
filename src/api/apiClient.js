@@ -21,12 +21,20 @@ apiClient.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  // Let browser set Content-Type (with boundary) for FormData - do not use application/json
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
   return config;
 });
 
 // Normalize success response: { status, data, message }
+// Skip transformation for Blob (file downloads) - preserve raw response
 apiClient.interceptors.response.use(
   (response) => {
+    if (response.data instanceof Blob) {
+      return response;
+    }
     const body = response.data ?? {};
     response.data = {
       status: body.status ?? "success",

@@ -115,21 +115,39 @@ function TeacherExamResultDetailPage() {
     setError("");
     setDownloading(true);
     try {
-      const { data, headers } = await examResultService.teacherDownload(id);
-      const contentDisp = headers?.["content-disposition"];
-      const match = contentDisp?.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      const response = await examResultService.teacherDownload(id);
+      const blob = response.data;
+      const headers = response.headers || {};
+      const contentType = headers["content-type"] || "";
+
+      if (contentType.includes("application/json") && blob instanceof Blob) {
+        try {
+          const text = await blob.text();
+          const errJson = JSON.parse(text || "{}");
+          throw new Error(errJson.message || "Download failed");
+        } catch (e) {
+          throw e instanceof Error ? e : new Error("Download failed");
+        }
+      }
+
+      if (!blob || !(blob instanceof Blob)) {
+        throw new Error("Invalid file response");
+      }
+
+      const contentDisp = headers["content-disposition"] || "";
+      const match = contentDisp.match(/filename="?([^"]+)"?/);
       const filename =
-        match?.[1]?.replace(/"/g, "").trim() ||
+        match?.[1]?.trim() ||
         result?.submittedFile?.originalName ||
         "submission.zip";
-      const url = window.URL.createObjectURL(data);
+      const blobUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url;
+      a.href = blobUrl;
       a.download = filename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      URL.revokeObjectURL(blobUrl);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
