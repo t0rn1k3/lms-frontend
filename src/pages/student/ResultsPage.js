@@ -34,12 +34,20 @@ function ResultsPage() {
   }
 
   if (error && results.length === 0) {
-    return <PageError message={error} backTo="/student" backLabel={t("student.backToOverview")} />;
+    return (
+      <PageError
+        message={error}
+        backTo="/student"
+        backLabel={t("student.backToOverview")}
+      />
+    );
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-lms-primary mb-2">{t("student.resultsPageTitle")}</h1>
+      <h1 className="text-2xl font-bold text-lms-primary mb-2">
+        {t("student.resultsPageTitle")}
+      </h1>
       <p className="text-lms-primary/90 mb-6">
         {t("student.resultsPageIntro")}
       </p>
@@ -75,7 +83,7 @@ function ResultsPage() {
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="text-sm">
               {results.map((r) => (
                 <tr
                   key={r._id}
@@ -103,9 +111,13 @@ function ResultsPage() {
                   </td>
                   <td className="py-3 px-4">
                     {r.isPublished ? (
-                      <span className="text-green-600 font-medium">{t("common.yes")}</span>
+                      <span className="text-green-600 font-medium">
+                        {t("common.yes")}
+                      </span>
                     ) : (
-                      <span className="text-amber-600">{t("student.pending")}</span>
+                      <span className="text-amber-600">
+                        {t("student.pending")}
+                      </span>
                     )}
                   </td>
                   <td className="py-3 px-4">

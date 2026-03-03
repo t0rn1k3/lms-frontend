@@ -103,7 +103,7 @@ function TakeExamPage() {
       <h1 className="text-2xl font-bold text-lms-primary mb-2">{exam.name}</h1>
       <p className="text-lms-primary/90 mb-6">{exam.description}</p>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
           <span className="text-sm text-lms-primary/80">{t("student.duration")}</span>
           <p className="font-medium">{exam.duration || "—"}</p>
@@ -122,6 +122,12 @@ function TakeExamPage() {
           <span className="text-sm text-lms-primary/80">{t("student.questions")}</span>
           <p className="font-medium">{questions.length}</p>
         </div>
+        {exam.passMark != null && (
+          <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+            <span className="text-sm text-lms-primary/80">{t("teacher.passMark")}</span>
+            <p className="font-medium">{t("teacher.passMarkLabel", { value: exam.passMark })}</p>
+          </div>
+        )}
       </div>
 
       {error && <ErrorMessage message={error} className="mb-4" />}

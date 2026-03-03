@@ -157,10 +157,10 @@ function StudentDashboard() {
         const resultsArray = Array.isArray(results) ? results : [];
         const examsArray = Array.isArray(exams) ? exams : [];
         const takenExamIds = resultsArray.map((r) =>
-          typeof r.exam === "object" ? r.exam?._id : r.exam
+          typeof r.exam === "object" ? r.exam?._id : r.exam,
         );
         const availableCount = examsArray.filter(
-          (e) => !takenExamIds.includes(e._id)
+          (e) => !takenExamIds.includes(e._id),
         ).length;
 
         const passed = resultsArray.filter((r) => r.status === "Passed").length;
@@ -169,7 +169,9 @@ function StudentDashboard() {
           resultsArray.length > 0
             ? Math.round((passed / resultsArray.length) * 100)
             : 0;
-        const publishedResults = resultsArray.filter((r) => r.isPublished).length;
+        const publishedResults = resultsArray.filter(
+          (r) => r.isPublished,
+        ).length;
 
         setStats({
           availableExams: availableCount,

@@ -59,7 +59,7 @@ function ResultDetailPage() {
         {getRefName(result.exam)}
       </h1>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream shadow-sm">
           <span className="text-sm text-lms-primary/80">{t("student.score")}</span>
           <p className="font-medium">
@@ -68,6 +68,19 @@ function ResultDetailPage() {
               : result.score ?? "—"}
           </p>
         </div>
+        {(typeof result.exam === "object" && result.exam?.passMark != null) || result.passMark != null ? (
+          <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream shadow-sm">
+            <span className="text-sm text-lms-primary/80">{t("teacher.passMark")}</span>
+            <p className="font-medium">
+              {t("teacher.passMarkLabel", {
+                value:
+                  typeof result.exam === "object" && result.exam?.passMark != null
+                    ? result.exam.passMark
+                    : result.passMark,
+              })}
+            </p>
+          </div>
+        ) : null}
         <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream shadow-sm">
           <span className="text-sm text-lms-primary/80">{t("student.grade")}</span>
           <p className="font-medium">

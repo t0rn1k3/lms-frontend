@@ -1,11 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import {
-  examService,
-  academicService,
-  getErrorMessage,
-} from "../../api";
+import { examService, academicService, getErrorMessage } from "../../api";
 
 function ExamsPage() {
   const { t } = useTranslation();
@@ -31,7 +27,10 @@ function ExamsPage() {
     examDate: "",
     examTime: "",
     examType: "Quiz",
+    passMark: 50,
+    totalMark: 100,
   });
+  const [fieldErrors, setFieldErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
   const getRefId = (val) => (typeof val === "object" ? val?._id : val);
@@ -83,6 +82,7 @@ function ExamsPage() {
 
   const openCreateForm = () => {
     setEditingId(null);
+    setFieldErrors({});
     setFormData({
       name: "",
       description: "",
@@ -95,12 +95,15 @@ function ExamsPage() {
       examDate: new Date().toISOString().slice(0, 10),
       examTime: "09:00",
       examType: "Quiz",
+      passMark: 50,
+      totalMark: 100,
     });
     setFormOpen(true);
   };
 
   const openEditForm = (item) => {
     setEditingId(item._id);
+    setFieldErrors({});
     setFormData({
       name: item.name || "",
       description: item.description || "",
@@ -115,13 +118,31 @@ function ExamsPage() {
         : "",
       examTime: item.examTime || "09:00",
       examType: item.examType || "Quiz",
+      passMark: item.passMark != null ? Number(item.passMark) : 50,
+      totalMark: item.totalMark != null && item.totalMark > 0 ? Number(item.totalMark) : 100,
     });
     setFormOpen(true);
+  };
+
+  const validateForm = () => {
+    const errs = {};
+    const passMarkNum = Number(formData.passMark);
+    const totalMarkNum = Number(formData.totalMark);
+    if (Number.isNaN(passMarkNum) || passMarkNum < 0 || passMarkNum > 100) {
+      errs.passMark = t("teacher.passMarkValidation");
+    }
+    if (Number.isNaN(totalMarkNum) || totalMarkNum <= 0) {
+      errs.totalMark = t("teacher.totalMarkValidation");
+    }
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setFieldErrors({});
+    if (!validateForm()) return;
     setSubmitting(true);
     try {
       const payload = {
@@ -136,6 +157,8 @@ function ExamsPage() {
         examDate: formData.examDate,
         examTime: formData.examTime,
         examType: formData.examType,
+        passMark: Number(formData.passMark),
+        totalMark: Number(formData.totalMark),
       };
       if (editingId) {
         await examService.update(editingId, payload);
@@ -154,7 +177,9 @@ function ExamsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-lms-primary">{t("teacher.exams")}</h1>
+        <h1 className="text-xl font-bold text-lms-primary">
+          {t("teacher.exams")}
+        </h1>
         <button
           onClick={openCreateForm}
           className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark"
@@ -176,7 +201,9 @@ function ExamsPage() {
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl">
             <div>
-              <label className="block text-sm font-medium text-lms-primary mb-1">{t("common.name")} *</label>
+              <label className="block text-sm font-medium text-lms-primary mb-1">
+                {t("common.name")} *
+              </label>
               <input
                 type="text"
                 value={formData.name}
@@ -188,11 +215,16 @@ function ExamsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-lms-primary mb-1">{t("common.description")} *</label>
+              <label className="block text-sm font-medium text-lms-primary mb-1">
+                {t("common.description")} *
+              </label>
               <textarea
                 value={formData.description}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, description: e.target.value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
                 }
                 required
                 rows={2}
@@ -201,61 +233,87 @@ function ExamsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-lms-primary mb-1">{t("admin.subject")} *</label>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("admin.subject")} *
+                </label>
                 <select
                   value={formData.subject}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, subject: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      subject: e.target.value,
+                    }))
                   }
                   required
                   className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                 >
                   <option value="">{t("teacher.select")}</option>
                   {subjects.map((s) => (
-                    <option key={s._id} value={s._id}>{s.name}</option>
+                    <option key={s._id} value={s._id}>
+                      {s.name}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-lms-primary mb-1">{t("admin.program")} *</label>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("admin.program")} *
+                </label>
                 <select
                   value={formData.program}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, program: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      program: e.target.value,
+                    }))
                   }
                   required
                   className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                 >
                   <option value="">{t("teacher.select")}</option>
                   {programs.map((p) => (
-                    <option key={p._id} value={p._id}>{p.name}</option>
+                    <option key={p._id} value={p._id}>
+                      {p.name}
+                    </option>
                   ))}
                 </select>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-lms-primary mb-1">{t("admin.academicTermLabel")} *</label>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("admin.academicTermLabel")} *
+                </label>
                 <select
                   value={formData.academicTerm}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, academicTerm: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      academicTerm: e.target.value,
+                    }))
                   }
                   required
                   className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                 >
                   <option value="">{t("teacher.select")}</option>
                   {academicTerms.map((t) => (
-                    <option key={t._id} value={t._id}>{t.name}</option>
+                    <option key={t._id} value={t._id}>
+                      {t.name}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-lms-primary mb-1">{t("admin.academicYearLabel")} *</label>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("admin.academicYearLabel")} *
+                </label>
                 <select
                   value={formData.academicYear}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, academicYear: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      academicYear: e.target.value,
+                    }))
                   }
                   required
                   className="w-full px-3 py-2 border border-lms-cream rounded-lg"
@@ -263,60 +321,83 @@ function ExamsPage() {
                   <option value="">{t("teacher.select")}</option>
                   {academicYears.map((y) => (
                     <option key={y._id} value={y._id}>
-                      {y.name || `${new Date(y.fromYear).getFullYear()}-${new Date(y.toYear).getFullYear()}`}
+                      {y.name ||
+                        `${new Date(y.fromYear).getFullYear()}-${new Date(y.toYear).getFullYear()}`}
                     </option>
                   ))}
                 </select>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-lms-primary mb-1">{t("admin.classLevel")} *</label>
+              <label className="block text-sm font-medium text-lms-primary mb-1">
+                {t("admin.classLevel")} *
+              </label>
               <select
                 value={formData.classLevel}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, classLevel: e.target.value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    classLevel: e.target.value,
+                  }))
                 }
                 required
                 className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               >
                 <option value="">{t("teacher.select")}</option>
                 {classLevels.map((c) => (
-                  <option key={c._id} value={c._id}>{c.name}</option>
+                  <option key={c._id} value={c._id}>
+                    {c.name}
+                  </option>
                 ))}
               </select>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-lms-primary mb-1">{t("common.duration")} *</label>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("common.duration")} *
+                </label>
                 <input
                   type="text"
                   value={formData.duration}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, duration: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      duration: e.target.value,
+                    }))
                   }
                   required
                   className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-lms-primary mb-1">{t("teacher.examDate")} *</label>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("teacher.examDate")} *
+                </label>
                 <input
                   type="date"
                   value={formData.examDate}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, examDate: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      examDate: e.target.value,
+                    }))
                   }
                   required
                   className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-lms-primary mb-1">{t("teacher.examTime")} *</label>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("teacher.examTime")} *
+                </label>
                 <input
                   type="time"
                   value={formData.examTime}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, examTime: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      examTime: e.target.value,
+                    }))
                   }
                   required
                   className="w-full px-3 py-2 border border-lms-cream rounded-lg"
@@ -324,7 +405,9 @@ function ExamsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-lms-primary mb-1">{t("teacher.examType")} *</label>
+              <label className="block text-sm font-medium text-lms-primary mb-1">
+                {t("teacher.examType")} *
+              </label>
               <select
                 value={formData.examType}
                 onChange={(e) =>
@@ -336,6 +419,55 @@ function ExamsPage() {
                 <option value="Midterm">{t("teacher.examTypeMidterm")}</option>
                 <option value="Final">{t("teacher.examTypeFinal")}</option>
               </select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("teacher.passMark")}
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={formData.passMark}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      passMark: e.target.value,
+                    }))
+                  }
+                  className={`w-full px-3 py-2 border rounded-lg ${
+                    fieldErrors.passMark ? "border-red-500" : "border-lms-cream"
+                  }`}
+                />
+                {fieldErrors.passMark && (
+                  <p className="mt-1 text-sm text-red-600">{fieldErrors.passMark}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("teacher.totalMark")}
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={formData.totalMark}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      totalMark: e.target.value,
+                    }))
+                  }
+                  className={`w-full px-3 py-2 border rounded-lg ${
+                    fieldErrors.totalMark ? "border-red-500" : "border-lms-cream"
+                  }`}
+                />
+                {fieldErrors.totalMark && (
+                  <p className="mt-1 text-sm text-red-600">{fieldErrors.totalMark}</p>
+                )}
+              </div>
             </div>
             <div className="flex gap-2">
               <button
@@ -359,7 +491,9 @@ function ExamsPage() {
 
       <div className="bg-white rounded-xl border border-lms-cream overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-lms-primary/80">{t("common.loading")}</div>
+          <div className="p-8 text-center text-lms-primary/80">
+            {t("common.loading")}
+          </div>
         ) : exams.length === 0 ? (
           <div className="p-8 text-center text-lms-primary/80">
             {t("teacher.noExams")}
@@ -368,16 +502,26 @@ function ExamsPage() {
           <table className="w-full">
             <thead className="bg-lms-cream/30 border-b border-lms-cream">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">{t("common.name")}</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">{t("admin.subject")}</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">{t("student.date")}</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">{t("student.questions")}</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-lms-primary">{t("common.actions")}</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
+                  {t("common.name")}
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
+                  {t("admin.subject")}
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
+                  {t("student.date")}
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
+                  {t("student.questions")}
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-lms-primary">
+                  {t("common.actions")}
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-lms-cream">
+            <tbody className="divide-y divide-lms-cream text-sm">
               {exams.map((item) => (
-                <tr key={item._id} className="hover:bg-lms-cream/30/50">
+                <tr key={item._id} className="hover:bg-lms-cream/30/50 ">
                   <td className="px-4 py-3">
                     <Link
                       to={`/teacher/exams/${item._id}`}

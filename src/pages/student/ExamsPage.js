@@ -43,7 +43,13 @@ function ExamsPage() {
   }
 
   if (error && exams.length === 0) {
-    return <PageError message={error} backTo="/student/exams" backLabel={t("student.backToExams")} />;
+    return (
+      <PageError
+        message={error}
+        backTo="/student/exams"
+        backLabel={t("student.backToExams")}
+      />
+    );
   }
 
   return (
@@ -51,9 +57,7 @@ function ExamsPage() {
       <h1 className="text-2xl font-bold text-lms-primary mb-2">
         {t("student.examsPageTitle")}
       </h1>
-      <p className="text-lms-primary/90 mb-6">
-        {t("student.examsPageIntro")}
-      </p>
+      <p className="text-lms-primary/90 mb-6">{t("student.examsPageIntro")}</p>
 
       {error && <ErrorMessage message={error} className="mb-4" />}
 
@@ -88,7 +92,15 @@ function ExamsPage() {
                       : "—"}
                   </span>
                   <span>•</span>
-                  <span>{questions.length} {t("student.questions")}</span>
+                  <span>
+                    {questions.length} {t("student.questions")}
+                  </span>
+                  {exam.passMark != null && (
+                    <>
+                      <span>•</span>
+                      <span>{t("teacher.passMarkLabel", { value: exam.passMark })}</span>
+                    </>
+                  )}
                 </div>
                 {taken ? (
                   <span className="inline-block px-3 py-1.5 bg-lms-light text-lms-primary/90 rounded-lg text-sm">

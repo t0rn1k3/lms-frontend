@@ -158,25 +158,31 @@ function ExamDetailPage() {
       <h1 className="text-2xl font-bold text-lms-primary mb-2">{exam.name}</h1>
       <p className="text-lms-primary/90 mb-6">{exam.description}</p>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
-          <span className="text-sm text-lms-primary/80">Subject</span>
+          <span className="text-sm text-lms-primary/80">{t("admin.subject")}</span>
           <p className="font-medium">{getRefName(exam.subject)}</p>
         </div>
         <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
-          <span className="text-sm text-lms-primary/80">Date</span>
+          <span className="text-sm text-lms-primary/80">{t("student.date")}</span>
           <p className="font-medium">
             {exam.examDate ? new Date(exam.examDate).toLocaleDateString() : "—"}
           </p>
         </div>
         <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
-          <span className="text-sm text-lms-primary/80">Time</span>
+          <span className="text-sm text-lms-primary/80">{t("student.time")}</span>
           <p className="font-medium">{exam.examTime || "—"}</p>
         </div>
         <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
-          <span className="text-sm text-lms-primary/80">Questions</span>
+          <span className="text-sm text-lms-primary/80">{t("teacher.questions")}</span>
           <p className="font-medium">{questions.length}</p>
         </div>
+        {exam.passMark != null && (
+          <div className="p-4 rounded-lg bg-lms-cream/30 border border-lms-cream">
+            <span className="text-sm text-lms-primary/80">{t("teacher.passMark")}</span>
+            <p className="font-medium">{t("teacher.passMarkLabel", { value: exam.passMark })}</p>
+          </div>
+        )}
       </div>
 
       {error && (
