@@ -8,7 +8,6 @@ function ExamsPage() {
   const [exams, setExams] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [subjects, setSubjects] = useState([]);
-  const [academicTerms, setAcademicTerms] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
   const [classLevels, setClassLevels] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,16 +49,14 @@ function ExamsPage() {
 
   const fetchLookups = useCallback(async () => {
     try {
-      const [p, s, t, y, c] = await Promise.all([
+      const [p, s, y, c] = await Promise.all([
         academicService.getPrograms(),
         academicService.getSubjects(),
-        academicService.getAcademicTerms(),
         academicService.getAcademicYears(),
         academicService.getClassLevels(),
       ]);
       setPrograms(p.data?.data || []);
       setSubjects(s.data?.data || []);
-      setAcademicTerms(t.data?.data || []);
       setAcademicYears(y.data?.data || []);
       setClassLevels(c.data?.data || []);
     } catch (err) {

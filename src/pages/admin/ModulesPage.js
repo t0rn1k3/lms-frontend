@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import {
   moduleService,
@@ -48,7 +48,7 @@ function ModulesPage() {
   });
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchModules = async () => {
+  const fetchModules = useCallback(async () => {
     try {
       setLoading(true);
       const { data } = await moduleService.list(
@@ -60,7 +60,7 @@ function ModulesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [programFilter]);
 
   const fetchPrograms = async () => {
     try {
@@ -87,7 +87,7 @@ function ModulesPage() {
 
   useEffect(() => {
     fetchModules();
-  }, [programFilter]);
+  }, [fetchModules]);
 
   const openCreateForm = () => {
     setEditingId(null);

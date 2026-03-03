@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { studentService, academicService, getErrorMessage } from "../../api";
+import { studentService, academicService, moduleService, getErrorMessage } from "../../api";
 
 function StudentDetailPage() {
   const { t } = useTranslation();
@@ -9,7 +9,7 @@ function StudentDetailPage() {
   const navigate = useNavigate();
   const [student, setStudent] = useState(null);
   const [programs, setPrograms] = useState([]);
-  const [classLevels, setClassLevels] = useState([]);
+  const [modules, setModules] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -23,10 +23,10 @@ function StudentDetailPage() {
     return p?.name || id;
   };
 
-  const getClassLevelName = (id) => {
+  const getModuleName = (id) => {
     if (!id) return "—";
-    const c = classLevels.find((x) => x._id === id);
-    return c?.name || id;
+    const m = modules.find((x) => x._id === id);
+    return m?.name || id;
   };
 
   const getAcademicYearName = (id) => {
@@ -42,16 +42,16 @@ function StudentDetailPage() {
     const fetch = async () => {
       try {
         setLoading(true);
-        const [sRes, pRes, cRes, aRes] = await Promise.all([
+        const [sRes, pRes, aRes, mRes] = await Promise.all([
           studentService.getOne(id),
           academicService.getPrograms(),
-          academicService.getClassLevels(),
           academicService.getAcademicYears(),
+          moduleService.list(),
         ]);
         setStudent(sRes.data?.data ?? sRes.data);
         setPrograms(pRes.data?.data || []);
-        setClassLevels(cRes.data?.data || []);
         setAcademicYears(aRes.data?.data || []);
+        setModules(mRes.data?.data ?? mRes.data ?? []);
       } catch (err) {
         setError(getErrorMessage(err));
       } finally {
@@ -102,7 +102,11 @@ function StudentDetailPage() {
   }
   if (!student) return null;
 
-  const levelIds = (student.classLevels || []).map((l) => getRefId(l));
+  const formatModulesDisplay = () => {
+    const ids = (student.modules || []).map((m) => getRefId(m));
+    if (ids.length === 0) return "—";
+    return ids.map(getModuleName).join(", ");
+  };
 
   return (
     <div>
@@ -179,16 +183,14 @@ function StudentDetailPage() {
             </p>
           </div>
           <div>
-            <span className="text-sm text-lms-primary/80">Current Class Level</span>
-            <p className="font-medium">
-              {getClassLevelName(getRefId(student.currentClassLevel))}
-            </p>
-          </div>
-          <div>
-            <span className="text-sm text-lms-primary/80">Academic Year</span>
+            <span className="text-sm text-lms-primary/80">{t("admin.academicYearLabel")}</span>
             <p className="font-medium">
               {getAcademicYearName(getRefId(student.academicYear))}
             </p>
+          </div>
+          <div>
+            <span className="text-sm text-lms-primary/80">{t("admin.modules")}</span>
+            <p className="font-medium">{formatModulesDisplay()}</p>
           </div>
           <div>
             <span className="text-sm text-lms-primary/80">{t("common.status")}</span>
@@ -202,16 +204,6 @@ function StudentDetailPage() {
                     : t("admin.active")}
             </p>
           </div>
-          {levelIds.length > 0 && (
-            <div className="col-span-2">
-              <span className="text-sm text-lms-primary/80">
-                Class Levels (history)
-              </span>
-              <p className="font-medium">
-                {levelIds.map((id) => getClassLevelName(id)).join(", ")}
-              </p>
-            </div>
-          )}
         </div>
       </div>
     </div>

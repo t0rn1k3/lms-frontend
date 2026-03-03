@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { teacherService, academicService, getErrorMessage } from "../../api";
+import { teacherService, academicService, moduleService, getErrorMessage } from "../../api";
 
 function TeacherDetailPage() {
   const { t } = useTranslation();
@@ -9,9 +9,8 @@ function TeacherDetailPage() {
   const navigate = useNavigate();
   const [teacher, setTeacher] = useState(null);
   const [programs, setPrograms] = useState([]);
-  const [classLevels, setClassLevels] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
-  const [subjects, setSubjects] = useState([]);
+  const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updating, setUpdating] = useState(false);
@@ -24,12 +23,6 @@ function TeacherDetailPage() {
     return p?.name || id;
   };
 
-  const getClassLevelName = (id) => {
-    if (!id) return "—";
-    const c = classLevels.find((x) => x._id === id);
-    return c?.name || id;
-  };
-
   const getAcademicYearName = (id) => {
     if (!id) return "—";
     const y = academicYears.find((x) => x._id === id);
@@ -39,28 +32,38 @@ function TeacherDetailPage() {
     return y.name || (from && to ? `${from}-${to}` : id);
   };
 
-  const getSubjectName = (id) => {
+  const getModuleName = (id) => {
     if (!id) return "—";
-    const s = subjects.find((x) => x._id === id);
-    return s?.name || id;
+    const m = modules.find((x) => x._id === id);
+    return m?.name || id;
+  };
+
+  const formatProgramsDisplay = (item) => {
+    const ids = (item.programs || [item.program]).filter(Boolean).map((p) => getRefId(p));
+    if (ids.length === 0) return "—";
+    return ids.map(getProgramName).join(", ");
+  };
+
+  const formatModulesDisplay = (item) => {
+    const ids = (item.modules || [item.subject]).filter(Boolean).map((m) => getRefId(m));
+    if (ids.length === 0) return "—";
+    return ids.map(getModuleName).join(", ");
   };
 
   useEffect(() => {
     const fetch = async () => {
       try {
         setLoading(true);
-        const [tRes, pRes, cRes, aRes, sRes] = await Promise.all([
+        const [tRes, pRes, aRes, mRes] = await Promise.all([
           teacherService.getOne(id),
           academicService.getPrograms(),
-          academicService.getClassLevels(),
           academicService.getAcademicYears(),
-          academicService.getSubjects(),
+          moduleService.list(),
         ]);
         setTeacher(tRes.data?.data ?? tRes.data);
         setPrograms(pRes.data?.data || []);
-        setClassLevels(cRes.data?.data || []);
         setAcademicYears(aRes.data?.data || []);
-        setSubjects(sRes.data?.data || []);
+        setModules(mRes.data?.data ?? mRes.data ?? []);
       } catch (err) {
         setError(getErrorMessage(err));
       } finally {
@@ -74,14 +77,25 @@ function TeacherDetailPage() {
   const isSuspended = teacher?.isSuspended;
   const isWithdrawn = teacher?.isWithdrawn;
 
-  const handleUpdateStatus = async (isSuspendedVal, isWithdrawnVal) => {
+  const handleSuspend = async () => {
     if (!teacher?._id) return;
     try {
       setUpdating(true);
-      await teacherService.update(teacher._id, {
-        isSuspended: isSuspendedVal,
-        isWithdrawn: isWithdrawnVal,
-      });
+      await teacherService.suspend(teacher._id);
+      const { data } = await teacherService.getOne(teacher._id);
+      setTeacher(data?.data ?? data);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleUnsuspend = async () => {
+    if (!teacher?._id) return;
+    try {
+      setUpdating(true);
+      await teacherService.unsuspend(teacher._id);
       const { data } = await teacherService.getOne(teacher._id);
       setTeacher(data?.data ?? data);
     } catch (err) {
@@ -134,7 +148,7 @@ function TeacherDetailPage() {
             <button
               onClick={() => {
                 if (window.confirm(t("admin.confirmSuspendTeacher"))) {
-                  handleUpdateStatus(true, false);
+                  handleSuspend();
                 }
               }}
               disabled={updating}
@@ -158,9 +172,9 @@ function TeacherDetailPage() {
         {(isSuspended || isWithdrawn) && (
           <button
             onClick={() => {
-              if (window.confirm(t("admin.confirmReactivate"))) {
-                handleUpdateStatus(false, false);
-              }
+                if (window.confirm(t("admin.confirmReactivate"))) {
+                  handleUnsuspend();
+                }
             }}
             disabled={updating}
             className="px-4 py-2 border border-green-300 text-green-700 rounded-lg hover:bg-green-50 disabled:opacity-50"
@@ -183,28 +197,18 @@ function TeacherDetailPage() {
             <p className="font-medium">{teacher.teacherId || "—"}</p>
           </div>
           <div>
-            <span className="text-sm text-lms-primary/80">Program</span>
-            <p className="font-medium">
-              {getProgramName(getRefId(teacher.program))}
-            </p>
+            <span className="text-sm text-lms-primary/80">{t("admin.programs")}</span>
+            <p className="font-medium">{formatProgramsDisplay(teacher)}</p>
           </div>
           <div>
-            <span className="text-sm text-lms-primary/80">Class Level</span>
-            <p className="font-medium">
-              {getClassLevelName(getRefId(teacher.classLevel))}
-            </p>
-          </div>
-          <div>
-            <span className="text-sm text-lms-primary/80">Academic Year</span>
+            <span className="text-sm text-lms-primary/80">{t("admin.academicYearLabel")}</span>
             <p className="font-medium">
               {getAcademicYearName(getRefId(teacher.academicYear))}
             </p>
           </div>
           <div>
-            <span className="text-sm text-lms-primary/80">Subject</span>
-            <p className="font-medium">
-              {getSubjectName(getRefId(teacher.subject))}
-            </p>
+            <span className="text-sm text-lms-primary/80">{t("admin.modules")}</span>
+            <p className="font-medium">{formatModulesDisplay(teacher)}</p>
           </div>
           <div>
             <span className="text-sm text-lms-primary/80">{t("common.status")}</span>

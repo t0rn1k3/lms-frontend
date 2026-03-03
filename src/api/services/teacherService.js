@@ -17,6 +17,8 @@ export const teacherService = {
   getOne: (id) => apiClient.get(endpoints.teachers.getOne(id)),
   update: (id, data) => apiClient.put(endpoints.teachers.update(id), data),
   withdraw: (id) => apiClient.put(endpoints.teachers.withdraw(id)),
+  suspend: (id) => apiClient.put(endpoints.teachers.suspend(id)),
+  unsuspend: (id) => apiClient.put(endpoints.teachers.unsuspend(id)),
 
   // Teacher: own profile
   getProfile: () => apiClient.get(endpoints.teachers.profile),

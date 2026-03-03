@@ -5,6 +5,7 @@ import {
   authService,
   teacherService,
   academicService,
+  moduleService,
   getErrorMessage,
 } from "../../api";
 
@@ -14,9 +15,8 @@ function TeachersPage() {
   const navigate = useNavigate();
   const [teachers, setTeachers] = useState([]);
   const [programs, setPrograms] = useState([]);
-  const [classLevels, setClassLevels] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
-  const [subjects, setSubjects] = useState([]);
+  const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [formOpen, setFormOpen] = useState(false);
@@ -25,10 +25,9 @@ function TeachersPage() {
     name: "",
     email: "",
     password: "",
-    program: "",
-    classLevel: "",
+    programs: [],
     academicYear: "",
-    subject: "",
+    modules: [],
   });
   const [submitting, setSubmitting] = useState(false);
   const [page, setPage] = useState(1);
@@ -61,16 +60,14 @@ function TeachersPage() {
 
   const fetchLookups = useCallback(async () => {
     try {
-      const [pRes, cRes, aRes, sRes] = await Promise.all([
+      const [pRes, aRes, mRes] = await Promise.all([
         academicService.getPrograms(),
-        academicService.getClassLevels(),
         academicService.getAcademicYears(),
-        academicService.getSubjects(),
+        moduleService.list(),
       ]);
       setPrograms(pRes.data?.data || []);
-      setClassLevels(cRes.data?.data || []);
       setAcademicYears(aRes.data?.data || []);
-      setSubjects(sRes.data?.data || []);
+      setModules(mRes.data?.data ?? mRes.data ?? []);
     } catch (err) {
       console.error("Failed to fetch lookups:", err);
     }
@@ -107,12 +104,6 @@ function TeachersPage() {
     return p?.name || id;
   };
 
-  const getClassLevelName = (id) => {
-    if (!id) return "—";
-    const c = classLevels.find((x) => x._id === id);
-    return c?.name || id;
-  };
-
   const getAcademicYearName = (id) => {
     if (!id) return "—";
     const y = academicYears.find((x) => x._id === id);
@@ -122,13 +113,29 @@ function TeachersPage() {
     return y.name || (from && to ? `${from}-${to}` : id);
   };
 
-  const getSubjectName = (id) => {
+  const getModuleName = (id) => {
     if (!id) return "—";
-    const s = subjects.find((x) => x._id === id);
-    return s?.name || id;
+    const m = modules.find((x) => x._id === id);
+    return m?.name || id;
   };
 
   const getRefId = (val) => (typeof val === "object" ? val?._id : val);
+
+  const toggleProgram = (programId) => {
+    setFormData((prev) =>
+      prev.programs.includes(programId)
+        ? { ...prev, programs: prev.programs.filter((id) => id !== programId) }
+        : { ...prev, programs: [...prev.programs, programId] }
+    );
+  };
+
+  const toggleModule = (moduleId) => {
+    setFormData((prev) =>
+      prev.modules.includes(moduleId)
+        ? { ...prev, modules: prev.modules.filter((id) => id !== moduleId) }
+        : { ...prev, modules: [...prev.modules, moduleId] }
+    );
+  };
 
   const getTeacherStatus = (item) => {
     if (item.isWithdrawn) return "withdrawn";
@@ -136,9 +143,18 @@ function TeachersPage() {
     return "active";
   };
 
-  const handleUpdateStatus = async (id, isSuspended, isWithdrawn) => {
+  const handleSuspend = async (id) => {
     try {
-      await teacherService.update(id, { isSuspended, isWithdrawn });
+      await teacherService.suspend(id);
+      fetchTeachers();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+  };
+
+  const handleUnsuspend = async (id) => {
+    try {
+      await teacherService.unsuspend(id);
       fetchTeachers();
     } catch (err) {
       setError(getErrorMessage(err));
@@ -160,24 +176,24 @@ function TeachersPage() {
       name: "",
       email: "",
       password: "",
-      program: "",
-      classLevel: "",
+      programs: [],
       academicYear: "",
-      subject: "",
+      modules: [],
     });
     setFormOpen(true);
   };
 
   const openEditForm = (item) => {
     setEditingId(item._id);
+    const programIds = (item.programs || [item.program]).filter(Boolean).map((p) => getRefId(p));
+    const moduleIds = (item.modules || [item.subject]).filter(Boolean).map((m) => getRefId(m));
     setFormData({
       name: item.name || "",
       email: item.email || "",
       password: "",
-      program: getRefId(item.program) || "",
-      classLevel: getRefId(item.classLevel) || "",
+      programs: programIds,
       academicYear: getRefId(item.academicYear) || "",
-      subject: getRefId(item.subject) || "",
+      modules: moduleIds,
     });
     setFormOpen(true);
   };
@@ -188,15 +204,26 @@ function TeachersPage() {
     setSubmitting(true);
     try {
       if (editingId) {
+        const programs = formData.programs || [];
+        const modules = formData.modules || [];
         const payload = {
           name: formData.name.trim(),
           email: formData.email.trim().toLowerCase(),
-          program: formData.program || "",
-          classLevel: formData.classLevel || "",
-          academicYear: formData.academicYear || "",
-          ...(formData.subject && { subject: formData.subject }),
+          programs,
+          modules,
         };
-        await teacherService.update(editingId, payload);
+        if (formData.academicYear) {
+          payload.academicYear = formData.academicYear;
+        }
+        const { data } = await teacherService.update(editingId, payload);
+        const updatedTeacher = data?.data ?? data;
+        if (updatedTeacher) {
+          setTeachers((prev) =>
+            prev.map((t) => (t._id === editingId ? updatedTeacher : t))
+          );
+        } else {
+          fetchTeachers();
+        }
       } else {
         if (!formData.password || formData.password.length < 6) {
           setError("Password must be at least 6 characters.");
@@ -210,7 +237,7 @@ function TeachersPage() {
         );
       }
       setFormOpen(false);
-      fetchTeachers();
+      if (!editingId) fetchTeachers();
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -323,52 +350,35 @@ function TeachersPage() {
             {editingId && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-lms-primary mb-1">
-                    {t("admin.program")}
+                  <label className="block text-sm font-medium text-lms-primary mb-2">
+                    {t("admin.programs")}
                   </label>
-                  <select
-                    value={formData.program}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        program: e.target.value,
-                      }))
-                    }
-                    className="w-full px-3 py-2 border border-lms-cream rounded-lg"
-                  >
-                    <option value="">— {t("common.none")} —</option>
-                    {programs.map((p) => (
-                      <option key={p._id} value={p._id}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="border border-lms-cream rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                    {programs.length === 0 ? (
+                      <p className="text-sm text-lms-primary/70">
+                        {t("admin.noPrograms")}
+                      </p>
+                    ) : (
+                      programs.map((p) => (
+                        <label
+                          key={p._id}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={formData.programs.includes(p._id)}
+                            onChange={() => toggleProgram(p._id)}
+                            className="rounded border-lms-cream"
+                          />
+                          <span className="text-lms-primary">{p.name}</span>
+                        </label>
+                      ))
+                    )}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-lms-primary mb-1">
-                    {t("admin.classLevel")}
-                  </label>
-                  <select
-                    value={formData.classLevel}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        classLevel: e.target.value,
-                      }))
-                    }
-                    className="w-full px-3 py-2 border border-lms-cream rounded-lg"
-                  >
-                    <option value="">— {t("common.none")} —</option>
-                    {classLevels.map((c) => (
-                      <option key={c._id} value={c._id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-lms-primary mb-1">
-                    Academic Year
+                    {t("admin.academicYearLabel")}
                   </label>
                   <select
                     value={formData.academicYear}
@@ -389,26 +399,34 @@ function TeachersPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-lms-primary mb-1">
-                    {t("admin.subject")}
+                  <label className="block text-sm font-medium text-lms-primary mb-2">
+                    {t("admin.modules")}
                   </label>
-                  <select
-                    value={formData.subject}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        subject: e.target.value,
-                      }))
-                    }
-                    className="w-full px-3 py-2 border border-lms-cream rounded-lg"
-                  >
-                    <option value="">— {t("common.none")} —</option>
-                    {subjects.map((s) => (
-                      <option key={s._id} value={s._id}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="border border-lms-cream rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                    {modules.length === 0 ? (
+                      <p className="text-sm text-lms-primary/70">
+                        {t("admin.noModules")}
+                      </p>
+                    ) : (
+                      modules.map((m) => (
+                        <label
+                          key={m._id}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={formData.modules.includes(m._id)}
+                            onChange={() => toggleModule(m._id)}
+                            className="rounded border-lms-cream"
+                          />
+                          <span className="text-lms-primary">{m.name}</span>
+                        </label>
+                      ))
+                    )}
+                  </div>
+                  <p className="text-xs text-lms-primary/70 mt-1">
+                    {t("admin.modulesAssignedToTeacherHint")}
+                  </p>
                 </div>
               </>
             )}
@@ -456,13 +474,10 @@ function TeachersPage() {
                     {t("common.teacherId")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
-                    {t("admin.program")}
+                    {t("admin.programs")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
-                    {t("admin.classLevel")}
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
-                    {t("admin.subject")}
+                    {t("admin.modules")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                     {t("common.status")}
@@ -489,14 +504,11 @@ function TeachersPage() {
                     <td className="px-4 py-3 text-lms-primary/80 ">
                       {item.teacherId || "—"}
                     </td>
-                    <td className="px-4 py-3 text-lms-primary/90">
-                      {getProgramName(getRefId(item.program))}
+                    <td className="px-4 py-3 text-lms-primary/90 max-w-[180px]">
+                      {((item.programs || [item.program]).filter(Boolean).map((p) => getProgramName(getRefId(p))).join(", ") || "—")}
                     </td>
-                    <td className="px-4 py-3 text-lms-primary/90">
-                      {getClassLevelName(getRefId(item.classLevel))}
-                    </td>
-                    <td className="px-4 py-3 text-lms-primary/90">
-                      {getSubjectName(getRefId(item.subject))}
+                    <td className="px-4 py-3 text-lms-primary/90 max-w-[180px]">
+                      {((item.modules || [item.subject]).filter(Boolean).map((m) => getModuleName(getRefId(m))).join(", ") || "—")}
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -531,7 +543,7 @@ function TeachersPage() {
                               if (
                                 window.confirm(t("admin.confirmSuspendTeacher"))
                               ) {
-                                handleUpdateStatus(item._id, true, false);
+                                handleSuspend(item._id);
                               }
                             }}
                             className="text-amber-600 hover:text-amber-800 mr-3"
@@ -559,7 +571,7 @@ function TeachersPage() {
                         <button
                           onClick={() => {
                             if (window.confirm(t("admin.confirmReactivate"))) {
-                              handleUpdateStatus(item._id, false, false);
+                              handleUnsuspend(item._id);
                             }
                           }}
                           className="text-green-600 hover:text-green-800"

@@ -5,6 +5,7 @@ import {
   authService,
   studentService,
   academicService,
+  moduleService,
   getErrorMessage,
 } from "../../api";
 
@@ -14,7 +15,7 @@ function StudentsPage() {
   const navigate = useNavigate();
   const [students, setStudents] = useState([]);
   const [programs, setPrograms] = useState([]);
-  const [classLevels, setClassLevels] = useState([]);
+  const [modules, setModules] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -25,9 +26,8 @@ function StudentsPage() {
     email: "",
     password: "",
     program: "",
-    classLevels: [],
-    currentClassLevel: "",
     academicYear: "",
+    modules: [],
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -45,14 +45,14 @@ function StudentsPage() {
 
   const fetchLookups = useCallback(async () => {
     try {
-      const [pRes, cRes, aRes] = await Promise.all([
+      const [pRes, aRes, mRes] = await Promise.all([
         academicService.getPrograms(),
-        academicService.getClassLevels(),
         academicService.getAcademicYears(),
+        moduleService.list(),
       ]);
       setPrograms(pRes.data?.data || []);
-      setClassLevels(cRes.data?.data || []);
       setAcademicYears(aRes.data?.data || []);
+      setModules(mRes.data?.data ?? mRes.data ?? []);
     } catch (err) {
       console.error("Failed to fetch lookups:", err);
     }
@@ -89,10 +89,10 @@ function StudentsPage() {
     return p?.name || id;
   };
 
-  const getClassLevelName = (id) => {
+  const getModuleName = (id) => {
     if (!id) return "—";
-    const c = classLevels.find((x) => x._id === id);
-    return c?.name || id;
+    const m = modules.find((x) => x._id === id);
+    return m?.name || id;
   };
 
   const getAcademicYearName = (id) => {
@@ -131,11 +131,11 @@ function StudentsPage() {
     }
   };
 
-  const toggleClassLevel = (id) => {
+  const toggleModule = (id) => {
     setFormData((prev) =>
-      prev.classLevels.includes(id)
-        ? { ...prev, classLevels: prev.classLevels.filter((x) => x !== id) }
-        : { ...prev, classLevels: [...prev.classLevels, id] },
+      prev.modules.includes(id)
+        ? { ...prev, modules: prev.modules.filter((x) => x !== id) }
+        : { ...prev, modules: [...prev.modules, id] },
     );
   };
 
@@ -146,27 +146,22 @@ function StudentsPage() {
       email: "",
       password: "",
       program: "",
-      classLevels: [],
-      currentClassLevel: "",
       academicYear: "",
+      modules: [],
     });
     setFormOpen(true);
   };
 
   const openEditForm = (item) => {
     setEditingId(item._id);
-    const levelIds = (item.classLevels || []).map((l) =>
-      typeof l === "object" ? l._id : l,
-    );
-    const currentId = getRefId(item.currentClassLevel);
+    const moduleIds = (item.modules || []).map((m) => getRefId(m));
     setFormData({
       name: item.name || "",
       email: item.email || "",
       password: "",
       program: getRefId(item.program) || "",
-      classLevels: levelIds,
-      currentClassLevel: currentId || "",
       academicYear: getRefId(item.academicYear) || "",
+      modules: moduleIds,
     });
     setFormOpen(true);
   };
@@ -181,9 +176,8 @@ function StudentsPage() {
           name: formData.name.trim(),
           email: formData.email.trim().toLowerCase(),
           program: formData.program || undefined,
-          classLevels: formData.classLevels,
-          currentClassLevel: formData.currentClassLevel || undefined,
           academicYear: formData.academicYear || undefined,
+          modules: formData.modules || [],
         };
         await studentService.update(editingId, payload);
       } else {
@@ -313,47 +307,34 @@ function StudentsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-lms-primary mb-1">
-                    Current Class Level
-                  </label>
-                  <select
-                    value={formData.currentClassLevel}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        currentClassLevel: e.target.value,
-                      }))
-                    }
-                    className="w-full px-3 py-2 border border-lms-cream rounded-lg"
-                  >
-                    <option value="">— {t("common.none")} —</option>
-                    {classLevels.map((c) => (
-                      <option key={c._id} value={c._id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
                   <label className="block text-sm font-medium text-lms-primary mb-2">
-                    Class Levels (history)
+                    {t("admin.modules")}
                   </label>
-                  <div className="border border-lms-cream rounded-lg p-3 max-h-32 overflow-y-auto space-y-2">
-                    {classLevels.map((c) => (
-                      <label
-                        key={c._id}
-                        className="flex items-center gap-2 cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={formData.classLevels.includes(c._id)}
-                          onChange={() => toggleClassLevel(c._id)}
-                          className="rounded border-lms-cream"
-                        />
-                        <span className="text-lms-primary">{c.name}</span>
-                      </label>
-                    ))}
+                  <div className="border border-lms-cream rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                    {modules.length === 0 ? (
+                      <p className="text-sm text-lms-primary/70">
+                        {t("admin.noModules")}
+                      </p>
+                    ) : (
+                      modules.map((m) => (
+                        <label
+                          key={m._id}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={formData.modules.includes(m._id)}
+                            onChange={() => toggleModule(m._id)}
+                            className="rounded border-lms-cream"
+                          />
+                          <span className="text-lms-primary">{m.name}</span>
+                        </label>
+                      ))
+                    )}
                   </div>
+                  <p className="text-xs text-lms-primary/70 mt-1">
+                    {t("admin.modulesAssignedToStudentHint")}
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-lms-primary mb-1">
@@ -425,7 +406,7 @@ function StudentsPage() {
                   Program
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
-                  Current Level
+                  {t("admin.modules")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   Academic Year
@@ -458,8 +439,8 @@ function StudentsPage() {
                   <td className="px-4 py-3 text-lms-primary/90 text-xs">
                     {getProgramName(getRefId(item.program))}
                   </td>
-                  <td className="px-4 py-3 text-lms-primary/90 text-xs">
-                    {getClassLevelName(getRefId(item.currentClassLevel))}
+                  <td className="px-4 py-3 text-lms-primary/90 text-xs max-w-[180px]">
+                    {((item.modules || []).map((m) => getModuleName(getRefId(m))).filter(Boolean).join(", ") || "—")}
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90 text-xs">
                     {getAcademicYearName(getRefId(item.academicYear))}
