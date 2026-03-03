@@ -216,6 +216,11 @@
     "saveGrade": "Save grade",
     "projectGradeScoreRequired": "Please enter a valid score (0 or higher).",
     "remarksPlaceholder": "Optional feedback for the student",
+    "criteriaChecklistHint": "Mark each criterion as passed or failed. Student passes only if all criteria are passed.",
+    "notesOptionalPlaceholder": "Optional notes for this criterion",
+    "noCriteriaInModule": "This module has no criteria defined.",
+    "criterionResultsRequired": "Please mark each criterion as passed or failed.",
+    "criteriaResults": "Criteria results",
     "myModules": "My modules",
     "noModulesAssigned": "No modules assigned to you yet."
   },

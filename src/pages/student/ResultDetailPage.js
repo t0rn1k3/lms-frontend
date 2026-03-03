@@ -45,6 +45,11 @@ function ResultDetailPage() {
   }
 
   const answeredQuestions = result.answeredQuestions || [];
+  const passCriteriaType =
+    (typeof result.exam === "object" && result.exam?.passCriteriaType) ||
+    "percentage";
+  const isAllCriteria = passCriteriaType === "all-criteria";
+  const criterionResults = result.criterionResults || [];
 
   return (
     <div>
@@ -109,6 +114,44 @@ function ResultDetailPage() {
         </div>
       </div>
 
+      {isAllCriteria && criterionResults.length > 0 && (
+        <>
+          <h2 className="text-lg font-semibold text-lms-primary mb-4">
+            {t("teacher.criteriaResults")}
+          </h2>
+          <div className="space-y-3 mb-8">
+            {criterionResults.map((cr) => (
+              <div
+                key={cr.criterionId || cr.id || cr.criterionName}
+                className={`p-4 rounded-xl border ${
+                  cr.passed
+                    ? "bg-green-50 border-green-200"
+                    : "bg-red-50 border-red-200"
+                }`}
+              >
+                <p className="font-medium text-lms-primary">
+                  {cr.criterionName || cr.name || "—"}
+                </p>
+                <p
+                  className={
+                    cr.passed
+                      ? "text-sm text-green-700 font-medium"
+                      : "text-sm text-red-700 font-medium"
+                  }
+                >
+                  {cr.passed ? t("student.passed") : t("student.failed")}
+                </p>
+                {cr.notes?.trim() && (
+                  <p className="text-sm text-lms-primary/80 mt-1">{cr.notes}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {answeredQuestions.length > 0 && (
+        <>
       <h2 className="text-lg font-semibold text-lms-primary mb-4">
         {t("student.answerBreakdown")}
       </h2>
@@ -164,6 +207,8 @@ function ResultDetailPage() {
           </div>
         ))}
       </div>
+        </>
+      )}
     </div>
   );
 }
