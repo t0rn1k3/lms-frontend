@@ -74,6 +74,7 @@ export const endpoints = {
     list: "/programs",
     create: "/programs",
     getOne: (id) => `/programs/${id}`,
+    getCurriculum: (id) => `/programs/${id}/curriculum`,
     update: (id) => `/programs/${id}`,
     delete: (id) => `/programs/${id}`,
   },

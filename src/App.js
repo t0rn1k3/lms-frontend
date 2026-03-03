@@ -11,6 +11,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AcademicYearsPage from "./pages/admin/AcademicYearsPage";
 import AcademicTermsPage from "./pages/admin/AcademicTermsPage";
 import ProgramsPage from "./pages/admin/ProgramsPage";
+import ProgramCurriculumPage from "./pages/admin/ProgramCurriculumPage";
 import SubjectsPage from "./pages/admin/SubjectsPage";
 import YearGroupsPage from "./pages/admin/YearGroupsPage";
 import TeachersPage from "./pages/admin/TeachersPage";
@@ -79,6 +80,7 @@ function App() {
             <Route path="academic-setup" element={<AcademicSetupPage />} />
             <Route path="academic-years" element={<AcademicYearsPage />} />
             <Route path="academic-terms" element={<AcademicTermsPage />} />
+            <Route path="programs/:id/curriculum" element={<ProgramCurriculumPage />} />
             <Route path="programs" element={<ProgramsPage />} />
             <Route path="subjects" element={<SubjectsPage />} />
             <Route path="year-groups" element={<YearGroupsPage />} />

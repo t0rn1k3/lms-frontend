@@ -1,4 +1,5 @@
 import { useState, useEffect, Fragment } from "react";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   academicService,
@@ -37,6 +38,9 @@ function ProgramsPage() {
     name: "",
     description: "",
     duration: "4 years",
+    durationWeeks: "",
+    startDate: "",
+    holidays: [],
     classLevels: [],
   });
   const [submitting, setSubmitting] = useState(false);
@@ -73,6 +77,9 @@ function ProgramsPage() {
       name: "",
       description: "",
       duration: "4 years",
+      durationWeeks: "",
+      startDate: "",
+      holidays: [],
       classLevels: [],
     });
     setFormOpen(true);
@@ -83,10 +90,16 @@ function ProgramsPage() {
     const levelIds = (item.classLevels || []).map((l) =>
       typeof l === "object" ? l._id : l,
     );
+    const holidays = item.holidays || [];
     setFormData({
       name: item.name || "",
       description: item.description || "",
       duration: item.duration || "4 years",
+      durationWeeks: item.durationWeeks != null ? String(item.durationWeeks) : "",
+      startDate: item.startDate
+        ? new Date(item.startDate).toISOString().slice(0, 10)
+        : "",
+      holidays: Array.isArray(holidays) ? [...holidays] : [],
       classLevels: levelIds,
     });
     setFormOpen(true);
@@ -100,6 +113,28 @@ function ProgramsPage() {
     );
   };
 
+  const addHoliday = () => {
+    setFormData((prev) => ({
+      ...prev,
+      holidays: [...prev.holidays, ""],
+    }));
+  };
+
+  const updateHoliday = (index, value) => {
+    setFormData((prev) => {
+      const next = [...prev.holidays];
+      next[index] = value;
+      return { ...prev, holidays: next };
+    });
+  };
+
+  const removeHoliday = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      holidays: prev.holidays.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -111,6 +146,11 @@ function ProgramsPage() {
         duration: formData.duration.trim(),
         classLevels: formData.classLevels,
       };
+      const dw = Number(formData.durationWeeks);
+      if (!Number.isNaN(dw) && dw > 0) payload.durationWeeks = dw;
+      if (formData.startDate) payload.startDate = formData.startDate;
+      if (formData.holidays?.length)
+        payload.holidays = formData.holidays.filter(Boolean);
       if (editingId) {
         await academicService.updateProgram(editingId, payload);
       } else {
@@ -226,20 +266,84 @@ function ProgramsPage() {
                 className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               />
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("common.duration")}
+                </label>
+                <input
+                  type="text"
+                  value={formData.duration}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, duration: e.target.value }))
+                  }
+                  placeholder={t("admin.programDurationPlaceholder")}
+                  required
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("admin.durationWeeks")}
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={formData.durationWeeks}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      durationWeeks: e.target.value,
+                    }))
+                  }
+                  placeholder="34"
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                />
+              </div>
+            </div>
             <div>
               <label className="block text-sm font-medium text-lms-primary mb-1">
-                {t("common.duration")}
+                {t("admin.startDate")} ({t("common.optional")})
               </label>
               <input
-                type="text"
-                value={formData.duration}
+                type="date"
+                value={formData.startDate}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, duration: e.target.value }))
+                  setFormData((prev) => ({ ...prev, startDate: e.target.value }))
                 }
-                placeholder={t("admin.programDurationPlaceholder")}
-                required
                 className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-lms-primary mb-2">
+                {t("admin.holidays")} ({t("common.optional")})
+              </label>
+              <div className="space-y-2">
+                {formData.holidays.map((h, idx) => (
+                  <div key={idx} className="flex gap-2">
+                    <input
+                      type="date"
+                      value={h}
+                      onChange={(e) => updateHoliday(idx, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-lms-cream rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeHoliday(idx)}
+                      className="px-2 py-1 text-red-600 hover:text-red-800"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addHoliday}
+                  className="text-sm px-2 py-1 bg-lms-cream rounded hover:bg-lms-cream/80 text-lms-primary"
+                >
+                  + {t("admin.addHoliday")}
+                </button>
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-lms-primary mb-2">
@@ -308,6 +412,9 @@ function ProgramsPage() {
                   {t("common.duration")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
+                  {t("admin.durationWeeks")}
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   {t("admin.classLevels")}
                 </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-lms-primary">
@@ -332,10 +439,21 @@ function ProgramsPage() {
                   <td className="px-4 py-3 text-lms-primary/90">
                     {item.duration}
                   </td>
+                  <td className="px-4 py-3 text-lms-primary/90">
+                    {item.durationWeeks ?? "—"}
+                  </td>
                   <td className="px-4 py-3 text-lms-primary/90 max-w-xs truncate">
                     {formatClassLevels(item)}
                   </td>
                   <td className="px-4 py-3 text-right">
+                    {(item.durationWeeks ?? 0) > 0 && (
+                      <Link
+                        to={`/admin/programs/${item._id}/curriculum`}
+                        className="text-lms-primary/90 hover:text-lms-primary mr-3"
+                      >
+                        {t("admin.viewCurriculum")}
+                      </Link>
+                    )}
                     <button
                       type="button"
                       onClick={() => toggleProgramModules(item._id)}
@@ -361,7 +479,7 @@ function ProgramsPage() {
                 </tr>
                 {expandedProgramId === item._id && (
                   <tr>
-                    <td colSpan={4} className="p-4 bg-lms-cream/20">
+                    <td colSpan={5} className="p-4 bg-lms-cream/20">
                       <div className="pl-4 border-l-2 border-lms-primary/30">
                         <h4 className="text-sm font-medium text-lms-primary mb-3">
                           {t("admin.modules")}

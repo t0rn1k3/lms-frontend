@@ -43,6 +43,14 @@ function ModulesPage() {
     description: "",
     program: "",
     order: 1,
+    code: "",
+    type: "professional",
+    contactHours: "",
+    independentHours: "",
+    assessmentHours: "",
+    durationWeeks: "",
+    credits: "",
+    startWeek: 1,
     criteria: [],
     teachers: [],
   });
@@ -96,6 +104,14 @@ function ModulesPage() {
       description: "",
       program: programFilter || (programs[0]?._id ?? ""),
       order: (modules.length + 1) || 1,
+      code: "",
+      type: "professional",
+      contactHours: "",
+      independentHours: "",
+      assessmentHours: "",
+      durationWeeks: "",
+      credits: "",
+      startWeek: 1,
       criteria: [],
       teachers: [],
     });
@@ -117,6 +133,14 @@ function ModulesPage() {
       description: item.description || "",
       program: typeof item.program === "object" ? item.program?._id : item.program || "",
       order: item.order ?? 1,
+      code: item.code || "",
+      type: item.type || "professional",
+      contactHours: item.contactHours != null ? String(item.contactHours) : "",
+      independentHours: item.independentHours != null ? String(item.independentHours) : "",
+      assessmentHours: item.assessmentHours != null ? String(item.assessmentHours) : "",
+      durationWeeks: item.durationWeeks != null ? String(item.durationWeeks) : "",
+      credits: item.credits != null ? String(item.credits) : "",
+      startWeek: item.startWeek ?? 1,
       criteria,
       teachers: teacherIds,
     });
@@ -170,6 +194,13 @@ function ModulesPage() {
         description: formData.description.trim(),
         program: formData.program,
         order: Number(formData.order) || 0,
+        type: formData.type || "professional",
+        contactHours: Number(formData.contactHours) || 0,
+        independentHours: Number(formData.independentHours) || 0,
+        assessmentHours: Number(formData.assessmentHours) || 0,
+        durationWeeks: Number(formData.durationWeeks) || 0,
+        credits: Number(formData.credits) || 0,
+        startWeek: Number(formData.startWeek) || 1,
         teachers: formData.teachers || [],
         criteria: formData.criteria
           .filter((c) => c.name?.trim())
@@ -179,13 +210,21 @@ function ModulesPage() {
             description: (c.description || "").trim(),
           })),
       };
+      if (formData.code?.trim()) payload.code = formData.code.trim();
       if (editingId) {
         await moduleService.update(editingId, payload);
+        const programChanged =
+          formData.program && formData.program !== programFilter;
+        if (programChanged) {
+          setProgramFilter(formData.program);
+        } else {
+          fetchModules();
+        }
       } else {
         await moduleService.create(payload);
+        fetchModules();
       }
       setFormOpen(false);
-      fetchModules();
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -301,6 +340,39 @@ function ModulesPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("admin.moduleCode")}
+                </label>
+                <input
+                  type="text"
+                  value={formData.code}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, code: e.target.value }))
+                  }
+                  placeholder="M101"
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("admin.moduleType")}
+                </label>
+                <select
+                  value={formData.type}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, type: e.target.value }))
+                  }
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                >
+                  <option value="professional">{t("admin.typeProfessional")}</option>
+                  <option value="commonProfessional">{t("admin.typeCommonProfessional")}</option>
+                  <option value="general">{t("admin.typeGeneral")}</option>
+                  <option value="integratedGeneral">{t("admin.typeIntegratedGeneral")}</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
                   {t("admin.moduleOrder")}
                 </label>
                 <input
@@ -311,6 +383,109 @@ function ModulesPage() {
                     setFormData((prev) => ({
                       ...prev,
                       order: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("admin.contactHours")}
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={formData.contactHours}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      contactHours: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("admin.independentHours")}
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={formData.independentHours}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      independentHours: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("admin.assessmentHours")}
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={formData.assessmentHours}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      assessmentHours: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("admin.durationWeeksModule")}
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={formData.durationWeeks}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      durationWeeks: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("admin.credits")}
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={formData.credits}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, credits: e.target.value }))
+                  }
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("admin.startWeek")}
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={formData.startWeek}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      startWeek: e.target.value,
                     }))
                   }
                   className="w-full px-3 py-2 border border-lms-cream rounded-lg"
@@ -476,6 +651,9 @@ function ModulesPage() {
                   {t("common.name")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
+                  {t("admin.moduleCode")}
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   {t("admin.program")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
@@ -504,6 +682,9 @@ function ModulesPage() {
                         {item.description}
                       </p>
                     )}
+                  </td>
+                  <td className="px-4 py-3 text-lms-primary/90">
+                    {item.code || "—"}
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90">
                     {getRefName(item.program)}
