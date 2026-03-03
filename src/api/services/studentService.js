@@ -2,9 +2,10 @@ import apiClient from "../apiClient";
 import { endpoints } from "../endpoints";
 
 export const studentService = {
-  // Admin: list/update students
+  // Admin: list/create/update students
   list: () => apiClient.get(endpoints.students.list),
   getOne: (id) => apiClient.get(endpoints.students.getOne(id)),
+  register: (data) => apiClient.post(endpoints.students.register, data),
   update: (id, data) => apiClient.put(endpoints.students.update(id), data),
   withdraw: (id) => apiClient.put(endpoints.students.withdraw(id)),
 

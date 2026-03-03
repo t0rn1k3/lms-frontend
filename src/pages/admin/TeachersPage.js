@@ -15,7 +15,7 @@ function TeachersPage() {
   const navigate = useNavigate();
   const [teachers, setTeachers] = useState([]);
   const [programs, setPrograms] = useState([]);
-  const [academicYears, setAcademicYears] = useState([]);
+  const [yearGroups, setYearGroups] = useState([]);
   const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -26,7 +26,7 @@ function TeachersPage() {
     email: "",
     password: "",
     programs: [],
-    academicYear: "",
+    yearGroup: "",
     modules: [],
   });
   const [submitting, setSubmitting] = useState(false);
@@ -60,13 +60,13 @@ function TeachersPage() {
 
   const fetchLookups = useCallback(async () => {
     try {
-      const [pRes, aRes, mRes] = await Promise.all([
+      const [pRes, gRes, mRes] = await Promise.all([
         academicService.getPrograms(),
-        academicService.getAcademicYears(),
+        academicService.getYearGroups(),
         moduleService.list(),
       ]);
       setPrograms(pRes.data?.data || []);
-      setAcademicYears(aRes.data?.data || []);
+      setYearGroups(gRes.data?.data || []);
       setModules(mRes.data?.data ?? mRes.data ?? []);
     } catch (err) {
       console.error("Failed to fetch lookups:", err);
@@ -104,13 +104,10 @@ function TeachersPage() {
     return p?.name || id;
   };
 
-  const getAcademicYearName = (id) => {
+  const getYearGroupName = (id) => {
     if (!id) return "—";
-    const y = academicYears.find((x) => x._id === id);
-    if (!y) return id;
-    const from = y.fromYear ? new Date(y.fromYear).getFullYear() : "";
-    const to = y.toYear ? new Date(y.toYear).getFullYear() : "";
-    return y.name || (from && to ? `${from}-${to}` : id);
+    const g = yearGroups.find((x) => x._id === id);
+    return g?.name || id;
   };
 
   const getModuleName = (id) => {
@@ -177,7 +174,7 @@ function TeachersPage() {
       email: "",
       password: "",
       programs: [],
-      academicYear: "",
+      yearGroup: "",
       modules: [],
     });
     setFormOpen(true);
@@ -192,7 +189,7 @@ function TeachersPage() {
       email: item.email || "",
       password: "",
       programs: programIds,
-      academicYear: getRefId(item.academicYear) || "",
+      yearGroup: getRefId(item.yearGroup) || "",
       modules: moduleIds,
     });
     setFormOpen(true);
@@ -212,8 +209,8 @@ function TeachersPage() {
           programs,
           modules,
         };
-        if (formData.academicYear) {
-          payload.academicYear = formData.academicYear;
+        if (formData.yearGroup) {
+          payload.yearGroup = formData.yearGroup;
         }
         const { data } = await teacherService.update(editingId, payload);
         const updatedTeacher = data?.data ?? data;
@@ -378,22 +375,22 @@ function TeachersPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-lms-primary mb-1">
-                    {t("admin.academicYearLabel")}
+                    {t("admin.yearGroups")}
                   </label>
                   <select
-                    value={formData.academicYear}
+                    value={formData.yearGroup}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        academicYear: e.target.value,
+                        yearGroup: e.target.value,
                       }))
                     }
                     className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                   >
                     <option value="">— {t("common.none")} —</option>
-                    {academicYears.map((y) => (
-                      <option key={y._id} value={y._id}>
-                        {getAcademicYearName(y._id)}
+                    {yearGroups.map((g) => (
+                      <option key={g._id} value={g._id}>
+                        {getYearGroupName(g._id)}
                       </option>
                     ))}
                   </select>

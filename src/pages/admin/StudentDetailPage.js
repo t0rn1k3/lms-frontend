@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { studentService, academicService, moduleService, getErrorMessage } from "../../api";
+import {
+  studentService,
+  academicService,
+  moduleService,
+  getErrorMessage,
+} from "../../api";
 
 function StudentDetailPage() {
   const { t } = useTranslation();
@@ -49,15 +54,17 @@ function StudentDetailPage() {
     const fetch = async () => {
       try {
         setLoading(true);
-        const [sRes, pRes, aRes, mRes] = await Promise.all([
+        const [sRes, pRes, aRes, gRes, mRes] = await Promise.all([
           studentService.getOne(id),
           academicService.getPrograms(),
           academicService.getAcademicYears(),
+          academicService.getYearGroups(),
           moduleService.list(),
         ]);
         setStudent(sRes.data?.data ?? sRes.data);
         setPrograms(pRes.data?.data || []);
         setAcademicYears(aRes.data?.data || []);
+        setYearGroups(gRes.data?.data || []);
         setModules(mRes.data?.data ?? mRes.data ?? []);
       } catch (err) {
         setError(getErrorMessage(err));
@@ -68,7 +75,8 @@ function StudentDetailPage() {
     fetch();
   }, [id]);
 
-  const isActive = !student?.isWithdrawn && !student?.isSuspended && !student?.isGraduated;
+  const isActive =
+    !student?.isWithdrawn && !student?.isSuspended && !student?.isGraduated;
   const isSuspended = student?.isSuspended;
   const isWithdrawn = student?.isWithdrawn;
 
@@ -99,7 +107,8 @@ function StudentDetailPage() {
     }
   };
 
-  if (loading) return <div className="p-8 text-lms-primary/80">{t("common.loading")}</div>;
+  if (loading)
+    return <div className="p-8 text-lms-primary/80">{t("common.loading")}</div>;
   if (error) {
     return (
       <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
@@ -171,7 +180,9 @@ function StudentDetailPage() {
         )}
       </div>
 
-      <h1 className="text-2xl font-bold text-lms-primary mb-6">{student.name}</h1>
+      <h1 className="text-2xl font-bold text-lms-primary mb-6">
+        {student.name}
+      </h1>
 
       <div className="bg-white rounded-xl border border-lms-cream p-6 space-y-4 max-w-2xl">
         <div className="grid grid-cols-2 gap-4">
@@ -190,23 +201,31 @@ function StudentDetailPage() {
             </p>
           </div>
           <div>
-            <span className="text-sm text-lms-primary/80">{t("admin.academicYearLabel")}</span>
+            <span className="text-sm text-lms-primary/80">
+              {t("admin.academicYearLabel")}
+            </span>
             <p className="font-medium">
               {getAcademicYearName(getRefId(student.academicYear))}
             </p>
           </div>
           <div>
-            <span className="text-sm text-lms-primary/80">{t("admin.yearGroups")}</span>
+            <span className="text-sm text-lms-primary/80">
+              {t("admin.yearGroups")}
+            </span>
             <p className="font-medium">
               {getYearGroupName(getRefId(student.yearGroup))}
             </p>
           </div>
           <div>
-            <span className="text-sm text-lms-primary/80">{t("admin.modules")}</span>
+            <span className="text-sm text-lms-primary/80">
+              {t("admin.modules")}
+            </span>
             <p className="font-medium">{formatModulesDisplay()}</p>
           </div>
           <div>
-            <span className="text-sm text-lms-primary/80">{t("common.status")}</span>
+            <span className="text-sm text-lms-primary/80">
+              {t("common.status")}
+            </span>
             <p className="font-medium">
               {student.isWithdrawn
                 ? t("admin.withdrawn")

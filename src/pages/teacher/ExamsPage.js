@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { examService, academicService, getErrorMessage } from "../../api";
+import { examService, academicService, moduleService, getErrorMessage } from "../../api";
 
 function ExamsPage() {
   const { t } = useTranslation();
   const [exams, setExams] = useState([]);
   const [programs, setPrograms] = useState([]);
-  const [subjects, setSubjects] = useState([]);
+  const [modules, setModules] = useState([]);
+  const [yearGroups, setYearGroups] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
-  const [classLevels, setClassLevels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [formOpen, setFormOpen] = useState(false);
@@ -17,15 +17,15 @@ function ExamsPage() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    subject: "",
     program: "",
-    academicTerm: "",
+    module: "",
+    yearGroup: "",
     academicYear: "",
-    classLevel: "",
     duration: "30 minutes",
     examDate: "",
     examTime: "",
     examType: "Quiz",
+    passCriteriaType: "percentage",
     passMark: 50,
     totalMark: 100,
   });
@@ -49,18 +49,30 @@ function ExamsPage() {
 
   const fetchLookups = useCallback(async () => {
     try {
-      const [p, s, y, c] = await Promise.all([
+      const [pRes, yRes, gRes] = await Promise.all([
         academicService.getPrograms(),
-        academicService.getSubjects(),
         academicService.getAcademicYears(),
-        academicService.getClassLevels(),
+        academicService.getYearGroups(),
       ]);
-      setPrograms(p.data?.data || []);
-      setSubjects(s.data?.data || []);
-      setAcademicYears(y.data?.data || []);
-      setClassLevels(c.data?.data || []);
+      setPrograms(pRes.data?.data || []);
+      setAcademicYears(yRes.data?.data || []);
+      setYearGroups(gRes.data?.data || []);
     } catch (err) {
       console.error("Failed to fetch lookups:", err);
+    }
+  }, []);
+
+  const fetchModulesByProgram = useCallback(async (programId) => {
+    if (!programId) {
+      setModules([]);
+      return;
+    }
+    try {
+      const { data } = await moduleService.list({ program: programId });
+      setModules(data?.data ?? data ?? []);
+    } catch (err) {
+      console.error("Failed to fetch modules:", err);
+      setModules([]);
     }
   }, []);
 
@@ -83,38 +95,41 @@ function ExamsPage() {
     setFormData({
       name: "",
       description: "",
-      subject: "",
       program: "",
-      academicTerm: "",
+      module: "",
+      yearGroup: "",
       academicYear: "",
-      classLevel: "",
       duration: "30 minutes",
       examDate: new Date().toISOString().slice(0, 10),
       examTime: "09:00",
       examType: "Quiz",
+      passCriteriaType: "percentage",
       passMark: 50,
       totalMark: 100,
     });
+    setModules([]);
     setFormOpen(true);
   };
 
-  const openEditForm = (item) => {
+  const openEditForm = async (item) => {
     setEditingId(item._id);
     setFieldErrors({});
+    const programId = getRefId(item.program);
+    await fetchModulesByProgram(programId);
     setFormData({
       name: item.name || "",
       description: item.description || "",
-      subject: getRefId(item.subject) || "",
-      program: getRefId(item.program) || "",
-      academicTerm: getRefId(item.academicTerm) || "",
+      program: programId || "",
+      module: getRefId(item.module) || "",
+      yearGroup: getRefId(item.yearGroup) || "",
       academicYear: getRefId(item.academicYear) || "",
-      classLevel: getRefId(item.classLevel) || "",
       duration: item.duration || "30 minutes",
       examDate: item.examDate
         ? new Date(item.examDate).toISOString().slice(0, 10)
         : "",
       examTime: item.examTime || "09:00",
       examType: item.examType || "Quiz",
+      passCriteriaType: item.passCriteriaType || "percentage",
       passMark: item.passMark != null ? Number(item.passMark) : 50,
       totalMark: item.totalMark != null && item.totalMark > 0 ? Number(item.totalMark) : 100,
     });
@@ -145,18 +160,18 @@ function ExamsPage() {
       const payload = {
         name: formData.name.trim(),
         description: formData.description.trim(),
-        subject: formData.subject,
         program: formData.program,
+        module: formData.module,
+        yearGroup: formData.yearGroup,
         academicYear: formData.academicYear,
-        classLevel: formData.classLevel,
         duration: formData.duration,
-        examDate: formData.examDate,
         examTime: formData.examTime,
         examType: formData.examType,
+        passCriteriaType: formData.passCriteriaType || "percentage",
         passMark: Number(formData.passMark),
         totalMark: Number(formData.totalMark),
       };
-      if (formData.academicTerm) payload.academicTerm = formData.academicTerm;
+      if (formData.examDate) payload.examDate = formData.examDate;
       if (editingId) {
         await examService.update(editingId, payload);
       } else {
@@ -228,79 +243,77 @@ function ExamsPage() {
                 className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-lms-primary mb-1">
-                  {t("admin.subject")} *
-                </label>
-                <select
-                  value={formData.subject}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      subject: e.target.value,
-                    }))
-                  }
-                  required
-                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
-                >
-                  <option value="">{t("teacher.select")}</option>
-                  {subjects.map((s) => (
-                    <option key={s._id} value={s._id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-lms-primary mb-1">
-                  {t("admin.program")} *
-                </label>
-                <select
-                  value={formData.program}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      program: e.target.value,
-                    }))
-                  }
-                  required
-                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
-                >
-                  <option value="">{t("teacher.select")}</option>
-                  {programs.map((p) => (
-                    <option key={p._id} value={p._id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-lms-primary mb-1">
+                {t("admin.program")} *
+              </label>
+              <select
+                value={formData.program}
+                onChange={async (e) => {
+                  const programId = e.target.value;
+                  setFormData((prev) => ({
+                    ...prev,
+                    program: programId,
+                    module: "",
+                  }));
+                  await fetchModulesByProgram(programId);
+                }}
+                required
+                className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+              >
+                <option value="">{t("teacher.select")}</option>
+                {programs.map((p) => (
+                  <option key={p._id} value={p._id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-lms-primary mb-1">
+                {t("admin.modules")} *
+              </label>
+              <select
+                value={formData.module}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, module: e.target.value }))
+                }
+                required
+                disabled={!formData.program}
+                className="w-full px-3 py-2 border border-lms-cream rounded-lg disabled:bg-lms-cream/30"
+              >
+                <option value="">{formData.program ? t("teacher.select") : t("admin.selectProgramFirstForModules")}</option>
+                {modules.map((m) => (
+                  <option key={m._id} value={m._id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              {/* Academic term - hidden (optional in backend)
               <div>
                 <label className="block text-sm font-medium text-lms-primary mb-1">
-                  {t("admin.academicTermLabel")} ({t("common.optional")})
+                  {t("admin.yearGroups")} *
                 </label>
                 <select
-                  value={formData.academicTerm}
+                  value={formData.yearGroup}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      academicTerm: e.target.value,
+                      yearGroup: e.target.value,
                     }))
                   }
+                  required
                   className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                 >
                   <option value="">{t("teacher.select")}</option>
-                  {academicTerms.map((t) => (
-                    <option key={t._id} value={t._id}>
-                      {t.name}
+                  {yearGroups.map((g) => (
+                    <option key={g._id} value={g._id}>
+                      {g.name}
                     </option>
                   ))}
                 </select>
               </div>
-              */}
               <div>
                 <label className="block text-sm font-medium text-lms-primary mb-1">
                   {t("admin.academicYearLabel")} *
@@ -325,29 +338,6 @@ function ExamsPage() {
                   ))}
                 </select>
               </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-lms-primary mb-1">
-                {t("admin.classLevel")} *
-              </label>
-              <select
-                value={formData.classLevel}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    classLevel: e.target.value,
-                  }))
-                }
-                required
-                className="w-full px-3 py-2 border border-lms-cream rounded-lg"
-              >
-                <option value="">{t("teacher.select")}</option>
-                {classLevels.map((c) => (
-                  <option key={c._id} value={c._id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
@@ -402,22 +392,42 @@ function ExamsPage() {
                 />
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-lms-primary mb-1">
-                {t("teacher.examType")} *
-              </label>
-              <select
-                value={formData.examType}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, examType: e.target.value }))
-                }
-                className="w-full px-3 py-2 border border-lms-cream rounded-lg"
-              >
-                <option value="Quiz">{t("teacher.examTypeQuiz")}</option>
-                <option value="project-submission">{t("teacher.examTypeProjectSubmission")}</option>
-                <option value="Midterm">{t("teacher.examTypeMidterm")}</option>
-                <option value="Final">{t("teacher.examTypeFinal")}</option>
-              </select>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("teacher.examType")} *
+                </label>
+                <select
+                  value={formData.examType}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, examType: e.target.value }))
+                  }
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                >
+                  <option value="Quiz">{t("teacher.examTypeQuiz")}</option>
+                  <option value="project-submission">{t("teacher.examTypeProjectSubmission")}</option>
+                  <option value="Midterm">{t("teacher.examTypeMidterm")}</option>
+                  <option value="Final">{t("teacher.examTypeFinal")}</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("teacher.passCriteriaType")}
+                </label>
+                <select
+                  value={formData.passCriteriaType}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      passCriteriaType: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                >
+                  <option value="percentage">{t("teacher.passCriteriaPercentage")}</option>
+                  <option value="all-criteria">{t("teacher.passCriteriaAllCriteria")}</option>
+                </select>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -505,7 +515,7 @@ function ExamsPage() {
                   {t("common.name")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
-                  {t("admin.subject")}
+                  {t("admin.modules")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   {t("student.date")}
@@ -530,7 +540,7 @@ function ExamsPage() {
                     </Link>
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90">
-                    {getRefName(item.subject)}
+                    {getRefName(item.module)}
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90">
                     {formatDate(item.examDate)}

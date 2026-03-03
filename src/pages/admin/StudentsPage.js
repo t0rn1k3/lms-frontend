@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  authService,
   studentService,
   academicService,
   moduleService,
@@ -204,11 +203,16 @@ function StudentsPage() {
           setSubmitting(false);
           return;
         }
-        await authService.studentRegister(
-          formData.name.trim(),
-          formData.email.trim().toLowerCase(),
-          formData.password,
-        );
+        const payload = {
+          name: formData.name.trim(),
+          email: formData.email.trim().toLowerCase(),
+          password: formData.password,
+        };
+        if (formData.program) payload.program = formData.program;
+        if (formData.yearGroup) payload.yearGroup = formData.yearGroup;
+        if (formData.academicYear) payload.academicYear = formData.academicYear;
+        if (formData.modules?.length) payload.modules = formData.modules;
+        await studentService.register(payload);
       }
       setFormOpen(false);
       fetchStudents();

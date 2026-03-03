@@ -263,7 +263,7 @@ function ModulesPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-lms-primary mb-1">
-                {t("common.description")}
+                {t("common.description")} *
               </label>
               <textarea
                 value={formData.description}
@@ -273,6 +273,7 @@ function ModulesPage() {
                     description: e.target.value,
                   }))
                 }
+                required
                 rows={2}
                 className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               />
