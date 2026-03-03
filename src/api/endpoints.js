@@ -88,6 +88,14 @@ export const endpoints = {
     update: (id) => `/year-groups/${id}`,
     delete: (id) => `/year-groups/${id}`,
   },
+  modules: {
+    list: "/modules",
+    listByProgram: (programId) => `/modules?program=${programId}`,
+    create: "/modules",
+    getOne: (id) => `/modules/${id}`,
+    update: (id) => `/modules/${id}`,
+    delete: (id) => `/modules/${id}`,
+  },
 
   // Exams & Results
   exams: {

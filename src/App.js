@@ -22,6 +22,7 @@ import TeacherDetailPage from "./pages/admin/TeacherDetailPage";
 import StudentDetailPage from "./pages/admin/StudentDetailPage";
 import ExamResultsPage from "./pages/admin/ExamResultsPage";
 import QuestionsPage from "./pages/admin/QuestionsPage";
+import ModulesPage from "./pages/admin/ModulesPage";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherExamsPage from "./pages/teacher/ExamsPage";
 import TeacherExamDetailPage from "./pages/teacher/ExamDetailPage";
@@ -90,6 +91,7 @@ function App() {
             <Route path="students" element={<StudentsPage />} />
             <Route path="exam-results" element={<ExamResultsPage />} />
             <Route path="questions" element={<QuestionsPage />} />
+            <Route path="modules" element={<ModulesPage />} />
             <Route path="profile" element={<AdminProfilePage />} />
           </Route>
 

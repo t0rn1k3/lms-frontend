@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import AcademicYearsPage from "./AcademicYearsPage";
-import AcademicTermsPage from "./AcademicTermsPage";
+// import AcademicTermsPage from "./AcademicTermsPage"; // hidden - academic terms optional
 import ClassLevelsPage from "./ClassLevelsPage";
 import ProgramsPage from "./ProgramsPage";
 import SubjectsPage from "./SubjectsPage";
@@ -25,11 +25,12 @@ const TABS = [
     translationKey: "admin.yearGroups",
     Component: YearGroupsPage,
   },
-  {
-    id: "terms",
-    translationKey: "admin.academicTerms",
-    Component: AcademicTermsPage,
-  },
+  // Academic terms - hidden (optional in backend)
+  // {
+  //   id: "terms",
+  //   translationKey: "admin.academicTerms",
+  //   Component: AcademicTermsPage,
+  // },
 ];
 
 function AcademicSetupPage() {
