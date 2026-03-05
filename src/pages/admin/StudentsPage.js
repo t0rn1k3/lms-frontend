@@ -218,7 +218,9 @@ function StudentsPage() {
         if (formData.modules?.length) payload.modules = formData.modules;
         await studentService.register(payload);
       }
-      setFormOpen(false);
+      // Defer form close to avoid click retargeting: when Save unmounts immediately,
+      // the browser can retarget the click to the hamburger (fixed bottom-right) on mobile.
+      setTimeout(() => setFormOpen(false), 0);
       fetchStudents();
     } catch (err) {
       setError(getErrorMessage(err));
@@ -230,7 +232,9 @@ function StudentsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-lms-primary">Students</h1>
+        <h1 className="text-2xl font-bold text-lms-primary">
+          {t("admin.students")}
+        </h1>
         <button
           onClick={openCreateForm}
           className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark text-sm"
@@ -253,7 +257,7 @@ function StudentsPage() {
           <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
             <div>
               <label className="block text-sm font-medium text-lms-primary mb-1">
-                Name <span className="text-red-500">*</span>
+                {t("common.name")} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -268,7 +272,7 @@ function StudentsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-lms-primary mb-1">
-                Email <span className="text-red-500">*</span>
+                {t("common.email")} <span className="text-red-500">*</span>
               </label>
               <input
                 type="email"
@@ -290,7 +294,7 @@ function StudentsPage() {
             {!editingId && (
               <div>
                 <label className="block text-sm font-medium text-lms-primary mb-1">
-                  Password <span className="text-red-500">*</span>
+                  {t("common.password")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="password"
@@ -325,7 +329,11 @@ function StudentsPage() {
                               return m && getRefId(m.program) === newProgram;
                             })
                           : [];
-                        return { ...prev, program: newProgram, modules: validModuleIds };
+                        return {
+                          ...prev,
+                          program: newProgram,
+                          modules: validModuleIds,
+                        };
                       });
                     }}
                     className="w-full px-3 py-2 border border-lms-cream rounded-lg"
@@ -347,31 +355,33 @@ function StudentsPage() {
                       <p className="text-sm text-lms-primary/70">
                         {t("admin.selectProgramFirstForModules")}
                       </p>
-                    ) : (() => {
-                      const programModules = modules.filter(
-                        (m) => getRefId(m.program) === formData.program
-                      );
-                      return programModules.length === 0 ? (
-                        <p className="text-sm text-lms-primary/70">
-                          {t("admin.noModulesInProgram")}
-                        </p>
-                      ) : (
-                        programModules.map((m) => (
-                        <label
-                          key={m._id}
-                          className="flex items-center gap-2 cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={formData.modules.includes(m._id)}
-                            onChange={() => toggleModule(m._id)}
-                            className="rounded border-lms-cream"
-                          />
-                          <span className="text-lms-primary">{m.name}</span>
-                        </label>
-                      ))
-                      );
-                    })()}
+                    ) : (
+                      (() => {
+                        const programModules = modules.filter(
+                          (m) => getRefId(m.program) === formData.program,
+                        );
+                        return programModules.length === 0 ? (
+                          <p className="text-sm text-lms-primary/70">
+                            {t("admin.noModulesInProgram")}
+                          </p>
+                        ) : (
+                          programModules.map((m) => (
+                            <label
+                              key={m._id}
+                              className="flex items-center gap-2 cursor-pointer"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={formData.modules.includes(m._id)}
+                                onChange={() => toggleModule(m._id)}
+                                className="rounded border-lms-cream"
+                              />
+                              <span className="text-lms-primary">{m.name}</span>
+                            </label>
+                          ))
+                        );
+                      })()
+                    )}
                   </div>
                   <p className="text-xs text-lms-primary/70 mt-1">
                     {t("admin.modulesFromProgramOnly")}
@@ -391,7 +401,7 @@ function StudentsPage() {
                             ? yearGroups.find(
                                 (g) =>
                                   getRefId(g.academicYear) === newYear &&
-                                  g._id === prev.yearGroup
+                                  g._id === prev.yearGroup,
                               )
                             : null;
                         return {
@@ -524,7 +534,10 @@ function StudentsPage() {
                     {getYearGroupName(getRefId(item.yearGroup))}
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90 text-xs max-w-[180px]">
-                    {((item.modules || []).map((m) => getModuleName(m)).filter(Boolean).join(", ") || "—")}
+                    {(item.modules || [])
+                      .map((m) => getModuleName(m))
+                      .filter(Boolean)
+                      .join(", ") || "—"}
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90 text-xs">
                     {getAcademicYearName(getRefId(item.academicYear))}

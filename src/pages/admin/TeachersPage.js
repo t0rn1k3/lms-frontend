@@ -262,7 +262,9 @@ function TeachersPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-lms-primary">Teachers</h1>
+        <h1 className="text-2xl font-bold text-lms-primary">
+          {t("admin.teachers")}
+        </h1>
         <button
           onClick={openCreateForm}
           className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark text-sm"
