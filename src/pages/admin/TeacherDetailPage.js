@@ -9,18 +9,30 @@ function TeacherDetailPage() {
   const navigate = useNavigate();
   const [teacher, setTeacher] = useState(null);
   const [programs, setPrograms] = useState([]);
+  const [yearGroups, setYearGroups] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
   const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updating, setUpdating] = useState(false);
 
-  const getRefId = (val) => (typeof val === "object" ? val?._id : val);
+  const getRefId = (val) =>
+    typeof val === "object" ? (val?._id ?? val?.id) : val;
 
-  const getProgramName = (id) => {
-    if (!id) return "—";
-    const p = programs.find((x) => x._id === id);
+  const getProgramName = (idOrObj) => {
+    if (!idOrObj) return "—";
+    if (typeof idOrObj === "object" && idOrObj?.name) return idOrObj.name;
+    const id = typeof idOrObj === "object" ? getRefId(idOrObj) : idOrObj;
+    const p = programs.find((x) => (x._id || x.id) === id);
     return p?.name || id;
+  };
+
+  const getYearGroupName = (idOrObj) => {
+    if (!idOrObj) return "—";
+    if (typeof idOrObj === "object" && idOrObj?.name) return idOrObj.name;
+    const id = typeof idOrObj === "object" ? getRefId(idOrObj) : idOrObj;
+    const g = yearGroups.find((x) => (x._id || x.id) === id);
+    return g?.name || id;
   };
 
   const getAcademicYearName = (id) => {
@@ -50,18 +62,26 @@ function TeacherDetailPage() {
     return ids.map(getModuleName).join(", ");
   };
 
+  const formatYearGroupsDisplay = (item) => {
+    const items = (item.yearGroups || [item.yearGroup]).filter(Boolean);
+    if (items.length === 0) return "—";
+    return items.map(getYearGroupName).join(", ");
+  };
+
   useEffect(() => {
     const fetch = async () => {
       try {
         setLoading(true);
-        const [tRes, pRes, aRes, mRes] = await Promise.all([
+        const [tRes, pRes, gRes, aRes, mRes] = await Promise.all([
           teacherService.getOne(id),
           academicService.getPrograms(),
+          academicService.getYearGroups(),
           academicService.getAcademicYears(),
           moduleService.list(),
         ]);
         setTeacher(tRes.data?.data ?? tRes.data);
         setPrograms(pRes.data?.data || []);
+        setYearGroups(gRes.data?.data || []);
         setAcademicYears(aRes.data?.data || []);
         setModules(mRes.data?.data ?? mRes.data ?? []);
       } catch (err) {
@@ -199,6 +219,10 @@ function TeacherDetailPage() {
           <div>
             <span className="text-sm text-lms-primary/80">{t("admin.programs")}</span>
             <p className="font-medium">{formatProgramsDisplay(teacher)}</p>
+          </div>
+          <div>
+            <span className="text-sm text-lms-primary/80">{t("admin.yearGroups")}</span>
+            <p className="font-medium">{formatYearGroupsDisplay(teacher)}</p>
           </div>
           <div>
             <span className="text-sm text-lms-primary/80">{t("admin.academicYearLabel")}</span>

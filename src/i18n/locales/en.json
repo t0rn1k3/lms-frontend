@@ -373,6 +373,7 @@
     "allTeachersSelected": "All teachers selected.",
     "teachersOptionalHint": "Optional. A module can have no teachers.",
     "modulesAssignedToTeacherHint": "Optional. Modules this teacher teaches.",
+    "groupsAssignedToTeacherHint": "Optional. Groups (year groups) this teacher teaches.",
     "modulesAssignedToStudentHint": "Optional. Modules this student is enrolled in.",
     "addYearGroup": "Add Group",
     "noYearGroups": "No year groups yet. Click \"Add Year Group\" to create one.",

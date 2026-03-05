@@ -67,10 +67,10 @@ function DashboardLayout({ sidebarItems, title }) {
         )}
       </button>
 
-      {/* Mobile overlay */}
+      {/* Mobile overlay - click or Escape to close */}
       {sidebarOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-30 bg-black/50"
+          className="lg:hidden fixed inset-0 z-30 bg-black/50 cursor-pointer"
           onClick={() => setSidebarOpen(false)}
           role="button"
           tabIndex={0}

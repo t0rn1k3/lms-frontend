@@ -86,15 +86,19 @@ function StudentsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state?.editId]);
 
-  const getProgramName = (id) => {
-    if (!id) return "—";
-    const p = programs.find((x) => x._id === id);
+  const getProgramName = (idOrObj) => {
+    if (!idOrObj) return "—";
+    if (typeof idOrObj === "object" && idOrObj?.name) return idOrObj.name;
+    const id = typeof idOrObj === "object" ? idOrObj?._id : idOrObj;
+    const p = programs.find((x) => (x._id || x.id) === id);
     return p?.name || id;
   };
 
-  const getModuleName = (id) => {
-    if (!id) return "—";
-    const m = modules.find((x) => x._id === id);
+  const getModuleName = (idOrObj) => {
+    if (!idOrObj) return "—";
+    if (typeof idOrObj === "object" && idOrObj?.name) return idOrObj.name;
+    const id = typeof idOrObj === "object" ? idOrObj?._id : idOrObj;
+    const m = modules.find((x) => (x._id || x.id) === id);
     return m?.name || id;
   };
 
@@ -514,13 +518,13 @@ function StudentsPage() {
                     {item.studentId || "—"}
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90 text-xs">
-                    {getProgramName(getRefId(item.program))}
+                    {getProgramName(item.program)}
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90 text-xs">
                     {getYearGroupName(getRefId(item.yearGroup))}
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90 text-xs max-w-[180px]">
-                    {((item.modules || []).map((m) => getModuleName(getRefId(m))).filter(Boolean).join(", ") || "—")}
+                    {((item.modules || []).map((m) => getModuleName(m)).filter(Boolean).join(", ") || "—")}
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90 text-xs">
                     {getAcademicYearName(getRefId(item.academicYear))}

@@ -207,8 +207,17 @@ function TakeExamPage() {
         </div>
 
         {showConfirm && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
-            <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+          <div
+            className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4"
+            onClick={(e) => e.target === e.currentTarget && setShowConfirm(false)}
+            onKeyDown={(e) => e.key === "Escape" && setShowConfirm(false)}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div
+              className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
               <h3 className="text-lg font-semibold text-lms-primary mb-2">
                 {t("student.projectSubmitConfirmTitle")}
               </h3>
@@ -358,8 +367,17 @@ function TakeExamPage() {
       </form>
 
       {showConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4"
+          onClick={(e) => e.target === e.currentTarget && setShowConfirm(false)}
+          onKeyDown={(e) => e.key === "Escape" && setShowConfirm(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3 className="text-lg font-semibold text-lms-primary mb-2">
               {t("student.submitConfirmTitle")}
             </h3>

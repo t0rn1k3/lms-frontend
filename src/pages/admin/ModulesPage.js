@@ -60,7 +60,7 @@ function ModulesPage() {
     try {
       setLoading(true);
       const { data } = await moduleService.list(
-        programFilter ? { program: programFilter } : {}
+        programFilter ? { program: programFilter } : {},
       );
       setModules(data?.data ?? data ?? []);
     } catch (err) {
@@ -103,7 +103,7 @@ function ModulesPage() {
       name: "",
       description: "",
       program: programFilter || (programs[0]?._id ?? ""),
-      order: (modules.length + 1) || 1,
+      order: modules.length + 1 || 1,
       code: "",
       type: "professional",
       contactHours: "",
@@ -126,19 +126,25 @@ function ModulesPage() {
       description: c.description || "",
     }));
     const teacherIds = (item.teachers || []).map((t) =>
-      typeof t === "object" ? t._id || t.teacherId : t
+      typeof t === "object" ? t._id || t.teacherId : t,
     );
     setFormData({
       name: item.name || "",
       description: item.description || "",
-      program: typeof item.program === "object" ? item.program?._id : item.program || "",
+      program:
+        typeof item.program === "object"
+          ? item.program?._id
+          : item.program || "",
       order: item.order ?? 1,
       code: item.code || "",
       type: item.type || "professional",
       contactHours: item.contactHours != null ? String(item.contactHours) : "",
-      independentHours: item.independentHours != null ? String(item.independentHours) : "",
-      assessmentHours: item.assessmentHours != null ? String(item.assessmentHours) : "",
-      durationWeeks: item.durationWeeks != null ? String(item.durationWeeks) : "",
+      independentHours:
+        item.independentHours != null ? String(item.independentHours) : "",
+      assessmentHours:
+        item.assessmentHours != null ? String(item.assessmentHours) : "",
+      durationWeeks:
+        item.durationWeeks != null ? String(item.durationWeeks) : "",
       credits: item.credits != null ? String(item.credits) : "",
       startWeek: item.startWeek ?? 1,
       criteria,
@@ -151,7 +157,7 @@ function ModulesPage() {
     setFormData((prev) =>
       prev.teachers.includes(teacherId)
         ? { ...prev, teachers: prev.teachers.filter((id) => id !== teacherId) }
-        : { ...prev, teachers: [...prev.teachers, teacherId] }
+        : { ...prev, teachers: [...prev.teachers, teacherId] },
     );
   };
 
@@ -325,7 +331,10 @@ function ModulesPage() {
                 <select
                   value={formData.program}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, program: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      program: e.target.value,
+                    }))
                   }
                   required
                   className="w-full px-3 py-2 border border-lms-cream rounded-lg"
@@ -365,10 +374,16 @@ function ModulesPage() {
                   }
                   className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                 >
-                  <option value="professional">{t("admin.typeProfessional")}</option>
-                  <option value="commonProfessional">{t("admin.typeCommonProfessional")}</option>
+                  <option value="professional">
+                    {t("admin.typeProfessional")}
+                  </option>
+                  <option value="commonProfessional">
+                    {t("admin.typeCommonProfessional")}
+                  </option>
                   <option value="general">{t("admin.typeGeneral")}</option>
-                  <option value="integratedGeneral">{t("admin.typeIntegratedGeneral")}</option>
+                  <option value="integratedGeneral">
+                    {t("admin.typeIntegratedGeneral")}
+                  </option>
                 </select>
               </div>
               <div>
@@ -469,7 +484,10 @@ function ModulesPage() {
                   min={0}
                   value={formData.credits}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, credits: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      credits: e.target.value,
+                    }))
                   }
                   className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                 />
@@ -541,7 +559,8 @@ function ModulesPage() {
                             className="rounded border-lms-cream"
                           />
                           <span className="text-lms-primary text-sm">
-                            {teacher.name} {teacher.email && `(${teacher.email})`}
+                            {teacher.name}{" "}
+                            {teacher.email && `(${teacher.email})`}
                           </span>
                         </label>
                       ))}
@@ -563,21 +582,14 @@ function ModulesPage() {
                 <label className="block text-sm font-medium text-lms-primary">
                   {t("admin.criteria")}
                 </label>
-                <button
-                  type="button"
-                  onClick={addCriterion}
-                  className="text-sm px-2 py-1 bg-lms-cream rounded hover:bg-lms-cream/80 text-lms-primary"
-                >
-                  + {t("admin.addCriterion")}
-                </button>
               </div>
               <div className="space-y-3">
                 {formData.criteria.map((c, idx) => (
                   <div
                     key={c.id}
-                    className="p-3 border border-lms-cream rounded-lg bg-lms-cream/20"
+                    className="px-2 border border-lms-cream rounded-lg bg-lms-cream/20"
                   >
-                    <div className="flex justify-between items-start gap-2 mb-2">
+                    <div className="flex justify-between items-center gap-2">
                       <input
                         type="text"
                         value={c.name}
@@ -585,17 +597,17 @@ function ModulesPage() {
                           updateCriterion(idx, "name", e.target.value)
                         }
                         placeholder={t("admin.criterionNamePlaceholder")}
-                        className="flex-1 px-2 py-1.5 border border-lms-cream rounded text-sm"
+                        className="flex-1 px-2 py-1.5 focus:outline-none bg-transparent rounded text-sm"
                       />
                       <button
                         type="button"
                         onClick={() => removeCriterion(idx)}
-                        className="text-red-600 hover:text-red-800 text-sm px-1"
+                        className="text-red-600 hover:text-red-800 text-sm "
                       >
                         {t("common.delete")}
                       </button>
                     </div>
-                    <input
+                    {/* <input
                       type="text"
                       value={c.description}
                       onChange={(e) =>
@@ -603,7 +615,7 @@ function ModulesPage() {
                       }
                       placeholder={t("admin.criterionDescPlaceholder")}
                       className="w-full px-2 py-1.5 border border-lms-cream rounded text-sm"
-                    />
+                    /> */}
                   </div>
                 ))}
                 {formData.criteria.length === 0 && (
@@ -611,6 +623,15 @@ function ModulesPage() {
                     {t("admin.noCriteriaYet")}
                   </p>
                 )}
+              </div>
+              <div className="mt-3">
+                <button
+                  type="button"
+                  onClick={addCriterion}
+                  className="text-sm px-2 py-1 bg-lms-cream rounded hover:bg-lms-cream/80 text-lms-primary"
+                >
+                  + {t("admin.addCriterion")}
+                </button>
               </div>
             </div>
 
@@ -702,7 +723,7 @@ function ModulesPage() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-lms-primary/90">
-                    {(item.criteria?.length ?? 0)}
+                    {item.criteria?.length ?? 0}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button

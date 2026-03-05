@@ -26,7 +26,7 @@ function TeachersPage() {
     email: "",
     password: "",
     programs: [],
-    yearGroup: "",
+    yearGroups: [],
     modules: [],
   });
   const [submitting, setSubmitting] = useState(false);
@@ -98,31 +98,38 @@ function TeachersPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state?.editId]);
 
-  const getProgramName = (id) => {
-    if (!id) return "—";
-    const p = programs.find((x) => x._id === id);
+  const getProgramName = (idOrObj) => {
+    if (!idOrObj) return "—";
+    if (typeof idOrObj === "object" && idOrObj?.name) return idOrObj.name;
+    const id = typeof idOrObj === "object" ? idOrObj?._id : idOrObj;
+    const p = programs.find((x) => (x._id || x.id) === id);
     return p?.name || id;
   };
 
-  const getYearGroupName = (id) => {
-    if (!id) return "—";
-    const g = yearGroups.find((x) => x._id === id);
+  const getYearGroupName = (idOrObj) => {
+    if (!idOrObj) return "—";
+    if (typeof idOrObj === "object" && idOrObj?.name) return idOrObj.name;
+    const id = typeof idOrObj === "object" ? idOrObj?._id : idOrObj;
+    const g = yearGroups.find((x) => (x._id || x.id) === id);
     return g?.name || id;
   };
 
-  const getModuleName = (id) => {
-    if (!id) return "—";
-    const m = modules.find((x) => x._id === id);
+  const getModuleName = (idOrObj) => {
+    if (!idOrObj) return "—";
+    if (typeof idOrObj === "object" && idOrObj?.name) return idOrObj.name;
+    const id = typeof idOrObj === "object" ? idOrObj?._id : idOrObj;
+    const m = modules.find((x) => (x._id || x.id) === id);
     return m?.name || id;
   };
 
-  const getRefId = (val) => (typeof val === "object" ? val?._id : val);
+  const getRefId = (val) =>
+    typeof val === "object" ? (val?._id ?? val?.id) : val;
 
   const toggleProgram = (programId) => {
     setFormData((prev) =>
       prev.programs.includes(programId)
         ? { ...prev, programs: prev.programs.filter((id) => id !== programId) }
-        : { ...prev, programs: [...prev.programs, programId] }
+        : { ...prev, programs: [...prev.programs, programId] },
     );
   };
 
@@ -130,7 +137,18 @@ function TeachersPage() {
     setFormData((prev) =>
       prev.modules.includes(moduleId)
         ? { ...prev, modules: prev.modules.filter((id) => id !== moduleId) }
-        : { ...prev, modules: [...prev.modules, moduleId] }
+        : { ...prev, modules: [...prev.modules, moduleId] },
+    );
+  };
+
+  const toggleYearGroup = (groupId) => {
+    setFormData((prev) =>
+      prev.yearGroups.includes(groupId)
+        ? {
+            ...prev,
+            yearGroups: prev.yearGroups.filter((id) => id !== groupId),
+          }
+        : { ...prev, yearGroups: [...prev.yearGroups, groupId] },
     );
   };
 
@@ -174,7 +192,7 @@ function TeachersPage() {
       email: "",
       password: "",
       programs: [],
-      yearGroup: "",
+      yearGroups: [],
       modules: [],
     });
     setFormOpen(true);
@@ -182,14 +200,21 @@ function TeachersPage() {
 
   const openEditForm = (item) => {
     setEditingId(item._id);
-    const programIds = (item.programs || [item.program]).filter(Boolean).map((p) => getRefId(p));
-    const moduleIds = (item.modules || [item.subject]).filter(Boolean).map((m) => getRefId(m));
+    const programIds = (item.programs || [item.program])
+      .filter(Boolean)
+      .map((p) => getRefId(p));
+    const moduleIds = (item.modules || [item.subject])
+      .filter(Boolean)
+      .map((m) => getRefId(m));
+    const groupIds = (item.yearGroups || [item.yearGroup])
+      .filter(Boolean)
+      .map((g) => getRefId(g));
     setFormData({
       name: item.name || "",
       email: item.email || "",
       password: "",
       programs: programIds,
-      yearGroup: getRefId(item.yearGroup) || "",
+      yearGroups: groupIds,
       modules: moduleIds,
     });
     setFormOpen(true);
@@ -203,24 +228,16 @@ function TeachersPage() {
       if (editingId) {
         const programs = formData.programs || [];
         const modules = formData.modules || [];
+        const yearGroups = formData.yearGroups || [];
         const payload = {
           name: formData.name.trim(),
           email: formData.email.trim().toLowerCase(),
           programs,
+          yearGroups,
           modules,
         };
-        if (formData.yearGroup) {
-          payload.yearGroup = formData.yearGroup;
-        }
-        const { data } = await teacherService.update(editingId, payload);
-        const updatedTeacher = data?.data ?? data;
-        if (updatedTeacher) {
-          setTeachers((prev) =>
-            prev.map((t) => (t._id === editingId ? updatedTeacher : t))
-          );
-        } else {
-          fetchTeachers();
-        }
+        await teacherService.update(editingId, payload);
+        await fetchTeachers(); // Refresh to show persisted year groups
       } else {
         if (!formData.password || formData.password.length < 6) {
           setError("Password must be at least 6 characters.");
@@ -374,26 +391,37 @@ function TeachersPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-lms-primary mb-1">
+                  <label className="block text-sm font-medium text-lms-primary mb-2">
                     {t("admin.yearGroups")}
                   </label>
-                  <select
-                    value={formData.yearGroup}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        yearGroup: e.target.value,
-                      }))
-                    }
-                    className="w-full px-3 py-2 border border-lms-cream rounded-lg"
-                  >
-                    <option value="">— {t("common.none")} —</option>
-                    {yearGroups.map((g) => (
-                      <option key={g._id} value={g._id}>
-                        {getYearGroupName(g._id)}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="border border-lms-cream rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                    {yearGroups.length === 0 ? (
+                      <p className="text-sm text-lms-primary/70">
+                        {t("admin.noYearGroups")}
+                      </p>
+                    ) : (
+                      yearGroups.map((g) => {
+                        const gid = g._id || g.id;
+                        return (
+                          <label
+                            key={gid}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={formData.yearGroups.includes(gid)}
+                              onChange={() => toggleYearGroup(gid)}
+                              className="rounded border-lms-cream"
+                            />
+                            <span className="text-lms-primary">{g.name}</span>
+                          </label>
+                        );
+                      })
+                    )}
+                  </div>
+                  <p className="text-xs text-lms-primary/70 mt-1">
+                    {t("admin.groupsAssignedToTeacherHint")}
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-lms-primary mb-2">
@@ -474,6 +502,9 @@ function TeachersPage() {
                     {t("admin.programs")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
+                    {t("admin.yearGroups")}
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                     {t("admin.modules")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
@@ -502,10 +533,20 @@ function TeachersPage() {
                       {item.teacherId || "—"}
                     </td>
                     <td className="px-4 py-3 text-lms-primary/90 max-w-[180px]">
-                      {((item.programs || [item.program]).filter(Boolean).map((p) => getProgramName(getRefId(p))).join(", ") || "—")}
+                      {(item.programs || [item.program])
+                        .filter(Boolean)
+                        .map((p) => getProgramName(p))
+                        .join(", ") || "—"}
                     </td>
                     <td className="px-4 py-3 text-lms-primary/90 max-w-[180px]">
-                      {((item.modules || [item.subject]).filter(Boolean).map((m) => getModuleName(getRefId(m))).join(", ") || "—")}
+                      {(item.yearGroups || [item.yearGroup])
+                        .filter(Boolean)
+                        .map((g) => getYearGroupName(g))
+                        .join(", ") || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-lms-primary/90">
+                      {(item.modules || [item.subject]).filter(Boolean)
+                        .length || "—"}
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -528,7 +569,9 @@ function TeachersPage() {
                         {t("common.view")}
                       </Link>
                       <button
-                        onClick={() => openEditForm(item)}
+                        onClick={() =>
+                          navigate(".", { state: { editId: item._id } })
+                        }
                         className="text-lms-primary/90 hover:text-lms-primary mr-3"
                       >
                         {t("common.edit")}
