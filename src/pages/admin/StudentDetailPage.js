@@ -128,11 +128,10 @@ function StudentDetailPage() {
   }
   if (!student) return null;
 
-  const formatModulesDisplay = () => {
-    const ids = (student.modules || []).map((m) => getRefId(m));
-    if (ids.length === 0) return "—";
-    return ids.map(getModuleName).join(", ");
-  };
+  const studentModuleItems = (student.modules || [])
+    .map((m) => getRefId(m))
+    .filter(Boolean)
+    .map((id) => ({ id, name: getModuleName(id) }));
 
   return (
     <div>
@@ -197,15 +196,21 @@ function StudentDetailPage() {
       <div className="bg-white rounded-xl border border-lms-cream p-6 space-y-4 max-w-2xl">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <span className="text-sm text-lms-primary/80">Email</span>
+            <span className="text-sm text-lms-primary/80">
+              {t("common.email")}
+            </span>
             <p className="font-medium">{student.email}</p>
           </div>
           <div>
-            <span className="text-sm text-lms-primary/80">Student ID</span>
+            <span className="text-sm text-lms-primary/80">
+              {t("student.studentId")}
+            </span>
             <p className="font-medium">{student.studentId || "—"}</p>
           </div>
           <div>
-            <span className="text-sm text-lms-primary/80">Program</span>
+            <span className="text-sm text-lms-primary/80">
+              {t("admin.program")}
+            </span>
             <p className="font-medium">
               {getProgramName(getRefId(student.program))}
             </p>
@@ -230,7 +235,15 @@ function StudentDetailPage() {
             <span className="text-sm text-lms-primary/80">
               {t("admin.modules")}
             </span>
-            <p className="font-medium">{formatModulesDisplay()}</p>
+            {studentModuleItems.length === 0 ? (
+              <p className="font-medium">—</p>
+            ) : (
+              <ul className="font-medium space-y-1 text-sm text-lms-primary/90 list-disc list-inside">
+                {studentModuleItems.map((item) => (
+                  <li key={item.id}>{item.name}</li>
+                ))}
+              </ul>
+            )}
           </div>
           <div>
             <span className="text-sm text-lms-primary/80">

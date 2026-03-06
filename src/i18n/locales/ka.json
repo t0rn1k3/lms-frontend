@@ -70,6 +70,7 @@
   "student": {
     "title": "სტუდენტი",
     "overview": "მიმოხილვა",
+
     "myExams": "ჩემი გამოცდები",
     "myResults": "ჩემი შედეგები",
     "welcome": "მოგესალმებით",
@@ -189,7 +190,7 @@
     "question": "შეკითხვა",
     "mark": "ქულა",
     "markLabel": "{{mark}} ქულა",
-    "option": "ვარიანტი {{letter}}",
+    "option": "ვარიანტი ",
     "correctAnswer": "სწორი პასუხი",
     "modelAnswer": "საცნობარო პასუხი",
     "modelAnswerPlaceholder": "საცნობარო პასუხი შეფასებისთვის",
@@ -416,6 +417,11 @@
     "typeGeneral": "ზოგადი",
     "typeIntegratedGeneral": "ინტეგრირებული ზოგადი",
     "weeklyHoursInvalid": "კვირაში საათების ჯამი უნდა იყოს საკონტაქტო + შეფასების საათების ტოლი",
-    "weeks": "კვირა"
+    "weeks": "კვირა",
+    "noQuestionsYet": "ჯერ კითხვები არ არის. დაამატეთ კითხვა.",
+    "enterQuestionText": "შეიყვანეთ კითხვის ტექსტი",
+    "markPlaceholder": "1",
+    "option": "ვარიანტი",
+    "correctAnswer": "სწორი პასუხი"
   }
 }

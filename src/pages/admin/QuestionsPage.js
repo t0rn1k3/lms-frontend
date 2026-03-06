@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { questionService, adminService, getErrorMessage } from "../../api";
+import { useTranslation } from "react-i18next";
 
 const OPTIONS = ["A", "B", "C", "D"];
 const QUESTION_TYPES = [
@@ -8,6 +9,7 @@ const QUESTION_TYPES = [
 ];
 
 function QuestionsPage() {
+  const { t } = useTranslation();
   const [questions, setQuestions] = useState([]);
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -141,12 +143,14 @@ function QuestionsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-lms-primary">Questions</h1>
+        <h1 className="text-2xl font-bold text-lms-primary">
+          {t("admin.questions")}
+        </h1>
         <button
           onClick={openCreateForm}
           className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark"
         >
-          Add Question
+          {t("teacher.addQuestion")}
         </button>
       </div>
 
@@ -159,13 +163,13 @@ function QuestionsPage() {
       {formOpen && (
         <div className="mb-6 p-6 bg-white rounded-xl border border-lms-cream">
           <h2 className="text-lg font-semibold text-lms-primary mb-4">
-            {editingId ? "Edit Question" : "New Question"}
+            {editingId ? t("teacher.editQuestion") : t("teacher.newQuestion")}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl">
             {!editingId && (
               <div>
                 <label className="block text-sm font-medium text-lms-primary mb-1">
-                  Exam <span className="text-red-500">*</span>
+                  {t("teacher.exams")} <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.examId}
@@ -177,7 +181,7 @@ function QuestionsPage() {
                 >
                   <option value="">
                     {exams.length === 0
-                      ? "No exams—create an exam first"
+                      ? t("admin.noExamsCreateExamFirst")
                       : "Select exam"}
                   </option>
                   {exams.map((e) => (
@@ -190,7 +194,8 @@ function QuestionsPage() {
             )}
             <div>
               <label className="block text-sm font-medium text-lms-primary mb-1">
-                Question Type <span className="text-red-500">*</span>
+                {t("teacher.questionType")}{" "}
+                <span className="text-red-500">*</span>
               </label>
               <select
                 value={formData.questionType}
@@ -211,14 +216,14 @@ function QuestionsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-lms-primary mb-1">
-                Question <span className="text-red-500">*</span>
+                {t("teacher.question")} <span className="text-red-500">*</span>
               </label>
               <textarea
                 value={formData.question}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, question: e.target.value }))
                 }
-                placeholder="Enter the question text"
+                placeholder={t("teacher.enterQuestionText")}
                 required
                 rows={3}
                 className="w-full px-3 py-2 border border-lms-cream rounded-lg"
@@ -226,7 +231,7 @@ function QuestionsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-lms-primary mb-1">
-                Mark (optional)
+                {t("teacher.mark")} ({t("common.optional")})
               </label>
               <input
                 type="number"
@@ -236,7 +241,7 @@ function QuestionsPage() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, mark: e.target.value }))
                 }
-                placeholder="1"
+                placeholder={t("admin.markPlaceholder")}
                 className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               />
             </div>
@@ -245,7 +250,8 @@ function QuestionsPage() {
                 {OPTIONS.map((opt) => (
                   <div key={opt}>
                     <label className="block text-sm font-medium text-lms-primary mb-1">
-                      Option {opt} <span className="text-red-500">*</span>
+                      {t("admin.option")} {opt}{" "}
+                      <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -263,7 +269,8 @@ function QuestionsPage() {
                 ))}
                 <div>
                   <label className="block text-sm font-medium text-lms-primary mb-1">
-                    Correct Answer <span className="text-red-500">*</span>
+                    {t("admin.correctAnswer")}{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={formData.correctAnswer}
@@ -278,7 +285,7 @@ function QuestionsPage() {
                   >
                     {OPTIONS.map((opt) => (
                       <option key={opt} value={opt}>
-                        Option {opt}
+                        {t("teacher.option")} {opt}
                       </option>
                     ))}
                   </select>
@@ -310,7 +317,7 @@ function QuestionsPage() {
                 disabled={submitting}
                 className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark disabled:opacity-50"
               >
-                {submitting ? "Saving..." : "Save"}
+                {submitting ? t("common.saving") : t("common.save")}
               </button>
               <button
                 type="button"
@@ -329,14 +336,14 @@ function QuestionsPage() {
           <div className="p-8 text-center text-lms-primary/80">Loading...</div>
         ) : questions.length === 0 ? (
           <div className="p-8 text-center text-lms-primary/80">
-            No questions yet. Click &quot;Add Question&quot; to create one.
+            {t("admin.noQuestionsYet")}
           </div>
         ) : (
           <table className="w-full">
             <thead className="bg-lms-cream/30 border-b border-lms-cream">
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
-                  Question
+                  {t("admin.question")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   Type

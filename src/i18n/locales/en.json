@@ -189,7 +189,7 @@
     "question": "Question",
     "mark": "Mark",
     "markLabel": "{{mark}} pt(s)",
-    "option": "Option {{letter}}",
+    "option": "Option",
     "correctAnswer": "Correct Answer",
     "modelAnswer": "Model answer",
     "modelAnswerPlaceholder": "Reference answer for grading",
@@ -415,6 +415,11 @@
     "typeGeneral": "General",
     "typeIntegratedGeneral": "Integrated general",
     "weeklyHoursInvalid": "Weekly hours must sum to contact + assessment hours",
-    "weeks": "weeks"
+    "weeks": "weeks",
+    "noQuestionsYet": "No questions yet. Click \"Add Question\" to create one.",
+    "enterQuestionText": "Enter the question text",
+    "markPlaceholder": "1",
+    "option": "Option",
+    "correctAnswer": "Correct Answer"
   }
 }
