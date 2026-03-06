@@ -42,7 +42,7 @@ export const endpoints = {
     list: "/students",
     getOne: (id) => `/students/${id}/admin`,
     graduationStatus: (id) => `/students/${id}/graduation-status`,
-    update: (id) => `/students/${id}`,
+    update: (id) => `/students/${id}/admin`,
     withdraw: (id) => `/admins/withdraw/students/${id}`,
     writeExam: (examId) => `/students/exams/${examId}`,
     submitProject: (examId) => `/students/exams/${examId}/submit-project`,

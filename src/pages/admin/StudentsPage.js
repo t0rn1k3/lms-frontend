@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -31,6 +31,40 @@ function StudentsPage() {
     modules: [],
   });
   const [submitting, setSubmitting] = useState(false);
+  const [collapsedGroups, setCollapsedGroups] = useState(new Set());
+
+  const getRefId = (val) => (typeof val === "object" ? val?._id : val);
+
+  const toggleGroup = (groupKey) => {
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(groupKey)) next.delete(groupKey);
+      else next.add(groupKey);
+      return next;
+    });
+  };
+
+  const studentsByGroup = useMemo(() => {
+    const map = new Map();
+    const noneKey = "__none__";
+    students.forEach((s) => {
+      const gid = getRefId(s.yearGroup) || noneKey;
+      if (!map.has(gid)) map.set(gid, []);
+      map.get(gid).push(s);
+    });
+    const ordered = [];
+    yearGroups.forEach((g) => {
+      if (map.has(g._id))
+        ordered.push({ key: g._id, name: g.name, students: map.get(g._id) });
+    });
+    if (map.has(noneKey))
+      ordered.push({
+        key: noneKey,
+        name: t("admin.noGroup"),
+        students: map.get(noneKey),
+      });
+    return ordered;
+  }, [students, yearGroups, t]);
 
   const fetchStudents = useCallback(async () => {
     try {
@@ -117,8 +151,6 @@ function StudentsPage() {
     return g?.name || id;
   };
 
-  const getRefId = (val) => (typeof val === "object" ? val?._id : val);
-
   const groupsForAcademicYear = (academicYearId) =>
     academicYearId
       ? yearGroups.filter((g) => getRefId(g.academicYear) === academicYearId)
@@ -173,15 +205,20 @@ function StudentsPage() {
 
   const openEditForm = (item) => {
     setEditingId(item._id);
-    const moduleIds = (item.modules || []).map((m) => getRefId(m));
+    const programId = getRefId(item.program) || "";
+    const allProgramModuleIds = programId
+      ? modules
+          .filter((m) => getRefId(m.program) === programId)
+          .map((m) => m._id)
+      : [];
     setFormData({
       name: item.name || "",
       email: item.email || "",
       password: "",
-      program: getRefId(item.program) || "",
+      program: programId,
       academicYear: getRefId(item.academicYear) || "",
       yearGroup: getRefId(item.yearGroup) || "",
-      modules: moduleIds,
+      modules: allProgramModuleIds,
     });
     setFormOpen(true);
   };
@@ -316,23 +353,22 @@ function StudentsPage() {
               <>
                 <div>
                   <label className="block text-sm font-medium text-lms-primary mb-1">
-                    Program
+                    {t("admin.program")}
                   </label>
                   <select
                     value={formData.program}
                     onChange={(e) => {
                       const newProgram = e.target.value;
                       setFormData((prev) => {
-                        const validModuleIds = newProgram
-                          ? prev.modules.filter((id) => {
-                              const m = modules.find((x) => x._id === id);
-                              return m && getRefId(m.program) === newProgram;
-                            })
+                        const allProgramModuleIds = newProgram
+                          ? modules
+                              .filter((m) => getRefId(m.program) === newProgram)
+                              .map((m) => m._id)
                           : [];
                         return {
                           ...prev,
                           program: newProgram,
-                          modules: validModuleIds,
+                          modules: allProgramModuleIds,
                         };
                       });
                     }}
@@ -389,7 +425,7 @@ function StudentsPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-lms-primary mb-1">
-                    Academic Year
+                    {t("admin.academicYear")}
                   </label>
                   <select
                     value={formData.academicYear}
@@ -478,150 +514,196 @@ function StudentsPage() {
             {t("admin.noStudents")}
           </div>
         ) : (
-          <table className="w-full">
-            <thead className="bg-lms-cream/30 border-b border-lms-cream">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
-                  Name
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
-                  Email
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
-                  Student ID
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
-                  Program
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
-                  {t("admin.yearGroups")}
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
-                  {t("admin.modules")}
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
-                  Academic Year
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
-                  {t("common.status")}
-                </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-lms-primary">
-                  {t("common.actions")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-lms-cream">
-              {students.map((item) => (
-                <tr key={item._id} className="hover:bg-lms-cream/30/50">
-                  <td className="px-4 py-3">
-                    <Link
-                      to={`/admin/students/${item._id}`}
-                      className="font-medium text-lms-primary hover:underline text-sm"
+          <div className="divide-y divide-lms-cream">
+            {studentsByGroup.map(({ key, name, students: groupStudents }) => {
+              const isCollapsed = collapsedGroups.has(key);
+              return (
+                <div
+                  key={key}
+                  className="border-b border-lms-cream last:border-b-0"
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleGroup(key)}
+                    className="w-full flex items-center gap-2 px-4 py-3 text-left bg-lms-cream/30 hover:bg-lms-cream/50 transition-colors"
+                  >
+                    <svg
+                      className={`w-5 h-5 text-lms-primary transition-transform ${isCollapsed ? "" : "rotate-90"}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      {item.name}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-lms-primary/90 text-xs">
-                    {item.email}
-                  </td>
-                  <td className="px-4 py-3 text-lms-primary/80 text-xs">
-                    {item.studentId || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-lms-primary/90 text-xs">
-                    {getProgramName(item.program)}
-                  </td>
-                  <td className="px-4 py-3 text-lms-primary/90 text-xs">
-                    {getYearGroupName(getRefId(item.yearGroup))}
-                  </td>
-                  <td className="px-4 py-3 text-lms-primary/90 text-xs max-w-[180px]">
-                    {(item.modules || [])
-                      .map((m) => getModuleName(m))
-                      .filter(Boolean)
-                      .join(", ") || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-lms-primary/90 text-xs">
-                    {getAcademicYearName(getRefId(item.academicYear))}
-                  </td>
-                  <td className="px-4 py-3 text-xs">
-                    <span
-                      className={`inline-flex px-2 py-0.5 text-xs font-medium rounded ${
-                        getStudentStatus(item) === "active"
-                          ? "bg-green-100 text-green-800"
-                          : getStudentStatus(item) === "suspended"
-                            ? "bg-amber-100 text-amber-800"
-                            : getStudentStatus(item) === "graduated"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-lms-light text-lms-primary"
-                      }`}
-                    >
-                      {t(`admin.${getStudentStatus(item)}`)}
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                    <span className="font-medium text-lms-primary">
+                      {t("admin.group")} {name}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap min-w-[240px]">
-                    <Link
-                      to={`/admin/students/${item._id}`}
-                      className="text-lms-primary/90 hover:text-lms-primary mr-3 text-xs"
-                    >
-                      {t("common.view")}
-                    </Link>
-                    <button
-                      onClick={() => openEditForm(item)}
-                      className="text-lms-primary/90 hover:text-lms-primary mr-3 text-xs"
-                    >
-                      {t("common.edit")}
-                    </button>
-                    {getStudentStatus(item) === "active" && (
-                      <>
-                        <button
-                          onClick={() => {
-                            if (
-                              window.confirm(t("admin.confirmSuspendStudent"))
-                            ) {
-                              handleUpdateStatus(item._id, {
-                                isSuspended: true,
-                                isWithdrawn: false,
-                              });
-                            }
-                          }}
-                          className="text-amber-600 hover:text-amber-800 mr-3 text-xs"
-                        >
-                          {t("admin.suspend")}
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (
-                              window.confirm(t("admin.confirmWithdrawStudent"))
-                            ) {
-                              handleWithdrawDelete(item._id);
-                            }
-                          }}
-                          className="text-red-600 hover:text-red-800 text-xs"
-                        >
-                          {t("admin.withdraw")}
-                        </button>
-                      </>
-                    )}
-                    {(getStudentStatus(item) === "suspended" ||
-                      getStudentStatus(item) === "withdrawn") && (
-                      <button
-                        onClick={() => {
-                          if (window.confirm(t("admin.confirmReactivate"))) {
-                            handleUpdateStatus(item._id, {
-                              isSuspended: false,
-                              isWithdrawn: false,
-                            });
-                          }
-                        }}
-                        className="text-green-600 hover:text-green-800"
-                      >
-                        {t("admin.reactivate")}
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <span className="text-sm text-lms-primary/70">
+                      ({groupStudents.length})
+                    </span>
+                  </button>
+                  {!isCollapsed && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-lms-cream/20 border-b border-lms-cream">
+                          <tr>
+                            <th className="px-4 py-2 text-left text-sm font-medium text-lms-primary">
+                              {t("common.name")}
+                            </th>
+                            <th className="px-4 py-2 text-left text-sm font-medium text-lms-primary">
+                              {t("common.email")}
+                            </th>
+                            <th className="px-4 py-2 text-left text-sm font-medium text-lms-primary">
+                              {t("student.studentId")}
+                            </th>
+                            <th className="px-4 py-2 text-left text-sm font-medium text-lms-primary">
+                              {t("admin.program")}
+                            </th>
+                            <th className="px-4 py-2 text-left text-sm font-medium text-lms-primary">
+                              {t("admin.modules")}
+                            </th>
+                            <th className="px-4 py-2 text-left text-sm font-medium text-lms-primary">
+                              {t("admin.academicYear")}
+                            </th>
+                            <th className="px-4 py-2 text-left text-sm font-medium text-lms-primary">
+                              {t("common.status")}
+                            </th>
+                            <th className="px-4 py-2 text-right text-sm font-medium text-lms-primary">
+                              {t("common.actions")}
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-lms-cream">
+                          {groupStudents.map((item) => (
+                            <tr
+                              key={item._id}
+                              className="hover:bg-lms-cream/30/50"
+                            >
+                              <td className="px-4 py-3">
+                                <Link
+                                  to={`/admin/students/${item._id}`}
+                                  className="font-medium text-lms-primary hover:underline text-sm"
+                                >
+                                  {item.name}
+                                </Link>
+                              </td>
+                              <td className="px-4 py-3 text-lms-primary/90 text-xs">
+                                {item.email}
+                              </td>
+                              <td className="px-4 py-3 text-lms-primary/80 text-xs">
+                                {item.studentId || "—"}
+                              </td>
+                              <td className="px-4 py-3 text-lms-primary/90 text-xs">
+                                {getProgramName(item.program)}
+                              </td>
+                              <td className="px-4 py-3 text-lms-primary/90 text-xs">
+                                {(item.modules || []).filter(Boolean).length ||
+                                  "—"}
+                              </td>
+                              <td className="px-4 py-3 text-lms-primary/90 text-xs">
+                                {getAcademicYearName(
+                                  getRefId(item.academicYear),
+                                )}
+                              </td>
+                              <td className="px-4 py-3 text-xs">
+                                <span
+                                  className={`inline-flex px-2 py-0.5 text-xs font-medium rounded ${
+                                    getStudentStatus(item) === "active"
+                                      ? "bg-green-100 text-green-800"
+                                      : getStudentStatus(item) === "suspended"
+                                        ? "bg-amber-100 text-amber-800"
+                                        : getStudentStatus(item) === "graduated"
+                                          ? "bg-blue-100 text-blue-800"
+                                          : "bg-lms-light text-lms-primary"
+                                  }`}
+                                >
+                                  {t(`admin.${getStudentStatus(item)}`)}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-right whitespace-nowrap min-w-[200px]">
+                                <Link
+                                  to={`/admin/students/${item._id}`}
+                                  className="text-lms-primary/90 hover:text-lms-primary mr-3 text-xs"
+                                >
+                                  {t("common.view")}
+                                </Link>
+                                <button
+                                  onClick={() => openEditForm(item)}
+                                  className="text-lms-primary/90 hover:text-lms-primary mr-3 text-xs"
+                                >
+                                  {t("common.edit")}
+                                </button>
+                                {getStudentStatus(item) === "active" && (
+                                  <>
+                                    <button
+                                      onClick={() => {
+                                        if (
+                                          window.confirm(
+                                            t("admin.confirmSuspendStudent"),
+                                          )
+                                        ) {
+                                          handleUpdateStatus(item._id, {
+                                            isSuspended: true,
+                                            isWithdrawn: false,
+                                          });
+                                        }
+                                      }}
+                                      className="text-amber-600 hover:text-amber-800 mr-3 text-xs"
+                                    >
+                                      {t("admin.suspend")}
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        if (
+                                          window.confirm(
+                                            t("admin.confirmWithdrawStudent"),
+                                          )
+                                        ) {
+                                          handleWithdrawDelete(item._id);
+                                        }
+                                      }}
+                                      className="text-red-600 hover:text-red-800 text-xs"
+                                    >
+                                      {t("admin.withdraw")}
+                                    </button>
+                                  </>
+                                )}
+                                {(getStudentStatus(item) === "suspended" ||
+                                  getStudentStatus(item) === "withdrawn") && (
+                                  <button
+                                    onClick={() => {
+                                      if (
+                                        window.confirm(
+                                          t("admin.confirmReactivate"),
+                                        )
+                                      ) {
+                                        handleUpdateStatus(item._id, {
+                                          isSuspended: false,
+                                          isWithdrawn: false,
+                                        });
+                                      }
+                                    }}
+                                    className="text-green-600 hover:text-green-800 text-xs"
+                                  >
+                                    {t("admin.reactivate")}
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>

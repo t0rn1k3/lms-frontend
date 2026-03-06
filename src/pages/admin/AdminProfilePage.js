@@ -60,7 +60,9 @@ function AdminProfilePage() {
 
   if (loading) {
     return (
-      <div className="p-8 text-center text-lms-primary/80">Loading profile...</div>
+      <div className="p-8 text-center text-lms-primary/80">
+        Loading profile...
+      </div>
     );
   }
 
@@ -74,7 +76,9 @@ function AdminProfilePage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-lms-primary mb-6">Admin Profile</h1>
+      <h1 className="text-2xl font-bold text-lms-primary mb-6">
+        {t("admin.profile")}
+      </h1>
 
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -84,12 +88,12 @@ function AdminProfilePage() {
 
       <div className="bg-white rounded-xl border border-lms-cream p-6 max-w-md">
         <h2 className="text-lg font-semibold text-lms-primary mb-4">
-          Edit Profile
+          {t("admin.editProfile")}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-lms-primary mb-1">
-              Name
+              {t("common.name")}
             </label>
             <input
               type="text"
@@ -103,7 +107,7 @@ function AdminProfilePage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-lms-primary mb-1">
-              Email
+              {t("common.email")}
             </label>
             <input
               type="email"
@@ -117,7 +121,7 @@ function AdminProfilePage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-lms-primary mb-1">
-              New Password
+              {t("common.newPassword")}
             </label>
             <input
               type="password"
