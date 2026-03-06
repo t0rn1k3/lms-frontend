@@ -229,7 +229,9 @@
     "criterionResultsRequired": "Please mark each criterion as passed or failed.",
     "criteriaResults": "Criteria results",
     "myModules": "My modules",
-    "noModulesAssigned": "No modules assigned to you yet."
+    "noModulesAssigned": "No modules assigned to you yet.",
+    "myGroups": "My groups",
+    "noGroupsAssigned": "No groups assigned to you yet."
   },
   "admin": {
     "title": "Admin",

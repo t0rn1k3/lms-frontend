@@ -333,7 +333,9 @@ function QuestionsPage() {
 
       <div className="bg-white rounded-xl border border-lms-cream overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-lms-primary/80">Loading...</div>
+          <div className="p-8 text-center text-lms-primary/80">
+            {t("common.loading")}
+          </div>
         ) : questions.length === 0 ? (
           <div className="p-8 text-center text-lms-primary/80">
             {t("admin.noQuestionsYet")}

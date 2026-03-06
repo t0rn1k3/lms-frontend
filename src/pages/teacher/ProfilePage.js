@@ -1,11 +1,17 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { teacherService, moduleService, getErrorMessage } from "../../api";
+import {
+  teacherService,
+  moduleService,
+  academicService,
+  getErrorMessage,
+} from "../../api";
 
 function TeacherProfilePage() {
   const { t } = useTranslation();
   const [profile, setProfile] = useState(null);
   const [myModules, setMyModules] = useState([]);
+  const [yearGroups, setYearGroups] = useState([]);
   const [modulesLoading, setModulesLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -48,8 +54,19 @@ function TeacherProfilePage() {
     }
   };
 
+  const fetchYearGroups = async () => {
+    try {
+      const { data } = await academicService.getYearGroups();
+      setYearGroups(data?.data || []);
+    } catch (err) {
+      console.error("Failed to fetch year groups:", err);
+      setYearGroups([]);
+    }
+  };
+
   useEffect(() => {
     fetchProfile();
+    fetchYearGroups();
   }, []);
 
   useEffect(() => {
@@ -93,6 +110,19 @@ function TeacherProfilePage() {
       </div>
     );
   }
+
+  const getRefId = (val) =>
+    typeof val === "object" ? (val?._id ?? val?.id) : val;
+  const getYearGroupName = (idOrObj) => {
+    if (!idOrObj) return "—";
+    if (typeof idOrObj === "object" && idOrObj?.name) return idOrObj.name;
+    const id = typeof idOrObj === "object" ? getRefId(idOrObj) : idOrObj;
+    const g = yearGroups.find((x) => (x._id || x.id) === id);
+    return g?.name || id;
+  };
+  const myGroups = (profile?.yearGroups || [profile?.yearGroup])
+    .filter(Boolean)
+    .map((g) => ({ id: getRefId(g), name: getYearGroupName(g) }));
 
   return (
     <div>
@@ -187,6 +217,28 @@ function TeacherProfilePage() {
                     ? mod.program?.name
                     : mod.program}
                 </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="mt-6 bg-white rounded-xl border border-lms-cream p-6 max-w-2xl">
+        <h2 className="text-lg font-semibold text-lms-primary mb-4">
+          {t("teacher.myGroups")}
+        </h2>
+        {myGroups.length === 0 ? (
+          <p className="text-sm text-lms-primary/70">
+            {t("teacher.noGroupsAssigned")}
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {myGroups.map((g) => (
+              <li
+                key={g.id}
+                className="flex justify-between items-center py-2 border-b border-lms-cream last:border-0"
+              >
+                <span className="font-medium text-lms-primary">{g.name}</span>
               </li>
             ))}
           </ul>
