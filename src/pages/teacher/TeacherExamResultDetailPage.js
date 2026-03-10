@@ -57,26 +57,34 @@ function TeacherExamResultDetailPage() {
             r?.exam?.examType === "project-submission")
         ) {
           if (isAllCriteriaMode) {
-            let mod = typeof r?.exam?.module === "object" ? r.exam.module : null;
-            const moduleId = mod?._id ?? (typeof r?.exam?.module === "string" ? r.exam.module : null);
-            if (moduleId && !mod?.criteria?.length) {
-              try {
-                const mRes = await moduleService.getOne(moduleId);
-                mod = mRes.data?.data ?? mRes.data ?? mod;
-              } catch {
-                mod = mod || { criteria: [] };
+            const effectiveCriteria = r?.effectiveCriteria;
+            let criteria = [];
+            if (Array.isArray(effectiveCriteria) && effectiveCriteria.length > 0) {
+              criteria = effectiveCriteria;
+            } else {
+              let mod = typeof r?.exam?.module === "object" ? r.exam.module : null;
+              const moduleId = mod?._id ?? (typeof r?.exam?.module === "string" ? r.exam.module : null);
+              if (moduleId && !(mod?.criteria?.length > 0)) {
+                try {
+                  const mRes = await moduleService.getOne(moduleId);
+                  mod = mRes.data?.data ?? mRes.data ?? mod;
+                } catch {
+                  mod = mod || { criteria: [] };
+                }
               }
+              setModule(mod);
+              criteria = mod?.criteria || [];
             }
-            setModule(mod);
-            const criteria = mod?.criteria || [];
             const existing = r.criterionResults || [];
             const prefill = criteria.map((c) => {
+              const cid = c.id || c._id;
               const found = existing.find(
-                (e) => (e.criterionId || e.id) === (c.id || c._id)
+                (e) => (e.criterionId || e.id) === cid
               );
               return {
-                criterionId: c.id || c._id,
+                criterionId: cid,
                 criterionName: c.name || "",
+                criterionDescription: c.description || "",
                 passed: found ? found.passed : null,
                 notes: found?.notes || "",
               };
@@ -378,16 +386,17 @@ function TeacherExamResultDetailPage() {
                 <p className="font-medium text-lms-primary mb-1">
                   {cr.criterionName}
                 </p>
-                {(() => {
-                  const c = (module?.criteria || []).find(
+                {(cr.criterionDescription ||
+                  (module?.criteria || []).find(
                     (x) => (x.id || x._id) === cr.criterionId
-                  );
-                  return c?.description ? (
-                    <p className="text-sm text-lms-primary/80 mb-3">
-                      {c.description}
-                    </p>
-                  ) : null;
-                })()}
+                  )?.description) ? (
+                  <p className="text-sm text-lms-primary/80 mb-3">
+                    {cr.criterionDescription ||
+                      (module?.criteria || []).find(
+                        (x) => (x.id || x._id) === cr.criterionId
+                      )?.description}
+                  </p>
+                ) : null}
                 <div className="flex flex-wrap items-center gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -397,7 +406,7 @@ function TeacherExamResultDetailPage() {
                       onChange={() => handleCriterionChange(idx, "passed", true)}
                       className="rounded-full border-lms-cream"
                     />
-                    <span className="text-sm text-green-700">{t("student.passed")}</span>
+                    <span className="text-sm text-green-700">{t("student.passedYes")}</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -407,7 +416,7 @@ function TeacherExamResultDetailPage() {
                       onChange={() => handleCriterionChange(idx, "passed", false)}
                       className="rounded-full border-lms-cream"
                     />
-                    <span className="text-sm text-red-700">{t("student.failed")}</span>
+                    <span className="text-sm text-red-700">{t("student.passedNo")}</span>
                   </label>
                 </div>
                 <input

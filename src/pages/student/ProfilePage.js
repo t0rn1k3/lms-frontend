@@ -76,6 +76,13 @@ export default function ProfilePage() {
 
   const studentProfile = profile?.studentProfile ?? profile ?? {};
 
+  const getRefName = (val) =>
+    typeof val === "object" ? val?.name : val;
+  const moduleItems = (() => {
+    const mods = studentProfile?.modules ?? (studentProfile?.module ? [studentProfile.module] : []);
+    return mods.map((m) => getRefName(m)).filter(Boolean);
+  })();
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-lms-primary mb-6">{t("student.profileTitle")}</h1>
@@ -122,11 +129,17 @@ export default function ProfilePage() {
               </dd>
             </div>
             <div>
-              <dt className="text-lms-primary/80">{t("student.classLevel")}</dt>
+              <dt className="text-lms-primary/80">{t("admin.modules")}</dt>
               <dd className="font-medium text-lms-primary">
-                {typeof studentProfile.currentClassLevel === "object"
-                  ? studentProfile.currentClassLevel?.name
-                  : (studentProfile.currentClassLevel ?? "—")}
+                {moduleItems.length === 0 ? (
+                  "—"
+                ) : (
+                  <ul className="space-y-1 text-lms-primary/90 list-disc list-inside mt-1">
+                    {moduleItems.map((name, i) => (
+                      <li key={i}>{name}</li>
+                    ))}
+                  </ul>
+                )}
               </dd>
             </div>
           </dl>

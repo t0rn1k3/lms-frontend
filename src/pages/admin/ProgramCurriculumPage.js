@@ -65,7 +65,21 @@ function AddModuleModal({ programId, programs, teachers, onClose, onSaved, t }) 
         credits: Number(formData.credits) || 0,
         startWeek: Number(formData.startWeek) || 1,
         teachers: formData.teachers || [],
-        criteria: [],
+        learningOutcomes: [
+          {
+            id: `lo_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+            order: 1,
+            name: t("admin.learningOutcome"),
+            description: "",
+            criteria: [
+              {
+                id: `c_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+                name: t("admin.criterionNamePlaceholder"),
+                description: "",
+              },
+            ],
+          },
+        ],
       };
       if (formData.code?.trim()) payload.code = formData.code.trim();
       await moduleService.create(payload);

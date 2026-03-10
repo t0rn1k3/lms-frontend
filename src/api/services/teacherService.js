@@ -24,4 +24,6 @@ export const teacherService = {
   getProfile: () => apiClient.get(endpoints.teachers.profile),
   updateProfile: (data) =>
     apiClient.put(endpoints.teachers.profileUpdate, data),
+  // Teacher: students in my groups (teacher-authorized)
+  getMyStudents: () => apiClient.get(endpoints.teachers.students),
 };

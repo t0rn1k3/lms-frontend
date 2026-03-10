@@ -225,7 +225,7 @@ function StudentDetailPage() {
           </div>
           <div>
             <span className="text-sm text-lms-primary/80">
-              {t("admin.yearGroups")}
+              {t("admin.group")}
             </span>
             <p className="font-medium">
               {getYearGroupName(getRefId(student.yearGroup))}

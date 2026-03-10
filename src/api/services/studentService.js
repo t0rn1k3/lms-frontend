@@ -3,7 +3,8 @@ import { endpoints } from "../endpoints";
 
 export const studentService = {
   // Admin: list/create/update students
-  list: () => apiClient.get(endpoints.students.list),
+  list: (config = {}) =>
+    apiClient.get(endpoints.students.list, config),
   getOne: (id) => apiClient.get(endpoints.students.getOne(id)),
   getGraduationStatus: (id) =>
     apiClient.get(endpoints.students.graduationStatus(id)),

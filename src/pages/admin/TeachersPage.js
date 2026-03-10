@@ -236,7 +236,11 @@ function TeachersPage() {
           yearGroups,
           modules,
         };
+        if (formData.password && formData.password.length >= 6) {
+          payload.password = formData.password;
+        }
         await teacherService.update(editingId, payload);
+        setFormData((prev) => ({ ...prev, password: "" }));
         await fetchTeachers(); // Refresh to show persisted year groups
       } else {
         if (!formData.password || formData.password.length < 6) {
@@ -342,10 +346,10 @@ function TeachersPage() {
                 </p>
               )}
             </div>
-            {!editingId && (
+            {!editingId ? (
               <div>
                 <label className="block text-sm font-medium text-lms-primary mb-1">
-                  Password <span className="text-red-500">*</span>
+                  {t("common.password")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="password"
@@ -357,10 +361,32 @@ function TeachersPage() {
                     }))
                   }
                   placeholder={t("common.minChars")}
-                  required={!editingId}
+                  required
                   minLength={6}
                   className="w-full px-3 py-2 border border-lms-cream rounded-lg"
                 />
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("common.newPassword")}
+                </label>
+                <input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      password: e.target.value,
+                    }))
+                  }
+                  placeholder={t("common.passwordPlaceholder")}
+                  minLength={6}
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                />
+                <p className="text-xs text-lms-primary/80 mt-1">
+                  {t("common.passwordPlaceholder")}
+                </p>
               </div>
             )}
             {editingId && (
