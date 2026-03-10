@@ -6,6 +6,7 @@ function YearGroupsPage() {
   const { t } = useTranslation();
   const [yearGroups, setYearGroups] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
+  const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [formOpen, setFormOpen] = useState(false);
@@ -13,6 +14,7 @@ function YearGroupsPage() {
   const [formData, setFormData] = useState({
     name: "",
     academicYear: "",
+    program: "",
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -37,9 +39,19 @@ function YearGroupsPage() {
     }
   };
 
+  const fetchPrograms = async () => {
+    try {
+      const { data } = await academicService.getPrograms();
+      setPrograms(data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch programs:", err);
+    }
+  };
+
   useEffect(() => {
     fetchYearGroups();
     fetchAcademicYears();
+    fetchPrograms();
   }, []);
 
   const getAcademicYearName = (id) => {
@@ -55,6 +67,7 @@ function YearGroupsPage() {
     setFormData({
       name: "",
       academicYear: academicYears.length === 1 ? academicYears[0]._id : "",
+      program: programs.length === 1 ? programs[0]._id : "",
     });
     setFormOpen(true);
   };
@@ -65,9 +78,14 @@ function YearGroupsPage() {
       typeof item.academicYear === "object"
         ? item.academicYear?._id
         : item.academicYear;
+    const programId =
+      typeof item.program === "object"
+        ? item.program?._id
+        : item.program;
     setFormData({
       name: item.name || "",
       academicYear: yearId || "",
+      program: programId || "",
     });
     setFormOpen(true);
   };
@@ -87,10 +105,11 @@ function YearGroupsPage() {
     }
     setSubmitting(true);
     try {
-      const payload = {
-        name,
-        academicYear: academicYearId,
-      };
+    const payload = {
+      name,
+      academicYear: academicYearId,
+    };
+    if (formData.program) payload.program = formData.program;
       if (editingId) {
         await academicService.updateYearGroup(editingId, payload);
       } else {
@@ -195,6 +214,28 @@ function YearGroupsPage() {
                 ))}
               </select>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-lms-primary mb-1">
+                {t("admin.programs")}
+              </label>
+              <select
+                value={formData.program}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, program: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+              >
+                <option value="">{t("admin.selectProgramOption")}</option>
+                {programs.map((p) => (
+                  <option key={p._id} value={p._id}>
+                    {p.name || p.code || p._id}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-lms-primary/70 mt-1">
+                {t("admin.groupProgramHint")}
+              </p>
+            </div>
             <div className="flex gap-2">
               <button
                 type="submit"
@@ -234,6 +275,9 @@ function YearGroupsPage() {
                 <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
                   {t("admin.academicYearLabel")}
                 </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
+                  {t("admin.programs")}
+                </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-lms-primary">
                   {t("common.actions")}
                 </th>
@@ -251,6 +295,14 @@ function YearGroupsPage() {
                         ? item.academicYear?._id
                         : item.academicYear,
                     )}
+                  </td>
+                  <td className="px-4 py-3 text-lms-primary/90">
+                    {typeof item.program === "object"
+                      ? item.program?.name || item.program?.code || "—"
+                      : (() => {
+                          const p = programs.find((x) => x._id === item.program);
+                          return p?.name || p?.code || item.program || "—";
+                        })()}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button

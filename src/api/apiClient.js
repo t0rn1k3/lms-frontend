@@ -1,4 +1,5 @@
 import axios from "axios";
+import i18n from "../i18n/config";
 import { useAuthStore } from "../store/useAuthStore";
 import { API_BASE_URL } from "./config";
 
@@ -49,7 +50,7 @@ apiClient.interceptors.response.use(
       window.location.href = "/login";
     }
 
-    // Normalize error: { status, message, statusCode }
+    // Normalize error: { status, message, messageKey, statusCode }
     const body = error.response?.data ?? {};
     const message =
       typeof body.message === "string"
@@ -59,6 +60,7 @@ apiClient.interceptors.response.use(
     error.apiError = {
       status: body.status ?? "failed",
       message,
+      messageKey: body.messageKey,
       statusCode: error.response?.status,
     };
 
@@ -68,15 +70,23 @@ apiClient.interceptors.response.use(
 
 /**
  * Extract error message from axios error.
- * Use error.apiError for full normalized shape.
+ * When backend returns messageKey, look up translation for current locale.
+ * Falls back to message or generic text when translation is missing.
  */
 export const getErrorMessage = (error) => {
-  return (
-    error?.apiError?.message ??
+  const apiError = error?.apiError ?? error?.response?.data;
+  const messageKey = apiError?.messageKey;
+  const fallbackMessage =
+    apiError?.message ??
     error?.response?.data?.message ??
-    error?.message ??
-    "Something went wrong"
-  );
+    error?.message;
+
+  if (messageKey) {
+    const translated = i18n.t(`errors.${messageKey}`, { defaultValue: "" });
+    if (translated) return translated;
+  }
+
+  return fallbackMessage ?? "Something went wrong";
 };
 
 export default apiClient;

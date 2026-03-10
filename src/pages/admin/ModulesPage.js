@@ -694,15 +694,6 @@ function ModulesPage() {
                         {t("admin.removeLearningOutcome")}
                       </button>
                     </div>
-                    <input
-                      type="text"
-                      value={lo.description || ""}
-                      onChange={(e) =>
-                        updateLearningOutcome(loIdx, "description", e.target.value)
-                      }
-                      placeholder={t("admin.criterionDescPlaceholder")}
-                      className="w-full px-2 py-1 border border-lms-cream rounded text-sm"
-                    />
                     <div className="pl-2 border-l-2 border-lms-primary/30 space-y-2">
                       <span className="text-xs font-medium text-lms-primary/80">
                         {t("admin.criteria")}

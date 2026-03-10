@@ -139,7 +139,7 @@ function LoginPage() {
         </form>
 
         <p className="mt-6 text-center text-sm text-lms-primary/80">
-          {role === "admin" && (
+          {/* {role === "admin" && (
             <>
               {t("auth.noAccount")}{" "}
               <Link
@@ -150,7 +150,7 @@ function LoginPage() {
               </Link>
               <br />
             </>
-          )}
+          )} */}
           <Link to="/" className="text-lms-primary hover:underline">
             {t("auth.backToHome")}
           </Link>

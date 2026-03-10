@@ -29,7 +29,7 @@ function RegisterPage() {
       await authService.adminRegister(
         formData.name.trim(),
         formData.email.trim().toLowerCase(),
-        formData.password
+        formData.password,
       );
       setSuccess(true);
       setTimeout(() => navigate("/login/admin"), 2000);
@@ -61,9 +61,7 @@ function RegisterPage() {
         <h1 className="text-2xl font-bold text-lms-primary mb-2">
           {t("auth.register")}
         </h1>
-        <p className="text-lms-primary/90 mb-6">
-          {t("auth.registerSubtitle")}
-        </p>
+        <p className="text-lms-primary/90 mb-6">{t("auth.registerSubtitle")}</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
@@ -140,7 +138,10 @@ function RegisterPage() {
 
         <p className="mt-6 text-center text-sm text-lms-primary/80">
           {t("auth.alreadyHaveAccount")}{" "}
-          <Link to="/login/admin" className="text-lms-primary font-medium hover:underline">
+          <Link
+            to="/login/admin"
+            className="text-lms-primary font-medium hover:underline"
+          >
             {t("auth.login")}
           </Link>
         </p>

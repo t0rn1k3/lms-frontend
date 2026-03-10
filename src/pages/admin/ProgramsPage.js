@@ -27,6 +27,7 @@ function ProgramsPage() {
   const { t } = useTranslation();
   const [programs, setPrograms] = useState([]);
   const [classLevels, setClassLevels] = useState([]);
+  const [yearGroups, setYearGroups] = useState([]);
   const [expandedProgramId, setExpandedProgramId] = useState(null);
   const [programModules, setProgramModules] = useState([]);
   const [modulesLoading, setModulesLoading] = useState(false);
@@ -66,10 +67,27 @@ function ProgramsPage() {
     }
   };
 
+  const fetchYearGroups = async () => {
+    try {
+      const { data } = await academicService.getYearGroups();
+      setYearGroups(data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch year groups:", err);
+    }
+  };
+
   useEffect(() => {
     fetchPrograms();
     fetchClassLevels();
+    fetchYearGroups();
   }, []);
+
+  const getGroupsCountForProgram = (programId) => {
+    return yearGroups.filter((g) => {
+      const gProgramId = typeof g.program === "object" ? g.program?._id : g.program;
+      return gProgramId === programId;
+    }).length;
+  };
 
   const openCreateForm = () => {
     setEditingId(null);
@@ -173,19 +191,6 @@ function ProgramsPage() {
     } catch (err) {
       setError(getErrorMessage(err));
     }
-  };
-
-  const getClassLevelName = (id) => {
-    const level = classLevels.find((l) => l._id === id);
-    return level?.name || id;
-  };
-
-  const formatClassLevels = (item) => {
-    const levelIds = (item.classLevels || []).map((l) =>
-      typeof l === "object" ? l._id : l,
-    );
-    if (levelIds.length === 0) return "—";
-    return levelIds.map(getClassLevelName).join(", ");
   };
 
   const toggleProgramModules = async (programId) => {
@@ -415,7 +420,7 @@ function ProgramsPage() {
                   {t("admin.durationWeeks")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-lms-primary">
-                  {t("admin.classLevels")}
+                  {t("admin.yearGroups")}
                 </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-lms-primary">
                   {t("common.actions")}
@@ -442,8 +447,8 @@ function ProgramsPage() {
                   <td className="px-4 py-3 text-lms-primary/90">
                     {item.durationWeeks ?? "—"}
                   </td>
-                  <td className="px-4 py-3 text-lms-primary/90 max-w-xs truncate">
-                    {formatClassLevels(item)}
+                  <td className="px-4 py-3 text-lms-primary/90">
+                    {getGroupsCountForProgram(item._id)}
                   </td>
                   <td className="px-4 py-3 text-right">
                     {(item.durationWeeks ?? 0) > 0 && (
