@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { examResultService, moduleService, getErrorMessage } from "../../api";
 import { PageLoader, PageError, ErrorMessage } from "../../components";
+import { formatStudentAnswer, isAutoGraded, needsManualGrading } from "../../utils/answerDisplay";
 
 function getRefName(val, key = "name") {
   if (!val) return "—";
@@ -101,7 +102,7 @@ function TeacherExamResultDetailPage() {
         } else {
           const initial = {};
           (r.answeredQuestions || []).forEach((aq, idx) => {
-            if (aq.needsManualGrading && aq.questionType === "open-ended") {
+            if (aq.needsManualGrading && needsManualGrading(aq.questionType)) {
               initial[idx] = aq.pointsAwarded ?? 0;
             }
           });
@@ -156,8 +157,12 @@ function TeacherExamResultDetailPage() {
     setError("");
     setSubmitting(true);
     try {
+      const aq = result?.answeredQuestions || [];
       const payload = Object.entries(gradedAnswers)
-        .filter(([_, pts]) => pts != null && pts >= 0)
+        .filter(([idx, pts]) => {
+          const aqi = aq[Number(idx)];
+          return pts != null && pts >= 0 && aqi?.needsManualGrading && needsManualGrading(aqi.questionType);
+        })
         .map(([idx, pts]) => ({
           index: Number(idx),
           pointsAwarded: Number(pts),
@@ -306,11 +311,14 @@ function TeacherExamResultDetailPage() {
   if (!result) return null;
 
   const answeredQuestions = result.answeredQuestions || [];
-  const openEndedToGrade = answeredQuestions.filter(
-    (aq, idx) => aq.needsManualGrading && aq.questionType === "open-ended",
+  const manualToGrade = answeredQuestions.filter(
+    (aq) => aq.needsManualGrading && needsManualGrading(aq.questionType),
   );
-  const hasUngraded = openEndedToGrade.length > 0;
+  const hasUngraded = manualToGrade.length > 0;
   const canPublish = result.isFullyGraded && !result.isPublished;
+  const questionsById = new Map(
+    (result.exam?.questions || []).map((q) => [q._id, q]),
+  );
 
   return (
     <div>
@@ -586,69 +594,72 @@ function TeacherExamResultDetailPage() {
             {t("student.answerBreakdown")}
           </h2>
           <div className="space-y-4 mb-8">
-            {answeredQuestions.map((aq, i) => (
-              <div
-                key={i}
-                className={`p-4 rounded-xl border ${
-                  aq.questionType === "open-ended"
-                    ? "bg-lms-cream/30 border-lms-cream"
-                    : aq.isCorrect
-                      ? "bg-green-50 border-green-200"
-                      : "bg-red-50 border-red-200"
-                }`}
-              >
-                <div className="flex justify-between items-start gap-4">
-                  <div className="flex-1">
-                    <p className="font-medium text-lms-primary mb-2">
-                      {i + 1}. {aq.question}
-                    </p>
-                    <div className="text-sm text-lms-primary/90 space-y-1">
-                      <p>
-                        <span className="font-medium">
-                          {t("student.yourAnswer")}:
-                        </span>{" "}
-                        {aq.studentAnswer || "—"}
+            {answeredQuestions.map((aq, i) => {
+              const question = questionsById.get(aq.questionId);
+              const formattedAnswer = formatStudentAnswer(aq, question);
+              const isManual = aq.needsManualGrading && needsManualGrading(aq.questionType);
+              const cardClass = isManual
+                ? "bg-lms-cream/30 border-lms-cream"
+                : aq.isCorrect
+                  ? "bg-green-50 border-green-200"
+                  : "bg-red-50 border-red-200";
+
+              return (
+                <div key={i} className={`p-4 rounded-xl border ${cardClass}`}>
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="flex-1">
+                      <p className="font-medium text-lms-primary mb-2">
+                        {i + 1}. {aq.question}
                       </p>
-                      {aq.questionType === "multiple-choice" && (
-                        <p>
-                          <span className="font-medium text-green-700">
-                            {t("student.correctAnswerLabel")}:
-                          </span>{" "}
-                          {aq.correctAnswer || "—"}
-                        </p>
-                      )}
-                      {aq.questionType === "open-ended" && aq.correctAnswer && (
-                        <p>
+                      <div className="text-sm text-lms-primary/90 space-y-1">
+                        <p className="whitespace-pre-wrap">
                           <span className="font-medium">
-                            {t("teacher.modelAnswer")}:
+                            {t("student.yourAnswer")}:
                           </span>{" "}
-                          {aq.correctAnswer}
+                          {formattedAnswer}
                         </p>
-                      )}
-                      <p>
-                        {aq.questionType === "open-ended" ? (
-                          <span>
-                            {t("teacher.pointsAwarded")}:{" "}
-                            {aq.pointsAwarded ?? "—"} / {aq.mark ?? 1}
-                          </span>
-                        ) : (
-                          <span
-                            className={
-                              aq.isCorrect
-                                ? "text-green-700 font-medium"
-                                : "text-red-700 font-medium"
-                            }
-                          >
-                            {aq.isCorrect
-                              ? t("student.correct")
-                              : t("student.incorrect")}
-                          </span>
+                        {isAutoGraded(aq.questionType) && (
+                          <>
+                            {aq.correctAnswer != null && (
+                              <p>
+                                <span className="font-medium text-green-700">
+                                  {t("student.correctAnswerLabel")}:
+                                </span>{" "}
+                                {aq.correctAnswer}
+                              </p>
+                            )}
+                            <p>
+                              <span
+                                className={
+                                  aq.isCorrect
+                                    ? "text-green-700 font-medium"
+                                    : "text-red-700 font-medium"
+                                }
+                              >
+                                {aq.isCorrect
+                                  ? t("student.correct")
+                                  : t("student.incorrect")}
+                              </span>{" "}
+                              ({aq.pointsAwarded ?? 0}/{aq.mark ?? 1})
+                            </p>
+                          </>
                         )}
-                      </p>
+                        {isManual && (
+                          <p>
+                            {t("teacher.pointsAwarded")}: {aq.pointsAwarded ?? "—"} / {aq.mark ?? 1}
+                          </p>
+                        )}
+                        {isManual && aq.correctAnswer && (
+                          <p>
+                            <span className="font-medium">
+                              {t("teacher.modelAnswer")}:
+                            </span>{" "}
+                            {aq.correctAnswer}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  {aq.needsManualGrading &&
-                    aq.questionType === "open-ended" && (
+                    {isManual && (
                       <div className="flex-shrink-0 w-24">
                         <label className="block text-xs text-lms-primary/90 mb-1">
                           {t("teacher.pointsAwarded")}
@@ -665,9 +676,10 @@ function TeacherExamResultDetailPage() {
                         />
                       </div>
                     )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {hasUngraded && (
@@ -679,8 +691,8 @@ function TeacherExamResultDetailPage() {
                 {t("teacher.gradeAnswers")}
               </h3>
               <p className="text-sm text-lms-primary/90 mb-4">
-                {t("teacher.needsGrading")} — Enter points for each open-ended
-                question above, then click Save.
+                {t("teacher.needsGrading")} — Enter points for each open-ended,
+                translation, and long-form question above, then click Save.
               </p>
               <button
                 type="submit"

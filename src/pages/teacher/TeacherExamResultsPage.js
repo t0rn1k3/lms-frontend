@@ -14,6 +14,7 @@ function TeacherExamResultsPage() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [filterNeedsGrading, setFilterNeedsGrading] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
@@ -37,6 +38,10 @@ function TeacherExamResultsPage() {
     return "bg-red-100 text-red-800";
   };
 
+  const filteredResults = filterNeedsGrading
+    ? results.filter((r) => !r.isFullyGraded)
+    : results;
+
   if (loading) {
     return <PageLoader message={t("common.loading")} />;
   }
@@ -52,9 +57,21 @@ function TeacherExamResultsPage() {
 
       {error && <ErrorMessage message={error} className="mb-4" />}
 
-      {results.length === 0 ? (
+      <div className="mb-4 flex items-center gap-4">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={filterNeedsGrading}
+            onChange={(e) => setFilterNeedsGrading(e.target.checked)}
+            className="rounded border-lms-cream"
+          />
+          <span className="text-sm text-lms-primary">{t("teacher.filterNeedsGrading")}</span>
+        </label>
+      </div>
+
+      {filteredResults.length === 0 ? (
         <div className="p-8 bg-white rounded-xl border border-lms-cream text-center text-lms-primary/80">
-          {t("admin.noExamResults")}
+          {filterNeedsGrading ? t("teacher.noResultsNeedingGrading") : t("admin.noExamResults")}
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-lms-cream bg-white">
@@ -82,7 +99,7 @@ function TeacherExamResultsPage() {
               </tr>
             </thead>
             <tbody>
-              {results.map((r) => (
+              {filteredResults.map((r) => (
                 <tr key={r._id} className="border-b border-lms-cream hover:bg-lms-cream/30">
                   <td className="py-3 px-4">
                     <div className="inline-flex flex-col rounded-lg overflow-hidden border border-lms-cream min-w-[100px]">
