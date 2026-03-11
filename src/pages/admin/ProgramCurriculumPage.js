@@ -1,11 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import {
-  academicService,
-  moduleService,
-  getErrorMessage,
-} from "../../api";
+import { academicService, moduleService, getErrorMessage } from "../../api";
 
 function getRefName(val, key = "name") {
   if (!val) return "—";
@@ -19,7 +15,14 @@ const MODULE_TYPES = Object.freeze([
   { value: "integratedGeneral", labelKey: "admin.typeIntegratedGeneral" },
 ]);
 
-function AddModuleModal({ programId, programs, teachers, onClose, onSaved, t }) {
+function AddModuleModal({
+  programId,
+  programs,
+  teachers,
+  onClose,
+  onSaved,
+  t,
+}) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -43,7 +46,7 @@ function AddModuleModal({ programId, programs, teachers, onClose, onSaved, t }) 
     setFormData((prev) =>
       prev.teachers.includes(id)
         ? { ...prev, teachers: prev.teachers.filter((x) => x !== id) }
-        : { ...prev, teachers: [...prev.teachers, id] }
+        : { ...prev, teachers: [...prev.teachers, id] },
     );
   };
 
@@ -313,7 +316,11 @@ function ProgramCurriculumPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [resetModalOpen, setResetModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [savingId, setSavingId] = useState(null);
+  const [resetting, setResetting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [weekOverrides, setWeekOverrides] = useState({});
 
   const fetchCurriculum = useCallback(async () => {
@@ -347,12 +354,61 @@ function ProgramCurriculumPage() {
     }));
   };
 
+  const getModuleWeekRange = (mod) => {
+    const startWeek = mod.startWeek || 1;
+    const durWeeks = mod.durationWeeks || 0;
+    const effective = mod.effectiveWeeklyHours || mod.weeklyOverrides || {};
+    const effectiveWeekNums = Object.keys(effective)
+      .map(Number)
+      .filter((n) => !isNaN(n) && n >= 1);
+    const computedRange = Array.from(
+      { length: durWeeks },
+      (_, i) => startWeek + i,
+    );
+    return effectiveWeekNums.length > 0
+      ? [...new Set([...computedRange, ...effectiveWeekNums])].sort(
+          (a, b) => a - b,
+        )
+      : computedRange;
+  };
+
   const handleSaveWeeklyOverrides = async (moduleId) => {
     const overrides = weekOverrides[moduleId];
     if (!overrides || Object.keys(overrides).length === 0) return;
+    const mod = modules.find((m) => m._id === moduleId);
+    if (!mod) return;
+    const startWeek = mod.startWeek || 1;
+    const durWeeks = mod.durationWeeks || 0;
+    const officialRange = Array.from(
+      { length: durWeeks },
+      (_, i) => startWeek + i,
+    );
+    const baseRange = getModuleWeekRange(mod);
+    const overrideWeeks = Object.keys(overrides)
+      .map(Number)
+      .filter((n) => !isNaN(n) && n >= 1);
+    const weekRange = [...new Set([...baseRange, ...overrideWeeks])]
+      .filter((w) => officialRange.includes(w))
+      .sort((a, b) => a - b);
+    const effective = mod.effectiveWeeklyHours || mod.weeklyOverrides || {};
+    const fullOverrides = {};
+    for (const w of weekRange) {
+      const key = String(w);
+      const val = key in overrides ? overrides[key] : (effective[key] ?? 0);
+      fullOverrides[key] = typeof val === "number" ? val : Number(val) || 0;
+    }
+    const requiredSum = (mod.contactHours || 0) + (mod.assessmentHours || 0);
+    const actualSum = Object.values(fullOverrides).reduce((s, v) => s + v, 0);
+    if (Math.abs(actualSum - requiredSum) > 0.01) {
+      setError(t("errors.module.weekly_hours_invalid"));
+      return;
+    }
     try {
       setSavingId(moduleId);
-      await moduleService.update(moduleId, { weeklyOverrides: overrides });
+      setError("");
+      await academicService.updateProgramCurriculum(id, {
+        modules: [{ moduleId, weeklyOverrides: fullOverrides }],
+      });
       setWeekOverrides((prev) => {
         const next = { ...prev };
         delete next[moduleId];
@@ -366,18 +422,45 @@ function ProgramCurriculumPage() {
     }
   };
 
+  const handleResetCurriculum = async () => {
+    try {
+      setResetting(true);
+      setError("");
+      await academicService.deleteProgramCurriculum(id);
+      setResetModalOpen(false);
+      await fetchCurriculum();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setResetting(false);
+    }
+  };
+
+  const handleDeleteCurriculum = async () => {
+    try {
+      setDeleting(true);
+      setError("");
+      await academicService.deleteProgramCurriculum(id);
+      setDeleteModalOpen(false);
+      await fetchCurriculum();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const getWeekHours = (mod, weekNum) => {
     const key = String(weekNum);
     const overrides = weekOverrides[mod._id];
     if (overrides && key in overrides) return overrides[key];
     const effective = mod.effectiveWeeklyHours || mod.weeklyOverrides || {};
-    return effective[key] ?? "";
+    const val = effective[key];
+    return val === undefined || val === null ? "" : val;
   };
 
   if (loading) {
-    return (
-      <div className="p-8 text-lms-primary/80">{t("common.loading")}</div>
-    );
+    return <div className="p-8 text-lms-primary/80">{t("common.loading")}</div>;
   }
 
   if (error && !curriculum) {
@@ -419,12 +502,28 @@ function ProgramCurriculumPage() {
             {t("admin.curriculumTable")} • {totalWeeks} {t("admin.weeks")}
           </p>
         </div>
-        <button
-          onClick={() => setAddModalOpen(true)}
-          className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark"
-        >
-          {t("admin.addModuleToCurriculum")}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setResetModalOpen(true)}
+            disabled={modules.length === 0 || resetting}
+            className="px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 disabled:opacity-50"
+          >
+            {t("admin.resetCurriculum")}
+          </button>
+          <button
+            onClick={() => setDeleteModalOpen(true)}
+            disabled={modules.length === 0 || deleting}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+          >
+            {t("admin.deleteCurriculum")}
+          </button>
+          <button
+            onClick={() => setAddModalOpen(true)}
+            className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark"
+          >
+            {t("admin.addModuleToCurriculum")}
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -439,125 +538,117 @@ function ProgramCurriculumPage() {
             {t("admin.noModulesInProgram")}
           </div>
         ) : (
-          <table className="w-full min-w-[800px]">
-            <thead className="bg-lms-cream/30 border-b border-lms-cream">
+          <table className="w-full min-w-[800px] border-separate border-spacing-0">
+            <thead className="bg-lms-cream/30">
               <tr>
-                <th className="px-3 py-2 text-left text-xs font-medium text-lms-primary sticky left-0 bg-lms-cream/30">
+                <th className="px-3 py-2 text-left text-xs font-medium text-lms-primary sticky left-0 bg-lms-cream/30 border border-lms-cream">
                   {t("admin.moduleCode")}
                 </th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-lms-primary min-w-[140px]">
+                <th className="px-3 py-2 text-left text-xs font-medium text-lms-primary min-w-[140px] border border-lms-cream">
                   {t("common.name")}
                 </th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-lms-primary">
+                <th className="px-3 py-2 text-left text-xs font-medium text-lms-primary border border-lms-cream">
                   {t("admin.moduleType")}
                 </th>
-                <th className="px-3 py-2 text-center text-xs font-medium text-lms-primary">
+                <th className="px-3 py-2 text-center text-xs font-medium text-lms-primary border border-lms-cream">
                   Total
                 </th>
-                <th className="px-3 py-2 text-center text-xs font-medium text-lms-primary">
+                <th className="px-3 py-2 text-center text-xs font-medium text-lms-primary border border-lms-cream">
                   {t("admin.contactHours")}
                 </th>
-                <th className="px-3 py-2 text-center text-xs font-medium text-lms-primary">
+                <th className="px-3 py-2 text-center text-xs font-medium text-lms-primary border border-lms-cream">
                   {t("admin.independentHours")}
                 </th>
-                <th className="px-3 py-2 text-center text-xs font-medium text-lms-primary">
+                <th className="px-3 py-2 text-center text-xs font-medium text-lms-primary border border-lms-cream">
                   {t("admin.assessmentHours")}
                 </th>
-                <th className="px-3 py-2 text-center text-xs font-medium text-lms-primary">
+                <th className="px-3 py-2 text-center text-xs font-medium text-lms-primary border border-lms-cream">
                   {t("admin.durationWeeksModule")}
                 </th>
-                <th className="px-3 py-2 text-center text-xs font-medium text-lms-primary">
+                <th className="px-3 py-2 text-center text-xs font-medium text-lms-primary border border-lms-cream">
                   {t("admin.credits")}
                 </th>
                 {Array.from({ length: totalWeeks }, (_, i) => i + 1).map(
                   (w) => (
                     <th
                       key={w}
-                      className="px-2 py-2 text-center text-xs font-medium text-lms-primary/80 w-16"
-                      title={weekLabels[w - 1]}
+                      className="px-2 py-2 text-center text-xs font-medium text-lms-primary/80 w-16 border border-lms-cream"
+                      title={weekLabels?.[w - 1] || `Week ${w}`}
                     >
                       W{w}
                     </th>
-                  )
+                  ),
                 )}
-                <th className="px-3 py-2 text-center text-xs font-medium text-lms-primary w-20">
+                <th className="px-3 py-2 text-center text-xs font-medium text-lms-primary w-20 border border-lms-cream">
                   {t("common.save")}
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-lms-cream text-sm">
+            <tbody className="text-sm">
               {modules.map((mod) => {
                 const total =
                   (mod.contactHours || 0) +
                   (mod.independentHours || 0) +
                   (mod.assessmentHours || 0);
-                const startWeek = mod.startWeek || 1;
-                const durWeeks = mod.durationWeeks || 0;
-                const weekRange = Array.from(
-                  { length: durWeeks },
-                  (_, i) => startWeek + i
-                );
                 const hasOverrides =
                   weekOverrides[mod._id] &&
                   Object.keys(weekOverrides[mod._id]).length > 0;
 
                 return (
                   <tr key={mod._id} className="hover:bg-lms-cream/20">
-                    <td className="px-3 py-2 font-medium text-lms-primary sticky left-0 bg-white">
-                      {mod.code || "—"}
+                    <td className="px-3 py-2 font-medium text-lms-primary sticky left-0 bg-lms-cream/15 border border-lms-cream z-10">
+                      {mod.code || " "}
                     </td>
-                    <td className="px-3 py-2 text-lms-primary/90">
+                    <td className="px-3 py-2 text-lms-primary/90 bg-lms-cream/15 border border-lms-cream">
                       {mod.name}
                     </td>
-                    <td className="px-3 py-2 text-lms-primary/90">
+                    <td className="px-3 py-2 text-lms-primary/90 bg-lms-cream/15 border border-lms-cream">
                       {t(
-                        MODULE_TYPES.find((x) => x.value === mod.type)?.labelKey ||
-                          "admin.typeProfessional"
+                        MODULE_TYPES.find((x) => x.value === mod.type)
+                          ?.labelKey || "admin.typeProfessional",
                       )}
                     </td>
-                    <td className="px-3 py-2 text-center">{total}</td>
-                    <td className="px-3 py-2 text-center">
-                      {mod.contactHours ?? 0}
+                    <td className="px-3 py-2 text-center bg-lms-cream/15 border border-lms-cream">
+                      {total}
                     </td>
-                    <td className="px-3 py-2 text-center">
-                      {mod.independentHours ?? 0}
+                    <td className="px-3 py-2 text-center bg-lms-cream/15 border border-lms-cream">
+                      {mod.contactHours ?? ""}
                     </td>
-                    <td className="px-3 py-2 text-center">
-                      {mod.assessmentHours ?? 0}
+                    <td className="px-3 py-2 text-center bg-lms-cream/15 border border-lms-cream">
+                      {mod.independentHours ?? ""}
                     </td>
-                    <td className="px-3 py-2 text-center">
+                    <td className="px-3 py-2 text-center bg-lms-cream/15 border border-lms-cream">
+                      {mod.assessmentHours ?? ""}
+                    </td>
+                    <td className="px-3 py-2 text-center bg-lms-cream/15 border border-lms-cream">
                       {mod.durationWeeks ?? 0}
                     </td>
-                    <td className="px-3 py-2 text-center">
+                    <td className="px-3 py-2 text-center bg-lms-cream/15 border border-lms-cream">
                       {mod.credits ?? 0}
                     </td>
-                    {Array.from(
-                      { length: totalWeeks },
-                      (_, i) => i + 1
-                    ).map((w) => (
-                      <td key={w} className="px-1 py-1">
-                        {weekRange.includes(w) ? (
+                    {Array.from({ length: totalWeeks }, (_, i) => i + 1).map(
+                      (w) => (
+                        <td
+                          key={w}
+                          className="px-1 py-1 border border-lms-cream"
+                        >
                           <input
                             type="number"
                             min={0}
                             step={0.5}
-                            value={getWeekHours(mod, w)}
+                            value={getWeekHours(mod, w) ?? ""}
                             onChange={(e) =>
                               handleWeekChange(mod._id, w, e.target.value)
                             }
-                            className="w-12 px-1 py-0.5 border border-lms-cream rounded text-center text-xs"
+                            className="w-14 px-1 py-0.5 cursor-pointer rounded text-center text-xs bg-transparent"
                           />
-                        ) : (
-                          <span className="text-lms-primary/40">—</span>
-                        )}
-                      </td>
-                    ))}
-                    <td className="px-2 py-2">
+                        </td>
+                      ),
+                    )}
+                    <td className="px-2 py-2 border border-lms-cream">
                       <button
                         type="button"
-                        onClick={() =>
-                          handleSaveWeeklyOverrides(mod._id)
-                        }
+                        onClick={() => handleSaveWeeklyOverrides(mod._id)}
                         disabled={!hasOverrides || savingId === mod._id}
                         className="px-2 py-1 text-xs bg-lms-primary text-white rounded hover:bg-lms-primary-dark disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -583,6 +674,90 @@ function ProgramCurriculumPage() {
           onSaved={fetchCurriculum}
           t={t}
         />
+      )}
+
+      {resetModalOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={(e) =>
+            e.target === e.currentTarget && setResetModalOpen(false)
+          }
+          onKeyDown={(e) => e.key === "Escape" && setResetModalOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          tabIndex={-1}
+        >
+          <div
+            className="bg-white rounded-xl border border-lms-cream max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-semibold text-lms-primary mb-2">
+              {t("admin.resetCurriculum")}
+            </h2>
+            <p className="text-sm text-lms-primary/80 mb-4">
+              {t("admin.resetCurriculumConfirm")}
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setResetModalOpen(false)}
+                className="px-4 py-2 border border-lms-cream rounded-lg hover:bg-lms-cream/30"
+              >
+                {t("common.cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={handleResetCurriculum}
+                disabled={resetting}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+              >
+                {resetting ? t("common.loading") : t("admin.resetCurriculum")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteModalOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={(e) =>
+            e.target === e.currentTarget && setDeleteModalOpen(false)
+          }
+          onKeyDown={(e) => e.key === "Escape" && setDeleteModalOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          tabIndex={-1}
+        >
+          <div
+            className="bg-white rounded-xl border border-lms-cream max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-semibold text-red-700 mb-2">
+              {t("admin.deleteCurriculum")}
+            </h2>
+            <p className="text-sm text-lms-primary/80 mb-4">
+              {t("admin.deleteCurriculumConfirm")}
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setDeleteModalOpen(false)}
+                className="px-4 py-2 border border-lms-cream rounded-lg hover:bg-lms-cream/30"
+              >
+                {t("common.cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteCurriculum}
+                disabled={deleting}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+              >
+                {deleting ? t("common.loading") : t("admin.deleteCurriculum")}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

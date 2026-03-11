@@ -36,6 +36,10 @@ export const academicService = {
   getProgram: (id) => apiClient.get(endpoints.programs.getOne(id)),
   getProgramCurriculum: (id) =>
     apiClient.get(endpoints.programs.getCurriculum(id)),
+  updateProgramCurriculum: (id, data) =>
+    apiClient.put(endpoints.programs.updateCurriculum(id), data),
+  deleteProgramCurriculum: (id) =>
+    apiClient.delete(endpoints.programs.deleteCurriculum(id)),
   createProgram: (data) => apiClient.post(endpoints.programs.create, data),
   updateProgram: (id, data) =>
     apiClient.put(endpoints.programs.update(id), data),
