@@ -76,6 +76,7 @@ export const endpoints = {
     create: "/programs",
     getOne: (id) => `/programs/${id}`,
     getCurriculum: (id) => `/programs/${id}/curriculum`,
+    getCurriculumDownload: (id) => `/programs/${id}/curriculum/download`,
     updateCurriculum: (id) => `/programs/${id}/curriculum`,
     deleteCurriculum: (id) => `/programs/${id}/curriculum`,
     update: (id) => `/programs/${id}`,

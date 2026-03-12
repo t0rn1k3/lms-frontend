@@ -36,6 +36,38 @@ export const academicService = {
   getProgram: (id) => apiClient.get(endpoints.programs.getOne(id)),
   getProgramCurriculum: (id) =>
     apiClient.get(endpoints.programs.getCurriculum(id)),
+  downloadProgramCurriculum: async (id, locale) => {
+    try {
+      const lang = locale?.startsWith("ka") ? "ka" : "en";
+      const res = await apiClient.get(endpoints.programs.getCurriculumDownload(id), {
+        responseType: "blob",
+        params: { locale: lang },
+        headers: { "Accept-Language": lang },
+      });
+      const blob = res.data;
+      const disp = res.headers["content-disposition"] || "";
+      const quoted = disp.match(/filename="([^"]+)"/)?.[1];
+      const filename = quoted ? decodeURIComponent(quoted) : "curriculum.xlsx";
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      if (err.response?.data instanceof Blob) {
+        const text = await err.response.data.text();
+        let data = {};
+        try {
+          data = JSON.parse(text);
+        } catch (_) {}
+        const e = new Error(data?.message || "Download failed");
+        e.apiError = { messageKey: data?.messageKey, message: data?.message };
+        throw e;
+      }
+      throw err;
+    }
+  },
   updateProgramCurriculum: (id, data) =>
     apiClient.put(endpoints.programs.updateCurriculum(id), data),
   deleteProgramCurriculum: (id) =>

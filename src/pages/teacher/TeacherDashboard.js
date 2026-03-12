@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { examService, examResultService, getErrorMessage } from "../../api";
+import {
+  examService,
+  examResultService,
+  teacherService,
+  moduleService,
+  getErrorMessage,
+} from "../../api";
 
 const KPI_ICON_SIZE = "w-8 h-8";
 const IconDocument = ({ className = "" }) => (
@@ -158,6 +164,7 @@ function TeacherDashboard() {
     gradedResults: 0,
     publishedResults: 0,
   });
+  const [teacherPrograms, setTeacherPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -165,9 +172,10 @@ function TeacherDashboard() {
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const [examsRes, resultsRes] = await Promise.all([
+        const [examsRes, resultsRes, profileRes] = await Promise.all([
           examService.list(),
           examResultService.teacherList().catch(() => ({ data: { data: [] } })),
+          teacherService.getProfile().catch(() => ({ data: {} })),
         ]);
 
         const examsData = examsRes.data?.data ?? examsRes.data ?? [];
@@ -195,6 +203,25 @@ function TeacherDashboard() {
           gradedResults,
           publishedResults,
         });
+
+        const teacher = profileRes.data?.data ?? profileRes.data ?? {};
+        const teacherId = teacher._id;
+        if (teacherId) {
+          const modulesRes = await moduleService.list({ teacher: teacherId }).catch(() => ({ data: { data: [] } }));
+          const modules = modulesRes.data?.data ?? modulesRes.data ?? [];
+          const programMap = new Map();
+          modules.forEach((m) => {
+            const prog = m.program;
+            const id = typeof prog === "object" ? prog?._id : prog;
+            const name = typeof prog === "object" ? prog?.name : undefined;
+            if (id && !programMap.has(id)) {
+              programMap.set(id, { _id: id, name: name || id });
+            }
+          });
+          setTeacherPrograms(Array.from(programMap.values()));
+        } else {
+          setTeacherPrograms([]);
+        }
       } catch (err) {
         setError(getErrorMessage(err));
       } finally {
@@ -318,6 +345,32 @@ function TeacherDashboard() {
           </div>
         ))}
       </div>
+
+      {/* Curriculum section: show programs teacher teaches */}
+      {teacherPrograms.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-lg font-bold text-lms-primary mb-4">
+            {t("teacher.myCurricula")}
+          </h2>
+          <div className="bg-white rounded-xl border border-lms-cream shadow-sm p-6">
+            <p className="text-sm text-lms-primary/80 mb-4">
+              {t("teacher.curriculaViewOnly")}
+            </p>
+            <ul className="space-y-2">
+              {teacherPrograms.map((prog) => (
+                <li key={prog._id}>
+                  <Link
+                    to={`/teacher/curriculum/${prog._id}`}
+                    className="text-lms-primary font-medium hover:text-lms-primary-dark hover:underline"
+                  >
+                    {prog.name || prog._id} → {t("teacher.viewCurriculum")}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
 
       {/* Bottom section: Feature cards */}
       <div className="grid md:grid-cols-3 gap-6">

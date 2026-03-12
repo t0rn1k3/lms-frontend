@@ -309,8 +309,8 @@ function AddModuleModal({
   );
 }
 
-function ProgramCurriculumPage() {
-  const { t } = useTranslation();
+function ProgramCurriculumPage({ readOnly = false, backTo = "/admin/programs", backLabel = "admin.programs" }) {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const [curriculum, setCurriculum] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -321,6 +321,7 @@ function ProgramCurriculumPage() {
   const [savingId, setSavingId] = useState(null);
   const [resetting, setResetting] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [weekOverrides, setWeekOverrides] = useState({});
 
   const fetchCurriculum = useCallback(async () => {
@@ -436,6 +437,18 @@ function ProgramCurriculumPage() {
     }
   };
 
+  const handleDownloadCurriculum = async () => {
+    try {
+      setDownloading(true);
+      setError("");
+      await academicService.downloadProgramCurriculum(id, i18n.language);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   const handleDeleteCurriculum = async () => {
     try {
       setDeleting(true);
@@ -487,10 +500,10 @@ function ProgramCurriculumPage() {
   return (
     <div>
       <Link
-        to="/admin/programs"
+        to={backTo}
         className="inline-block mb-6 text-lms-primary/90 hover:text-lms-primary"
       >
-        ← {t("admin.programs")}
+        ← {t(backLabel)}
       </Link>
 
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
@@ -504,25 +517,37 @@ function ProgramCurriculumPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => setResetModalOpen(true)}
-            disabled={modules.length === 0 || resetting}
-            className="px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 disabled:opacity-50"
+            type="button"
+            onClick={handleDownloadCurriculum}
+            disabled={modules.length === 0 || downloading}
+            className="px-4 py-2 border border-lms-primary/40 text-lms-primary rounded-lg hover:bg-lms-cream/30 disabled:opacity-50"
           >
-            {t("admin.resetCurriculum")}
+            {downloading ? t("common.loading") : t("admin.downloadCurriculum")}
           </button>
-          <button
-            onClick={() => setDeleteModalOpen(true)}
-            disabled={modules.length === 0 || deleting}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
-          >
-            {t("admin.deleteCurriculum")}
-          </button>
-          <button
-            onClick={() => setAddModalOpen(true)}
-            className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark"
-          >
-            {t("admin.addModuleToCurriculum")}
-          </button>
+          {!readOnly && (
+            <>
+              <button
+                onClick={() => setResetModalOpen(true)}
+                disabled={modules.length === 0 || resetting}
+                className="px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 disabled:opacity-50"
+              >
+                {t("admin.resetCurriculum")}
+              </button>
+              <button
+                onClick={() => setDeleteModalOpen(true)}
+                disabled={modules.length === 0 || deleting}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+              >
+                {t("admin.deleteCurriculum")}
+              </button>
+              <button
+                onClick={() => setAddModalOpen(true)}
+                className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark"
+              >
+                {t("admin.addModuleToCurriculum")}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -579,9 +604,11 @@ function ProgramCurriculumPage() {
                     </th>
                   ),
                 )}
-                <th className="px-3 py-2 text-center text-xs font-medium text-lms-primary w-20 border border-lms-cream">
-                  {t("common.save")}
-                </th>
+                {!readOnly && (
+                  <th className="px-3 py-2 text-center text-xs font-medium text-lms-primary w-20 border border-lms-cream">
+                    {t("common.save")}
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="text-sm">
@@ -632,31 +659,39 @@ function ProgramCurriculumPage() {
                           key={w}
                           className="px-1 py-1 border border-lms-cream"
                         >
-                          <input
-                            type="number"
-                            min={0}
-                            step={0.5}
-                            value={getWeekHours(mod, w) ?? ""}
-                            onChange={(e) =>
-                              handleWeekChange(mod._id, w, e.target.value)
-                            }
-                            className="w-14 px-1 py-0.5 cursor-pointer rounded text-center text-xs bg-transparent"
-                          />
+                          {readOnly ? (
+                            <span className="text-xs">
+                              {getWeekHours(mod, w) ?? ""}
+                            </span>
+                          ) : (
+                            <input
+                              type="number"
+                              min={0}
+                              step={0.5}
+                              value={getWeekHours(mod, w) ?? ""}
+                              onChange={(e) =>
+                                handleWeekChange(mod._id, w, e.target.value)
+                              }
+                              className="w-14 px-1 py-0.5 cursor-pointer rounded text-center text-xs bg-transparent"
+                            />
+                          )}
                         </td>
                       ),
                     )}
-                    <td className="px-2 py-2 border border-lms-cream">
-                      <button
-                        type="button"
-                        onClick={() => handleSaveWeeklyOverrides(mod._id)}
-                        disabled={!hasOverrides || savingId === mod._id}
-                        className="px-2 py-1 text-xs bg-lms-primary text-white rounded hover:bg-lms-primary-dark disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {savingId === mod._id
-                          ? t("common.loading")
-                          : t("common.save")}
-                      </button>
-                    </td>
+                    {!readOnly && (
+                      <td className="px-2 py-2 border border-lms-cream">
+                        <button
+                          type="button"
+                          onClick={() => handleSaveWeeklyOverrides(mod._id)}
+                          disabled={!hasOverrides || savingId === mod._id}
+                          className="px-2 py-1 text-xs bg-lms-primary text-white rounded hover:bg-lms-primary-dark disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {savingId === mod._id
+                            ? t("common.loading")
+                            : t("common.save")}
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 );
               })}
@@ -665,7 +700,7 @@ function ProgramCurriculumPage() {
         )}
       </div>
 
-      {addModalOpen && (
+      {!readOnly && addModalOpen && (
         <AddModuleModal
           programId={id}
           programs={[]}
@@ -718,7 +753,7 @@ function ProgramCurriculumPage() {
         </div>
       )}
 
-      {deleteModalOpen && (
+      {!readOnly && deleteModalOpen && (
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
           onClick={(e) =>

@@ -23,6 +23,7 @@ import StudentDetailPage from "./pages/admin/StudentDetailPage";
 import ExamResultsPage from "./pages/admin/ExamResultsPage";
 import QuestionsPage from "./pages/admin/QuestionsPage";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
+import TeacherCurriculumPage from "./pages/teacher/TeacherCurriculumPage";
 import TeacherExamsPage from "./pages/teacher/ExamsPage";
 import TeacherExamDetailPage from "./pages/teacher/ExamDetailPage";
 import TeacherProfilePage from "./pages/teacher/ProfilePage";
@@ -103,6 +104,7 @@ function App() {
             }
           >
             <Route index element={<TeacherDashboard />} />
+            <Route path="curriculum/:id" element={<TeacherCurriculumPage />} />
             <Route path="exams/:id" element={<TeacherExamDetailPage />} />
             <Route path="exams" element={<TeacherExamsPage />} />
             <Route path="exam-results/:id" element={<TeacherExamResultDetailPage />} />

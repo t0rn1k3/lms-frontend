@@ -26,7 +26,6 @@ function TeacherChips({ teachers }) {
 function ProgramsPage() {
   const { t } = useTranslation();
   const [programs, setPrograms] = useState([]);
-  const [classLevels, setClassLevels] = useState([]);
   const [yearGroups, setYearGroups] = useState([]);
   const [expandedProgramId, setExpandedProgramId] = useState(null);
   const [programModules, setProgramModules] = useState([]);
@@ -41,8 +40,6 @@ function ProgramsPage() {
     duration: "4 years",
     durationWeeks: "",
     startDate: "",
-    holidays: [],
-    classLevels: [],
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -58,15 +55,6 @@ function ProgramsPage() {
     }
   };
 
-  const fetchClassLevels = async () => {
-    try {
-      const { data } = await academicService.getClassLevels();
-      setClassLevels(data.data || []);
-    } catch (err) {
-      console.error("Failed to fetch class levels:", err);
-    }
-  };
-
   const fetchYearGroups = async () => {
     try {
       const { data } = await academicService.getYearGroups();
@@ -78,7 +66,6 @@ function ProgramsPage() {
 
   useEffect(() => {
     fetchPrograms();
-    fetchClassLevels();
     fetchYearGroups();
   }, []);
 
@@ -97,18 +84,12 @@ function ProgramsPage() {
       duration: "4 years",
       durationWeeks: "",
       startDate: "",
-      holidays: [],
-      classLevels: [],
     });
     setFormOpen(true);
   };
 
   const openEditForm = (item) => {
     setEditingId(item._id);
-    const levelIds = (item.classLevels || []).map((l) =>
-      typeof l === "object" ? l._id : l,
-    );
-    const holidays = item.holidays || [];
     setFormData({
       name: item.name || "",
       description: item.description || "",
@@ -117,8 +98,6 @@ function ProgramsPage() {
       startDate: item.startDate
         ? new Date(item.startDate).toISOString().slice(0, 10)
         : "",
-      holidays: Array.isArray(holidays) ? [...holidays] : [],
-      classLevels: levelIds,
     });
     setFormOpen(true);
   };
@@ -131,28 +110,6 @@ function ProgramsPage() {
     );
   };
 
-  const addHoliday = () => {
-    setFormData((prev) => ({
-      ...prev,
-      holidays: [...prev.holidays, ""],
-    }));
-  };
-
-  const updateHoliday = (index, value) => {
-    setFormData((prev) => {
-      const next = [...prev.holidays];
-      next[index] = value;
-      return { ...prev, holidays: next };
-    });
-  };
-
-  const removeHoliday = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      holidays: prev.holidays.filter((_, i) => i !== index),
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -162,13 +119,10 @@ function ProgramsPage() {
         name: formData.name.trim(),
         description: formData.description.trim(),
         duration: formData.duration.trim(),
-        classLevels: formData.classLevels,
       };
       const dw = Number(formData.durationWeeks);
       if (!Number.isNaN(dw) && dw > 0) payload.durationWeeks = dw;
       if (formData.startDate) payload.startDate = formData.startDate;
-      if (formData.holidays?.length)
-        payload.holidays = formData.holidays.filter(Boolean);
       if (editingId) {
         await academicService.updateProgram(editingId, payload);
       } else {
@@ -318,64 +272,6 @@ function ProgramsPage() {
                 }
                 className="w-full px-3 py-2 border border-lms-cream rounded-lg"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-lms-primary mb-2">
-                {t("admin.holidays")} ({t("common.optional")})
-              </label>
-              <div className="space-y-2">
-                {formData.holidays.map((h, idx) => (
-                  <div key={idx} className="flex gap-2">
-                    <input
-                      type="date"
-                      value={h}
-                      onChange={(e) => updateHoliday(idx, e.target.value)}
-                      className="flex-1 px-3 py-2 border border-lms-cream rounded-lg"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeHoliday(idx)}
-                      className="px-2 py-1 text-red-600 hover:text-red-800"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={addHoliday}
-                  className="text-sm px-2 py-1 bg-lms-cream rounded hover:bg-lms-cream/80 text-lms-primary"
-                >
-                  + {t("admin.addHoliday")}
-                </button>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-lms-primary mb-2">
-                {t("admin.classLevelsOrderMatters")}
-              </label>
-              <div className="border border-lms-cream rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
-                {classLevels.length === 0 ? (
-                  <p className="text-sm text-lms-primary/80">
-                    {t("admin.noClassLevelsCreateFirst")}
-                  </p>
-                ) : (
-                  classLevels.map((level) => (
-                    <label
-                      key={level._id}
-                      className="flex items-center gap-2 cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={formData.classLevels.includes(level._id)}
-                        onChange={() => toggleClassLevel(level._id)}
-                        className="rounded border-lms-cream"
-                      />
-                      <span className="text-lms-primary">{level.name}</span>
-                    </label>
-                  ))
-                )}
-              </div>
             </div>
             <div className="flex gap-2">
               <button
