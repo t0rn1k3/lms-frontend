@@ -7,6 +7,9 @@ import {
   getErrorMessage,
 } from "../../api";
 
+// LEARNING_OUTCOMES_DISABLED: hide for now; restore when implementing criteria grading
+const LEARNING_OUTCOMES_DISABLED = true;
+
 function getRefName(val, key = "name") {
   if (!val) return "—";
   return typeof val === "object" ? val?.[key] || val?._id : val;
@@ -249,25 +252,28 @@ function ModulesPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    const los = formData.learningOutcomes || [];
-    const validLos = los
-      .map((lo) => ({
-        id: lo.id,
-        order: Number(lo.order) || 0,
-        name: (lo.name || "").trim(),
-        description: (lo.description || "").trim(),
-        criteria: (lo.criteria || [])
-          .filter((c) => c.name?.trim())
-          .map((c) => ({
-            id: c.id,
-            name: c.name.trim(),
-            description: (c.description || "").trim(),
-          })),
-      }))
-      .filter((lo) => lo.name && lo.criteria.length > 0);
-    if (validLos.length === 0) {
-      setError(t("admin.noLearningOutcomesYet"));
-      return;
+    let validLos = [];
+    if (!LEARNING_OUTCOMES_DISABLED) {
+      const los = formData.learningOutcomes || [];
+      validLos = los
+        .map((lo) => ({
+          id: lo.id,
+          order: Number(lo.order) || 0,
+          name: (lo.name || "").trim(),
+          description: (lo.description || "").trim(),
+          criteria: (lo.criteria || [])
+            .filter((c) => c.name?.trim())
+            .map((c) => ({
+              id: c.id,
+              name: c.name.trim(),
+              description: (c.description || "").trim(),
+            })),
+        }))
+        .filter((lo) => lo.name && lo.criteria.length > 0);
+      if (validLos.length === 0) {
+        setError(t("admin.noLearningOutcomesYet"));
+        return;
+      }
     }
     setSubmitting(true);
     try {
@@ -284,7 +290,7 @@ function ModulesPage() {
         credits: Number(formData.credits) || 0,
         startWeek: Number(formData.startWeek) || 1,
         teachers: formData.teachers || [],
-        learningOutcomes: validLos,
+        learningOutcomes: LEARNING_OUTCOMES_DISABLED ? (formData.learningOutcomes || []) : validLos,
       };
       if (formData.code?.trim()) payload.code = formData.code.trim();
       if (editingId) {
@@ -647,98 +653,101 @@ function ModulesPage() {
               </p>
             </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-lms-primary">
-                  {t("admin.learningOutcomes")}
-                </label>
-                <button
-                  type="button"
-                  onClick={addLearningOutcome}
-                  className="text-sm px-2 py-1 bg-lms-cream rounded hover:bg-lms-cream/80 text-lms-primary"
-                >
-                  + {t("admin.addLearningOutcome")}
-                </button>
-              </div>
-              <div className="space-y-4">
-                {(formData.learningOutcomes || []).map((lo, loIdx) => (
-                  <div
-                    key={lo.id}
-                    className="p-4 border border-lms-cream rounded-lg bg-lms-cream/20 space-y-3"
+            {/* LEARNING_OUTCOMES_DISABLED: restore when implementing criteria grading */}
+            {!LEARNING_OUTCOMES_DISABLED && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-lms-primary">
+                    {t("admin.learningOutcomes")}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addLearningOutcome}
+                    className="text-sm px-2 py-1 bg-lms-cream rounded hover:bg-lms-cream/80 text-lms-primary"
                   >
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <input
-                        type="number"
-                        min={1}
-                        value={lo.order ?? loIdx + 1}
-                        onChange={(e) =>
-                          updateLearningOutcome(loIdx, "order", e.target.value)
-                        }
-                        className="w-14 px-2 py-1 border border-lms-cream rounded text-sm"
-                      />
-                      <input
-                        type="text"
-                        value={lo.name || ""}
-                        onChange={(e) =>
-                          updateLearningOutcome(loIdx, "name", e.target.value)
-                        }
-                        placeholder={t("admin.learningOutcome")}
-                        className="flex-1 min-w-[160px] px-2 py-1.5 border border-lms-cream rounded text-sm"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeLearningOutcome(loIdx)}
-                        disabled={(formData.learningOutcomes || []).length <= 1}
-                        className="text-red-600 hover:text-red-800 text-sm disabled:opacity-50"
-                      >
-                        {t("admin.removeLearningOutcome")}
-                      </button>
-                    </div>
-                    <div className="pl-2 border-l-2 border-lms-primary/30 space-y-2">
-                      <span className="text-xs font-medium text-lms-primary/80">
-                        {t("admin.criteria")}
-                      </span>
-                      {(lo.criteria || []).map((c, cIdx) => (
-                        <div
-                          key={c.id}
-                          className="flex justify-between items-center gap-2"
+                    + {t("admin.addLearningOutcome")}
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  {(formData.learningOutcomes || []).map((lo, loIdx) => (
+                    <div
+                      key={lo.id}
+                      className="p-4 border border-lms-cream rounded-lg bg-lms-cream/20 space-y-3"
+                    >
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <input
+                          type="number"
+                          min={1}
+                          value={lo.order ?? loIdx + 1}
+                          onChange={(e) =>
+                            updateLearningOutcome(loIdx, "order", e.target.value)
+                          }
+                          className="w-14 px-2 py-1 border border-lms-cream rounded text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={lo.name || ""}
+                          onChange={(e) =>
+                            updateLearningOutcome(loIdx, "name", e.target.value)
+                          }
+                          placeholder={t("admin.learningOutcome")}
+                          className="flex-1 min-w-[160px] px-2 py-1.5 border border-lms-cream rounded text-sm"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeLearningOutcome(loIdx)}
+                          disabled={(formData.learningOutcomes || []).length <= 1}
+                          className="text-red-600 hover:text-red-800 text-sm disabled:opacity-50"
                         >
-                          <input
-                            type="text"
-                            value={c.name || ""}
-                            onChange={(e) =>
-                              updateCriterion(loIdx, cIdx, "name", e.target.value)
-                            }
-                            placeholder={t("admin.criterionNamePlaceholder")}
-                            className="flex-1 px-2 py-1.5 border border-lms-cream rounded text-sm"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeCriterion(loIdx, cIdx)}
-                            disabled={(lo.criteria || []).length <= 1}
-                            className="text-red-600 hover:text-red-800 text-sm disabled:opacity-50"
+                          {t("admin.removeLearningOutcome")}
+                        </button>
+                      </div>
+                      <div className="pl-2 border-l-2 border-lms-primary/30 space-y-2">
+                        <span className="text-xs font-medium text-lms-primary/80">
+                          {t("admin.criteria")}
+                        </span>
+                        {(lo.criteria || []).map((c, cIdx) => (
+                          <div
+                            key={c.id}
+                            className="flex justify-between items-center gap-2"
                           >
-                            {t("common.delete")}
-                          </button>
-                        </div>
-                      ))}
-                      <button
-                        type="button"
-                        onClick={() => addCriterion(loIdx)}
-                        className="text-sm px-2 py-1 bg-lms-cream rounded hover:bg-lms-cream/80 text-lms-primary"
-                      >
-                        + {t("admin.addCriterion")}
-                      </button>
+                            <input
+                              type="text"
+                              value={c.name || ""}
+                              onChange={(e) =>
+                                updateCriterion(loIdx, cIdx, "name", e.target.value)
+                              }
+                              placeholder={t("admin.criterionNamePlaceholder")}
+                              className="flex-1 px-2 py-1.5 border border-lms-cream rounded text-sm"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeCriterion(loIdx, cIdx)}
+                              disabled={(lo.criteria || []).length <= 1}
+                              className="text-red-600 hover:text-red-800 text-sm disabled:opacity-50"
+                            >
+                              {t("common.delete")}
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => addCriterion(loIdx)}
+                          className="text-sm px-2 py-1 bg-lms-cream rounded hover:bg-lms-cream/80 text-lms-primary"
+                        >
+                          + {t("admin.addCriterion")}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                {(formData.learningOutcomes || []).length === 0 && (
-                  <p className="text-sm text-lms-primary/70">
-                    {t("admin.noLearningOutcomesYet")}
-                  </p>
-                )}
+                  ))}
+                  {(formData.learningOutcomes || []).length === 0 && (
+                    <p className="text-sm text-lms-primary/70">
+                      {t("admin.noLearningOutcomesYet")}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex gap-2">
               <button
