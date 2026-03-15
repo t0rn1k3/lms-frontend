@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { clearAllCache } from "../utils/schoolCache";
 
 /**
  * Auth store: token + role in Zustand state and localStorage.
@@ -20,12 +21,14 @@ export const useAuthStore = create(
           user: user || { name: "", email: "" },
         }),
 
-      logout: () =>
+      logout: () => {
+        clearAllCache();
         set({
           token: null,
           user: null,
           role: null,
-        }),
+        });
+      },
 
       updateUser: (user) => set({ user }),
     }),

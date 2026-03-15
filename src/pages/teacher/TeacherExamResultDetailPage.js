@@ -10,6 +10,20 @@ function getRefName(val, key = "name") {
   return typeof val === "object" ? val?.[key] || val?._id : val;
 }
 
+/** Extract criteria from module: top-level criteria or flattened from learningOutcomes */
+function getModuleCriteria(mod) {
+  if (!mod) return [];
+  if (Array.isArray(mod.criteria) && mod.criteria.length > 0) {
+    return mod.criteria;
+  }
+  const los = mod.learningOutcomes || [];
+  return los.flatMap((lo) => lo.criteria || []);
+}
+
+function getCriterionName(c, index) {
+  return c?.name || c?.criterionName || c?.title || c?.description || `Criterion ${index + 1}`;
+}
+
 function TeacherExamResultDetailPage() {
   const { t } = useTranslation();
   const { id } = useParams();
@@ -65,29 +79,27 @@ function TeacherExamResultDetailPage() {
             } else {
               let mod = typeof r?.exam?.module === "object" ? r.exam.module : null;
               const moduleId = mod?._id ?? (typeof r?.exam?.module === "string" ? r.exam.module : null);
-              if (moduleId && !(mod?.criteria?.length > 0)) {
+              if (moduleId) {
                 try {
                   const mRes = await moduleService.getOne(moduleId);
                   mod = mRes.data?.data ?? mRes.data ?? mod;
                 } catch {
-                  mod = mod || { criteria: [] };
+                  mod = mod || {};
                 }
               }
               setModule(mod);
-              criteria = mod?.criteria || [];
+              criteria = getModuleCriteria(mod);
             }
             const existing = r.criterionResults || [];
-            const prefill = criteria.map((c) => {
-              const cid = c.id || c._id;
+            const prefill = criteria.map((c, i) => {
+              const cid = c.id || c._id || `c-${i}`;
               const found = existing.find(
                 (e) => (e.criterionId || e.id) === cid
               );
               return {
                 criterionId: cid,
-                criterionName: c.name || "",
-                criterionDescription: c.description || "",
+                criterionName: getCriterionName(c, i),
                 passed: found ? found.passed : null,
-                notes: found?.notes || "",
               };
             });
             setCriterionResults(prefill);
@@ -130,15 +142,12 @@ function TeacherExamResultDetailPage() {
                 const found = r.criterionResults.find(
                   (e) => (e.criterionId || e.id) === p.criterionId
                 );
-                return found
-                  ? { ...p, passed: found.passed, notes: found.notes || "" }
-                  : p;
+                return found ? { ...p, passed: found.passed } : p;
               })
             : (r.criterionResults || []).map((e) => ({
                 criterionId: e.criterionId || e.id,
                 criterionName: e.criterionName || e.name || "",
                 passed: e.passed,
-                notes: e.notes || "",
               }))
         );
       }
@@ -391,25 +400,14 @@ function TeacherExamResultDetailPage() {
                 key={cr.criterionId}
                 className="p-4 border border-lms-cream rounded-lg bg-white"
               >
-                <p className="font-medium text-lms-primary mb-1">
+                <p className="font-medium text-lms-primary mb-3">
                   {cr.criterionName}
                 </p>
-                {(cr.criterionDescription ||
-                  (module?.criteria || []).find(
-                    (x) => (x.id || x._id) === cr.criterionId
-                  )?.description) ? (
-                  <p className="text-sm text-lms-primary/80 mb-3">
-                    {cr.criterionDescription ||
-                      (module?.criteria || []).find(
-                        (x) => (x.id || x._id) === cr.criterionId
-                      )?.description}
-                  </p>
-                ) : null}
                 <div className="flex flex-wrap items-center gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="radio"
-                      name={`criterion-${cr.criterionId}`}
+                      name={`criterion-result-${idx}`}
                       checked={cr.passed === true}
                       onChange={() => handleCriterionChange(idx, "passed", true)}
                       className="rounded-full border-lms-cream"
@@ -419,7 +417,7 @@ function TeacherExamResultDetailPage() {
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="radio"
-                      name={`criterion-${cr.criterionId}`}
+                      name={`criterion-result-${idx}`}
                       checked={cr.passed === false}
                       onChange={() => handleCriterionChange(idx, "passed", false)}
                       className="rounded-full border-lms-cream"
@@ -427,13 +425,6 @@ function TeacherExamResultDetailPage() {
                     <span className="text-sm text-red-700">{t("student.passedNo")}</span>
                   </label>
                 </div>
-                <input
-                  type="text"
-                  value={cr.notes}
-                  onChange={(e) => handleCriterionChange(idx, "notes", e.target.value)}
-                  placeholder={t("teacher.notesOptionalPlaceholder")}
-                  className="mt-2 w-full px-3 py-2 border border-lms-cream rounded-lg text-sm"
-                />
               </div>
             ))}
             {criterionResults.length === 0 && module && (

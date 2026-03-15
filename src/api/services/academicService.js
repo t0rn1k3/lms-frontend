@@ -1,5 +1,11 @@
 import apiClient from "../apiClient";
 import { endpoints } from "../endpoints";
+import { getCachedOrFetch, invalidateCache } from "../../utils/schoolCache";
+
+async function cachedFetcher(path) {
+  const res = await apiClient.get(path);
+  return res.data?.data ?? res.data;
+}
 
 export const academicService = {
   // Academic Years
@@ -22,17 +28,33 @@ export const academicService = {
   deleteAcademicTerm: (id) =>
     apiClient.delete(endpoints.academicTerms.delete(id)),
 
-  // Class Levels
-  getClassLevels: () => apiClient.get(endpoints.classLevels.list),
+  // Class Levels (cached)
+  getClassLevels: () =>
+    getCachedOrFetch("classLevels", endpoints.classLevels.list, cachedFetcher).then(
+      (data) => ({ data: { data } })
+    ),
   getClassLevel: (id) => apiClient.get(endpoints.classLevels.getOne(id)),
   createClassLevel: (data) =>
-    apiClient.post(endpoints.classLevels.create, data),
+    apiClient.post(endpoints.classLevels.create, data).then((res) => {
+      invalidateCache("classLevels");
+      return res;
+    }),
   updateClassLevel: (id, data) =>
-    apiClient.put(endpoints.classLevels.update(id), data),
-  deleteClassLevel: (id) => apiClient.delete(endpoints.classLevels.delete(id)),
+    apiClient.put(endpoints.classLevels.update(id), data).then((res) => {
+      invalidateCache("classLevels");
+      return res;
+    }),
+  deleteClassLevel: (id) =>
+    apiClient.delete(endpoints.classLevels.delete(id)).then((res) => {
+      invalidateCache("classLevels");
+      return res;
+    }),
 
-  // Programs
-  getPrograms: () => apiClient.get(endpoints.programs.list),
+  // Programs (cached)
+  getPrograms: () =>
+    getCachedOrFetch("programs", endpoints.programs.list, cachedFetcher).then(
+      (data) => ({ data: { data } })
+    ),
   getProgram: (id) => apiClient.get(endpoints.programs.getOne(id)),
   getProgramCurriculum: (id) =>
     apiClient.get(endpoints.programs.getCurriculum(id)),
@@ -69,28 +91,72 @@ export const academicService = {
     }
   },
   updateProgramCurriculum: (id, data) =>
-    apiClient.put(endpoints.programs.updateCurriculum(id), data),
+    apiClient.put(endpoints.programs.updateCurriculum(id), data).then((res) => {
+      invalidateCache("programs");
+      return res;
+    }),
   deleteProgramCurriculum: (id) =>
-    apiClient.delete(endpoints.programs.deleteCurriculum(id)),
-  createProgram: (data) => apiClient.post(endpoints.programs.create, data),
+    apiClient.delete(endpoints.programs.deleteCurriculum(id)).then((res) => {
+      invalidateCache("programs");
+      return res;
+    }),
+  createProgram: (data) =>
+    apiClient.post(endpoints.programs.create, data).then((res) => {
+      invalidateCache("programs");
+      return res;
+    }),
   updateProgram: (id, data) =>
-    apiClient.put(endpoints.programs.update(id), data),
-  deleteProgram: (id) => apiClient.delete(endpoints.programs.delete(id)),
+    apiClient.put(endpoints.programs.update(id), data).then((res) => {
+      invalidateCache("programs");
+      return res;
+    }),
+  deleteProgram: (id) =>
+    apiClient.delete(endpoints.programs.delete(id)).then((res) => {
+      invalidateCache("programs");
+      return res;
+    }),
 
-  // Subjects (create requires programId in URL)
-  getSubjects: () => apiClient.get(endpoints.subjects.list),
+  // Subjects (cached)
+  getSubjects: () =>
+    getCachedOrFetch("subjects", endpoints.subjects.list, cachedFetcher).then(
+      (data) => ({ data: { data } })
+    ),
   getSubject: (id) => apiClient.get(endpoints.subjects.getOne(id)),
   createSubject: (programId, data) =>
-    apiClient.post(endpoints.subjects.create(programId), data),
+    apiClient.post(endpoints.subjects.create(programId), data).then((res) => {
+      invalidateCache("subjects");
+      return res;
+    }),
   updateSubject: (id, data) =>
-    apiClient.put(endpoints.subjects.update(id), data),
-  deleteSubject: (id) => apiClient.delete(endpoints.subjects.delete(id)),
+    apiClient.put(endpoints.subjects.update(id), data).then((res) => {
+      invalidateCache("subjects");
+      return res;
+    }),
+  deleteSubject: (id) =>
+    apiClient.delete(endpoints.subjects.delete(id)).then((res) => {
+      invalidateCache("subjects");
+      return res;
+    }),
 
-  // Year Groups
-  getYearGroups: () => apiClient.get(endpoints.yearGroups.list),
+  // Year Groups (cached)
+  getYearGroups: () =>
+    getCachedOrFetch("yearGroups", endpoints.yearGroups.list, cachedFetcher).then(
+      (data) => ({ data: { data } })
+    ),
   getYearGroup: (id) => apiClient.get(endpoints.yearGroups.getOne(id)),
-  createYearGroup: (data) => apiClient.post(endpoints.yearGroups.create, data),
+  createYearGroup: (data) =>
+    apiClient.post(endpoints.yearGroups.create, data).then((res) => {
+      invalidateCache("yearGroups");
+      return res;
+    }),
   updateYearGroup: (id, data) =>
-    apiClient.put(endpoints.yearGroups.update(id), data),
-  deleteYearGroup: (id) => apiClient.delete(endpoints.yearGroups.delete(id)),
+    apiClient.put(endpoints.yearGroups.update(id), data).then((res) => {
+      invalidateCache("yearGroups");
+      return res;
+    }),
+  deleteYearGroup: (id) =>
+    apiClient.delete(endpoints.yearGroups.delete(id)).then((res) => {
+      invalidateCache("yearGroups");
+      return res;
+    }),
 };
