@@ -64,10 +64,9 @@ function ResultDetailPage() {
 
   const answeredQuestions = result.answeredQuestions || [];
   const questionsById = new Map((result.exam?.questions || []).map((q) => [q._id, q]));
-  const passCriteriaType =
-    (typeof result.exam === "object" && result.exam?.passCriteriaType) ||
-    "percentage";
-  const isAllCriteria = passCriteriaType === "all-criteria";
+  // CRITERIA_DISABLED: always percentage - hide criteria results display
+  // const passCriteriaType = (typeof result.exam === "object" && result.exam?.passCriteriaType) || "percentage";
+  const isAllCriteria = false; // CRITERIA_DISABLED: was passCriteriaType === "all-criteria"
   const criterionResults = result.criterionResults || [];
 
   return (
@@ -133,6 +132,7 @@ function ResultDetailPage() {
         </div>
       </div>
 
+      {/* CRITERIA_DISABLED: criteria results - isAllCriteria forced to false above */}
       {isAllCriteria && criterionResults.length > 0 && (
         <>
           <h2 className="text-lg font-semibold text-lms-primary mb-4">

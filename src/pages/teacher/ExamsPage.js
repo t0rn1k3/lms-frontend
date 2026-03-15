@@ -205,7 +205,7 @@ function ExamsPage() {
         duration: formData.duration,
         examTime: formData.examTime,
         examType: formData.examType,
-        passCriteriaType: formData.passCriteriaType || "percentage",
+        passCriteriaType: "percentage", // CRITERIA_DISABLED: always percentage
         passMark: Number(formData.passMark),
         totalMark: Number(formData.totalMark),
       };
@@ -581,24 +581,15 @@ function ExamsPage() {
                   <option value="Final">{t("teacher.examTypeFinal")}</option>
                 </select>
               </div>
+              {/* CRITERIA_DISABLED: passCriteriaType dropdown - always use percentage
               <div>
-                <label className="block text-sm font-medium text-lms-primary mb-1">
-                  {t("teacher.passCriteriaType")}
-                </label>
-                <select
-                  value={formData.passCriteriaType}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      passCriteriaType: e.target.value,
-                    }))
-                  }
-                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
-                >
-                  <option value="percentage">{t("teacher.passCriteriaPercentage")}</option>
-                  <option value="all-criteria">{t("teacher.passCriteriaAllCriteria")}</option>
+                <label ...>{t("teacher.passCriteriaType")}</label>
+                <select value={formData.passCriteriaType} ...>
+                  <option value="percentage">...</option>
+                  <option value="all-criteria">...</option>
                 </select>
               </div>
+              */}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>

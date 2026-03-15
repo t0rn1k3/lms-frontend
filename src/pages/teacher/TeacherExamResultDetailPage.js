@@ -10,19 +10,10 @@ function getRefName(val, key = "name") {
   return typeof val === "object" ? val?.[key] || val?._id : val;
 }
 
-/** Extract criteria from module: top-level criteria or flattened from learningOutcomes */
-function getModuleCriteria(mod) {
-  if (!mod) return [];
-  if (Array.isArray(mod.criteria) && mod.criteria.length > 0) {
-    return mod.criteria;
-  }
-  const los = mod.learningOutcomes || [];
-  return los.flatMap((lo) => lo.criteria || []);
-}
-
-function getCriterionName(c, index) {
-  return c?.name || c?.criterionName || c?.title || c?.description || `Criterion ${index + 1}`;
-}
+/* CRITERIA_DISABLED: criteria helpers - restore with criteria UI
+function getModuleCriteria(mod) { ... }
+function getCriterionName(c, index) { ... }
+*/
 
 function TeacherExamResultDetailPage() {
   const { t } = useTranslation();
@@ -41,12 +32,11 @@ function TeacherExamResultDetailPage() {
     status: "Pending",
     remarks: "",
   });
-  const [criterionResults, setCriterionResults] = useState([]);
+  // CRITERIA_DISABLED: const [criterionResults, setCriterionResults] = useState([]);
 
-  const passCriteriaType =
-    (typeof result?.exam === "object" && result?.exam?.passCriteriaType) ||
-    "percentage";
-  const isAllCriteria = passCriteriaType === "all-criteria";
+  // CRITERIA_DISABLED: always percentage
+  // const passCriteriaType = (typeof result?.exam === "object" && result?.exam?.passCriteriaType) || "percentage";
+  const isAllCriteria = false; // CRITERIA_DISABLED: was passCriteriaType === "all-criteria"
 
   const isProjectResult =
     result?.submittedFile ||
@@ -63,54 +53,18 @@ function TeacherExamResultDetailPage() {
         const { data } = await examResultService.teacherGetOne(id);
         const r = data?.data ?? data;
         setResult(r);
-        const pt = (typeof r?.exam === "object" && r?.exam?.passCriteriaType) || "percentage";
-        const isAllCriteriaMode = pt === "all-criteria";
-
+        // CRITERIA_DISABLED: isAllCriteriaMode - always use percentage form
         if (
           r?.submittedFile ||
           (typeof r?.exam === "object" &&
             r?.exam?.examType === "project-submission")
         ) {
-          if (isAllCriteriaMode) {
-            const effectiveCriteria = r?.effectiveCriteria;
-            let criteria = [];
-            if (Array.isArray(effectiveCriteria) && effectiveCriteria.length > 0) {
-              criteria = effectiveCriteria;
-            } else {
-              let mod = typeof r?.exam?.module === "object" ? r.exam.module : null;
-              const moduleId = mod?._id ?? (typeof r?.exam?.module === "string" ? r.exam.module : null);
-              if (moduleId) {
-                try {
-                  const mRes = await moduleService.getOne(moduleId);
-                  mod = mRes.data?.data ?? mRes.data ?? mod;
-                } catch {
-                  mod = mod || {};
-                }
-              }
-              setModule(mod);
-              criteria = getModuleCriteria(mod);
-            }
-            const existing = r.criterionResults || [];
-            const prefill = criteria.map((c, i) => {
-              const cid = c.id || c._id || `c-${i}`;
-              const found = existing.find(
-                (e) => (e.criterionId || e.id) === cid
-              );
-              return {
-                criterionId: cid,
-                criterionName: getCriterionName(c, i),
-                passed: found ? found.passed : null,
-              };
-            });
-            setCriterionResults(prefill);
-          } else {
-            setProjectGrade({
+          setProjectGrade({
               score: r.score != null ? String(r.score) : "",
               totalMark: r.totalMark != null ? String(r.totalMark) : "",
               status: r.status || "Pending",
               remarks: r.remarks || "",
             });
-          }
         } else {
           const initial = {};
           (r.answeredQuestions || []).forEach((aq, idx) => {
@@ -134,23 +88,7 @@ function TeacherExamResultDetailPage() {
       const { data } = await examResultService.teacherGetOne(id);
       const r = data?.data ?? data;
       setResult(r);
-      const pt = (typeof r?.exam === "object" && r?.exam?.passCriteriaType) || "percentage";
-      if (pt === "all-criteria" && r?.criterionResults?.length) {
-        setCriterionResults((prev) =>
-          prev.length
-            ? prev.map((p) => {
-                const found = r.criterionResults.find(
-                  (e) => (e.criterionId || e.id) === p.criterionId
-                );
-                return found ? { ...p, passed: found.passed } : p;
-              })
-            : (r.criterionResults || []).map((e) => ({
-                criterionId: e.criterionId || e.id,
-                criterionName: e.criterionName || e.name || "",
-                passed: e.passed,
-              }))
-        );
-      }
+      // CRITERIA_DISABLED: criterionResults refresh removed
     } catch (err) {
       setError(getErrorMessage(err));
     }
@@ -243,38 +181,15 @@ function TeacherExamResultDetailPage() {
     }
   };
 
-  const handleCriterionChange = (index, field, value) => {
-    setCriterionResults((prev) => {
-      const next = [...prev];
-      next[index] = { ...next[index], [field]: value };
-      return next;
-    });
-  };
+  // CRITERIA_DISABLED: handleCriterionChange removed
 
   const handleProjectGradeSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSubmitting(true);
     try {
-      const pt = (typeof result?.exam === "object" && result?.exam?.passCriteriaType) || "percentage";
-      if (pt === "all-criteria") {
-        const hasUnset = criterionResults.some((c) => c.passed === null || c.passed === undefined);
-        if (hasUnset) {
-          setError(t("teacher.criterionResultsRequired"));
-          setSubmitting(false);
-          return;
-        }
-        const payload = {
-          criterionResults: criterionResults.map((c) => ({
-            criterionId: c.criterionId,
-            criterionName: c.criterionName,
-            passed: Boolean(c.passed),
-            ...(c.notes?.trim() && { notes: c.notes.trim() }),
-          })),
-        };
-        await examResultService.teacherGradeProject(id, payload);
-        await refreshResult();
-      } else {
+      // CRITERIA_DISABLED: all-criteria branch removed - always use percentage
+      {
         const scoreNum = Number(projectGrade.score);
         if (Number.isNaN(scoreNum) || scoreNum < 0) {
           setError(t("teacher.projectGradeScoreRequired"));
@@ -383,67 +298,8 @@ function TeacherExamResultDetailPage() {
           </p>
         )}
 
-      {isProjectResult && isAllCriteria && (
-        <form
-          onSubmit={handleProjectGradeSubmit}
-          className="mb-8 p-6 bg-lms-cream/30 rounded-xl border border-lms-cream max-w-2xl"
-        >
-          <h3 className="font-semibold text-lms-primary mb-4">
-            {t("teacher.gradeProject")} — {t("teacher.passCriteriaAllCriteria")}
-          </h3>
-          <p className="text-sm text-lms-primary/80 mb-4">
-            {t("teacher.criteriaChecklistHint")}
-          </p>
-          <div className="space-y-4 mb-6">
-            {criterionResults.map((cr, idx) => (
-              <div
-                key={cr.criterionId}
-                className="p-4 border border-lms-cream rounded-lg bg-white"
-              >
-                <p className="font-medium text-lms-primary mb-3">
-                  {cr.criterionName}
-                </p>
-                <div className="flex flex-wrap items-center gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name={`criterion-result-${idx}`}
-                      checked={cr.passed === true}
-                      onChange={() => handleCriterionChange(idx, "passed", true)}
-                      className="rounded-full border-lms-cream"
-                    />
-                    <span className="text-sm text-green-700">{t("student.passedYes")}</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name={`criterion-result-${idx}`}
-                      checked={cr.passed === false}
-                      onChange={() => handleCriterionChange(idx, "passed", false)}
-                      className="rounded-full border-lms-cream"
-                    />
-                    <span className="text-sm text-red-700">{t("student.passedNo")}</span>
-                  </label>
-                </div>
-              </div>
-            ))}
-            {criterionResults.length === 0 && module && (
-              <p className="text-sm text-lms-primary/70">
-                {t("teacher.noCriteriaInModule")}
-              </p>
-            )}
-          </div>
-          <button
-            type="submit"
-            disabled={submitting || criterionResults.length === 0}
-            className="px-4 py-2 bg-lms-primary text-white rounded-lg hover:bg-lms-primary-dark disabled:opacity-50"
-          >
-            {submitting ? t("common.saving") : t("teacher.saveGrade")}
-          </button>
-        </form>
-      )}
-
-      {isProjectResult && !isAllCriteria && (
+      {/* CRITERIA_DISABLED: criteria checklist form - always use percentage below */}
+      {isProjectResult && (
         <form
           onSubmit={handleProjectGradeSubmit}
           className="mb-8 p-6 bg-lms-cream/30 rounded-xl border border-lms-cream max-w-md"
