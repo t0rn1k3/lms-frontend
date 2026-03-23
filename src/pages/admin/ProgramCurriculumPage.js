@@ -345,12 +345,15 @@ function ProgramCurriculumPage({ readOnly = false, backTo = "/admin/programs", b
   }, [fetchCurriculum]);
 
   const handleWeekChange = (moduleId, weekNum, value) => {
-    const num = Math.max(0, Number(value) || 0);
+    // Keep cells editable: when user clears a value, preserve empty string
+    // instead of forcing 0 on each keystroke.
+    const normalizedValue =
+      value === "" ? "" : Math.max(0, Number(value) || 0);
     setWeekOverrides((prev) => ({
       ...prev,
       [moduleId]: {
         ...(prev[moduleId] || {}),
-        [String(weekNum)]: num,
+        [String(weekNum)]: normalizedValue,
       },
     }));
   };
@@ -378,18 +381,14 @@ function ProgramCurriculumPage({ readOnly = false, backTo = "/admin/programs", b
     if (!overrides || Object.keys(overrides).length === 0) return;
     const mod = modules.find((m) => m._id === moduleId);
     if (!mod) return;
-    const startWeek = mod.startWeek || 1;
-    const durWeeks = mod.durationWeeks || 0;
-    const officialRange = Array.from(
-      { length: durWeeks },
-      (_, i) => startWeek + i,
-    );
+    const programTotalWeeks =
+      curriculum?.totalWeeks || curriculum?.program?.durationWeeks || 0;
     const baseRange = getModuleWeekRange(mod);
     const overrideWeeks = Object.keys(overrides)
       .map(Number)
       .filter((n) => !isNaN(n) && n >= 1);
     const weekRange = [...new Set([...baseRange, ...overrideWeeks])]
-      .filter((w) => officialRange.includes(w))
+      .filter((w) => (programTotalWeeks > 0 ? w <= programTotalWeeks : true))
       .sort((a, b) => a - b);
     const effective = mod.effectiveWeeklyHours || mod.weeklyOverrides || {};
     const fullOverrides = {};
