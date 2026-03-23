@@ -387,8 +387,17 @@ function ProgramCurriculumPage({ readOnly = false, backTo = "/admin/programs", b
     const overrideWeeks = Object.keys(overrides)
       .map(Number)
       .filter((n) => !isNaN(n) && n >= 1);
+    // Cap by program length, but never drop weeks the user explicitly edited
+    // (e.g. split hours into W11 when API totalWeeks is still 10 — otherwise W11
+    // is filtered out, actualSum loses those hours, validation fails incorrectly).
+    const maxOverrideWeek =
+      overrideWeeks.length > 0 ? Math.max(...overrideWeeks) : 0;
+    const weekCap =
+      programTotalWeeks > 0
+        ? Math.max(programTotalWeeks, maxOverrideWeek)
+        : maxOverrideWeek || 0;
     const weekRange = [...new Set([...baseRange, ...overrideWeeks])]
-      .filter((w) => (programTotalWeeks > 0 ? w <= programTotalWeeks : true))
+      .filter((w) => (weekCap > 0 ? w <= weekCap : true))
       .sort((a, b) => a - b);
     const effective = mod.effectiveWeeklyHours || mod.weeklyOverrides || {};
     const fullOverrides = {};
