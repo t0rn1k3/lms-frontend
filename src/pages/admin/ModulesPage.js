@@ -425,22 +425,6 @@ function ModulesPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-lms-primary mb-1">
-                  {t("admin.moduleCode")}
-                </label>
-                <input
-                  type="text"
-                  value={formData.code}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, code: e.target.value }))
-                  }
-                  placeholder="M101"
-                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-lms-primary mb-1">
                   {t("admin.moduleType")}
                 </label>
                 <select
@@ -461,6 +445,23 @@ function ModulesPage() {
                     {t("admin.typeIntegratedGeneral")}
                   </option>
                 </select>
+              </div>
+             
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+            <div>
+                <label className="block text-sm font-medium text-lms-primary mb-1">
+                  {t("admin.moduleCode")}
+                </label>
+                <input
+                  type="text"
+                  value={formData.code}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, code: e.target.value }))
+                  }
+                  placeholder="M101"
+                  className="w-full px-3 py-2 border border-lms-cream rounded-lg"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-lms-primary mb-1">

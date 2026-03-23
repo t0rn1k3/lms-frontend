@@ -8,7 +8,6 @@ function ExamsPage() {
   const [exams, setExams] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [modules, setModules] = useState([]);
-  const [selectedModuleDetail, setSelectedModuleDetail] = useState(null);
   const [yearGroups, setYearGroups] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,8 +28,6 @@ function ExamsPage() {
     passCriteriaType: "percentage",
     passMark: 50,
     totalMark: 100,
-    scopeType: "all-los",
-    learningOutcomeIds: [],
   });
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -68,31 +65,14 @@ function ExamsPage() {
   const fetchModulesByProgram = useCallback(async (programId) => {
     if (!programId) {
       setModules([]);
-      setSelectedModuleDetail(null);
       return;
     }
     try {
       const { data } = await moduleService.list({ program: programId });
       setModules(data?.data ?? data ?? []);
-      setSelectedModuleDetail(null);
     } catch (err) {
       console.error("Failed to fetch modules:", err);
       setModules([]);
-      setSelectedModuleDetail(null);
-    }
-  }, []);
-
-  const fetchModuleDetail = useCallback(async (moduleId) => {
-    if (!moduleId) {
-      setSelectedModuleDetail(null);
-      return;
-    }
-    try {
-      const { data } = await moduleService.getOne(moduleId);
-      setSelectedModuleDetail(data?.data ?? data ?? null);
-    } catch (err) {
-      console.error("Failed to fetch module detail:", err);
-      setSelectedModuleDetail(null);
     }
   }, []);
 
@@ -126,11 +106,8 @@ function ExamsPage() {
       passCriteriaType: "percentage",
       passMark: 50,
       totalMark: 100,
-      scopeType: "all-los",
-      learningOutcomeIds: [],
     });
     setModules([]);
-    setSelectedModuleDetail(null);
     setFormOpen(true);
   };
 
@@ -140,10 +117,6 @@ function ExamsPage() {
     const programId = getRefId(item.program);
     const moduleId = getRefId(item.module);
     await fetchModulesByProgram(programId);
-    const scopeType = item.scopeType || "all-los";
-    const learningOutcomeIds = Array.isArray(item.learningOutcomeIds)
-      ? item.learningOutcomeIds
-      : [];
     setFormData({
       name: item.name || "",
       description: item.description || "",
@@ -160,10 +133,7 @@ function ExamsPage() {
       passCriteriaType: item.passCriteriaType || "percentage",
       passMark: item.passMark != null ? Number(item.passMark) : 50,
       totalMark: item.totalMark != null && item.totalMark > 0 ? Number(item.totalMark) : 100,
-      scopeType,
-      learningOutcomeIds,
     });
-    if (moduleId) await fetchModuleDetail(moduleId);
     setFormOpen(true);
   };
 
@@ -176,13 +146,6 @@ function ExamsPage() {
     }
     if (Number.isNaN(totalMarkNum) || totalMarkNum <= 0) {
       errs.totalMark = t("teacher.totalMarkValidation");
-    }
-    if (
-      formData.module &&
-      (formData.scopeType === "single-lo" || formData.scopeType === "multiple-los") &&
-      (!formData.learningOutcomeIds || formData.learningOutcomeIds.length === 0)
-    ) {
-      errs.learningOutcomes = t("teacher.selectLearningOutcomes");
     }
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
@@ -210,13 +173,6 @@ function ExamsPage() {
         totalMark: Number(formData.totalMark),
       };
       if (formData.examDate) payload.examDate = formData.examDate;
-      if (formData.module) {
-        payload.scopeType = formData.scopeType || "all-los";
-        payload.learningOutcomeIds =
-          formData.scopeType === "single-lo" || formData.scopeType === "multiple-los"
-            ? (formData.learningOutcomeIds || []).filter(Boolean)
-            : [];
-      }
       if (editingId) {
         await examService.update(editingId, payload);
       } else {
@@ -320,15 +276,11 @@ function ExamsPage() {
               </label>
               <select
                 value={formData.module}
-                onChange={async (e) => {
-                  const modId = e.target.value;
+                onChange={(e) => {
                   setFormData((prev) => ({
                     ...prev,
-                    module: modId,
-                    scopeType: "all-los",
-                    learningOutcomeIds: [],
+                    module: e.target.value,
                   }));
-                  await fetchModuleDetail(modId);
                 }}
                 required
                 disabled={!formData.program}
@@ -342,125 +294,6 @@ function ExamsPage() {
                 ))}
               </select>
             </div>
-            {formData.module && (
-              <div className="p-4 border border-lms-cream rounded-lg bg-lms-cream/20">
-                <label className="block text-sm font-medium text-lms-primary mb-2">
-                  {t("teacher.examScopeLabel")}
-                </label>
-                <div className="space-y-2 mb-3">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="scopeType"
-                      value="all-los"
-                      checked={formData.scopeType === "all-los"}
-                      onChange={() =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          scopeType: "all-los",
-                          learningOutcomeIds: [],
-                        }))
-                      }
-                    />
-                    <span>{t("teacher.examScopeAllLos")}</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="scopeType"
-                      value="single-lo"
-                      checked={formData.scopeType === "single-lo"}
-                      onChange={() =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          scopeType: "single-lo",
-                          learningOutcomeIds: prev.learningOutcomeIds?.[0] ? [prev.learningOutcomeIds[0]] : [],
-                        }))
-                      }
-                    />
-                    <span>{t("teacher.examScopeSingleLo")}</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="scopeType"
-                      value="multiple-los"
-                      checked={formData.scopeType === "multiple-los"}
-                      onChange={() =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          scopeType: "multiple-los",
-                          learningOutcomeIds: prev.learningOutcomeIds || [],
-                        }))
-                      }
-                    />
-                    <span>{t("teacher.examScopeMultipleLos")}</span>
-                  </label>
-                </div>
-                {(formData.scopeType === "single-lo" || formData.scopeType === "multiple-los") && (
-                  <div>
-                    <span className="text-sm text-lms-primary/80 block mb-2">
-                      {t("teacher.selectLearningOutcomes")}
-                    </span>
-                    <div className="space-y-1 max-h-32 overflow-y-auto">
-                      {(
-                        (selectedModuleDetail?.learningOutcomes || []).length > 0
-                          ? selectedModuleDetail.learningOutcomes
-                          : (modules.find((m) => m._id === formData.module)?.learningOutcomes || [])
-                      )
-                        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-                        .map((lo) => {
-                          const loId = lo.id || lo._id;
-                          const checked = (formData.learningOutcomeIds || []).includes(loId);
-                          const toggle = () => {
-                            if (formData.scopeType === "single-lo") {
-                              setFormData((prev) => ({
-                                ...prev,
-                                learningOutcomeIds: checked ? [] : [loId],
-                              }));
-                            } else {
-                              setFormData((prev) => ({
-                                ...prev,
-                                learningOutcomeIds: checked
-                                  ? (prev.learningOutcomeIds || []).filter((id) => id !== loId)
-                                  : [...(prev.learningOutcomeIds || []), loId],
-                              }));
-                            }
-                          };
-                          return (
-                            <label
-                              key={loId}
-                              className="flex items-center gap-2 cursor-pointer"
-                            >
-                              <input
-                                type={formData.scopeType === "single-lo" ? "radio" : "checkbox"}
-                                name={formData.scopeType === "single-lo" ? "singleLo" : undefined}
-                                checked={checked}
-                                onChange={toggle}
-                                className="rounded border-lms-cream"
-                              />
-                              <span className="text-sm text-lms-primary">
-                                {lo.order}. {lo.name || loId}
-                              </span>
-                            </label>
-                          );
-                        })}
-                    </div>
-                    {((selectedModuleDetail?.learningOutcomes || []).length === 0 &&
-                      (modules.find((m) => m._id === formData.module)?.learningOutcomes || []).length === 0) && (
-                      <p className="text-sm text-lms-primary/70 mt-1">
-                        {t("admin.noLearningOutcomesYet")}
-                      </p>
-                    )}
-                    {fieldErrors.learningOutcomes && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {fieldErrors.learningOutcomes}
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-lms-primary mb-1">
